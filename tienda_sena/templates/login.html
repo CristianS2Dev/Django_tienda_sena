@@ -1,3 +1,4 @@
+
 {% load static %}
 
 {% block main %}
@@ -16,13 +17,11 @@
             {% csrf_token %}
             <div class="mb-3 position-relative">
                 <label for="correo" class="form-label">Email</label>
-                <input type="email" name="correo" class="form-control" id="correo" placeholder="Ingresa tu correo">
-                <div class="form-text">Email Incorrecto</div>
+                <input type="email" name="correo" class="form-control" id="correo" placeholder="Ingresa tu correo" required="">
             </div>
             <div class="mb-3 position-relative">
                 <label for="password" class="form-label">Contraseña</label>
-                <input type="password" name="password" class="form-control" id="password" placeholder="Ingresa tu contraseña">
-                <div class="form-text">Contraseña Incorrecta</div>
+                <input type="password" name="password" class="form-control" id="password" placeholder="Ingresa tu contraseña" required="">
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-success btn-lg ">Iniciar Sesion</button>
