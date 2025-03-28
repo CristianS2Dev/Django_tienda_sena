@@ -16,14 +16,15 @@
 
 ### CHANGELOG
 
+### Notes
+- el navbar y el footer solo son prototipos
 
 
 ### Added
-
- - Se agrego la carpeta productos y usuarios
- - Se agregaron los archivos login.html y registro.html en la carpeta usuarios.
- - Se agrego los archivos login.css y registro.css.
-
+- se agrega carpeta static
+- se agrega bootstrap al proyecto
+- se agrega la base con el footer y el navbar
+- se inicia el landin page
  ----
 
-## [v1.0.0-alpha.1] - 01-02-2025
+## [v1.0.0-alpha.1] - 27-03-2025
