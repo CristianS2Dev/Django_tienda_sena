@@ -9,14 +9,13 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/login.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/registro.css' %}" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 
 </head>
 
 <body>
-  <header class="">
+  <header class="text-white">
     <nav class=" nav_styles navbar navbar-expand-lg">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">Navbar</a>
@@ -50,6 +49,18 @@
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
               <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item ">
+                {% if request.session.pista %}
+                  <a class="nav-link contact-button fw-medium text-white iniciar-sesion-btn" href="#">Mi Perfil</a>
+                {% else %}
+                  <a class="nav-link contact-button fw-medium text-white" href="#">Regístrate</a>
+                </li>
+                <li class="nav-item iniciar-sesion-btn">
+                  <a class="nav-link contact-button fw-medium text-white " href="{% url 'login' %}">Inicie Sesión</a>
+                {% endif %}
+              </li>
+            </ul>
           </div>
         </div>
       </nav>
