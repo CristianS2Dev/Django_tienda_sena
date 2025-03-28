@@ -1,11 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <H1>Hey tienda sena Again</H1>
-</body>
-</html>
+{% extends 'bases/base.html' %}
+{% load static %}
+
+{% block titulo %}Landin Page{% endblock%}
+
+{% block main %}
+    <h1>¡Bienvenido a la tienda!</h1>
+    <p>Esta es la página de inicio de la tienda.</p>
+{% endblock %}
