@@ -1,0 +1,36 @@
+{% load static %}
+
+{% block main %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}" />
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+
+<section class="container-login">
+    <div class="login-modal position-relative">
+        <div class="sing-up text-end">
+            <a href="{% url 'login' %}" class="btn border-buttom border-2 border-dark">Iniciar Sesion</a>
+            <a href="{% url 'registrarse' %}" class="btn btn-disabled">Registrarse</a>
+        </div>
+            <hr>     
+        <h2>Iniciar Sesion</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="mb-3 position-relative">
+                <label for="correo" class="form-label">Email</label>
+                <input type="email" name="correo" class="form-control" id="correo" placeholder="Ingresa tu correo">
+                <div class="form-text">Email Incorrecto</div>
+            </div>
+            <div class="mb-3 position-relative">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" name="password" class="form-control" id="password" placeholder="Ingresa tu contraseña">
+                <div class="form-text">Contraseña Incorrecta</div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success btn-lg ">Iniciar Sesion</button>
+            </div>
+            <div class="text-center mt-1">
+                <a href="#" class="small">¿No tienes una cuenta? <strong>Inscribete</strong></a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

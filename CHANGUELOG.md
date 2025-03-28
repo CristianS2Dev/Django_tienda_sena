@@ -16,6 +16,19 @@
 
 ### CHANGELOG
 
+## [v1.1.0-alpha.1] - 27-03-2025
+
+### Added
+
+- Se agrega el login y el registro de usuarios
+- Se crea el modelo de usuario
+
+### Note
+
+- No esta funcional el botsrap en el login y el registro
+
+---
+
 ### Notes
 - el navbar y el footer solo son prototipos
 
