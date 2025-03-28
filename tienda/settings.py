@@ -58,8 +58,7 @@ ROOT_URLCONF = 'tienda.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Asegúrate de que esta ruta sea correcta
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'tienda_sena/templates'],  # Asegúrate de que esta ruta sea correcta
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,8 +66,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'tienda.context_processors.categorias',  # se agrega el context_processor personalizado
-                'tienda.context_processors.colores',  # se agrega el context_processor personalizado
+                'tienda_sena.context_processors.categorias',  # se corrige el módulo
+                'tienda_sena.context_processors.colores',  # se corrige el módulo
             ],
         },
     },
