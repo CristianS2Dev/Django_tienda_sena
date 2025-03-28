@@ -1,0 +1,33 @@
+{% extends 'bases/base.html' %}
+{% load static %}
+
+{% block main%}
+<div class="container">
+
+
+    <h1>Usuarios</h1>
+    <a href="{% url 'agregar_usuario' %}" class="btn btn-success mb-3">Agregar</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for x in data %}
+                <tr>
+                    <td>{{ x.id }}</td>
+                    <td>{{ x.nombre_apellido }}</td>
+                    <td>{{ x.get_rol_display }}</td>
+                    <td>
+                        <a href="{% url 'editar_usuario' x.id %}" class="btn btn-info">Editar</a>
+                        <a href="{% url 'eliminar_usuario' x.id %}" class="btn btn-secondary">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>    
+{% endblock %}
