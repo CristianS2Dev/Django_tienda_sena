@@ -16,6 +16,19 @@
 
 ### CHANGELOG
 
+# [v1.6.1-alpha.1] - 28-03-2025
+
+### Added
+
+- Se agrega el CRUD de Usuarios
+
+### Fixed
+
+- Se re diseño el navbar
+- Se corrige el models.Usuario
+
+---
+
 ## [v1.5.1-alpha.1] - 28-03-2025
 
 ### Added

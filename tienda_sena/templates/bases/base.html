@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,32 +18,33 @@
   <header class="text-white">
     <nav class=" nav_styles navbar navbar-expand-lg">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">Navbar</a>
+          <a class="navbar-brand text-white me-5" href="#">Tienda SENA</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                <a class="nav-link active fw-medium text-white ms-3" aria-current="page" href="{% url 'index' %}">Inicio</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
+                <a class="nav-link active fw-medium text-white" aria-current="page" href="#">Sobre Nosotros</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active fw-medium text-white " aria-current="page" href="#">Tienda</a>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Dropdown
+                <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    Categorías
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    {% for key, value in categorias %}
+                    <li><a class="dropdown-item" href="#">{{ value }}</a></li>
+                    {% endfor %}
                 </ul>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-              </li>
+            </li>
+              
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
@@ -54,7 +55,7 @@
                 {% if request.session.pista %}
                   <a class="nav-link contact-button fw-medium text-white iniciar-sesion-btn" href="#">Mi Perfil</a>
                 {% else %}
-                  <a class="nav-link contact-button fw-medium text-white" href="#">Regístrate</a>
+                  <a class="nav-link contact-button fw-medium text-white" href="{% url 'registrarse' %}">Regístrate</a>
                 </li>
                 <li class="nav-item iniciar-sesion-btn">
                   <a class="nav-link contact-button fw-medium text-white " href="{% url 'login' %}">Inicie Sesión</a>
@@ -89,7 +90,7 @@
               <p><a href="#" class="text-white text-decoration-none">Ayuda</a></p>
             
               <p><a href="#" class="text-white text-decoration-none">Admin</a></p>
-              <p><a href="#" class="text-white text-decoration-none">Listar Productos - Admin</a></p>
+              <p><a href="{% url 'usuarios' %}" class="text-white text-decoration-none">Listar Productos - Admin</a></p>
              
               <p><a href="{% url 'lista_productos' %}" class="text-white text-decoration-none">Listar Productos - Usuarios</a></p>
              
@@ -106,7 +107,7 @@
         <div class="text-center py-4 border-top">
           © 2023 Tienda Sena. Todos los derechos reservados.
         </div>
-      </footer>
+    </footer>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'app.js' %}"></script>
