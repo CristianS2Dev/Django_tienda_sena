@@ -1,0 +1,10 @@
+{% extends 'bases/base.html' %}
+{% load static humanize %}
+
+{% block titulo %}Tienda Sena{% endblock %}
+
+{% block main %}
+    {% block lista_productos %}
+        {% include 'bases/_productos.html' %}
+    {% endblock %}
+{% endblock %}

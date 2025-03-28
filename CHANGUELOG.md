@@ -16,6 +16,18 @@
 
 ### CHANGELOG
 
+## [v1.5.1-alpha.1] - 28-03-2025
+
+### Added
+
+- Se agrega el CRUD de los productos
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+
+---
+
 ## [v1.4.0-alpha.1] - 28-03-2025
 
 ### Added
