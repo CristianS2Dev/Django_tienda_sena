@@ -16,6 +16,20 @@
 
 ### CHANGELOG
 
+
+## [v1.2.0-alpha.1] - 28-03-2025
+
+### Added
+
+- Se agrega html del index
+- se agrega css del index, login, registrarse
+
+
+### Note
+
+- Falta bootstrap en section 2 y 4
+
+---
 ## [v1.1.0-alpha.1] - 27-03-2025
 
 ### Added
@@ -29,15 +43,14 @@
 
 ---
 
-### Notes
-- el navbar y el footer solo son prototipos
-
+## [v1.0.0-alpha.1] - 27-03-2025
 
 ### Added
 - se agrega carpeta static
 - se agrega bootstrap al proyecto
 - se agrega la base con el footer y el navbar
 - se inicia el landin page
- ----
 
-## [v1.0.0-alpha.1] - 27-03-2025
+### Notes
+- el navbar y el footer solo son prototipos
+ ----
