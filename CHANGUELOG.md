@@ -16,6 +16,15 @@
 
 ### CHANGELOG
 
+## [v1.3.0-alpha.1] - 28-03-2025
+
+### Added
+- se agrega archivo js
+
+### Changed
+- Se completa el landin page con bootstrap y css
+
+---
 
 ## [v1.2.0-alpha.1] - 28-03-2025
 
