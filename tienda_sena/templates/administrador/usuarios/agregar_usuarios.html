@@ -1,0 +1,41 @@
+{% extends 'bases/base.html' %}
+{% load static %}
+
+
+{% block main %}
+<div class="container">
+
+
+    {% if dato %}
+        <h1>Actualizar Usuario {{ dato }}</h1>
+    {% else %}
+        <h1>Agregar Usuario</h1>
+    {% endif %}
+
+    <form action="#" method="post">
+        {% csrf_token %}
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required="" class="form-control" value="{{ dato.nombre_apellido }}"/> <br>
+        <label>Correo:</label>
+        <input type="email" name="correo" required="" class="form-control" value="{{ dato.correo }}"/> <br>
+        <label>Contraseña:</label>
+        <input type="password" name="password" required="" class="form-control" value="{{ dato.password }}"/> <br>
+        <label>Rol:</label>
+        <select name="rol"  class="form-select">
+            <option value="1" {% if dato.rol == 1 %}selected{% endif %}>Administrador</option>
+            <option value="2" {% if dato.rol == 2 %}selected{% endif %}>Cliente</option>
+            <option value="3" {% if dato.rol == 3 %}selected{% endif %}>Vendedor</option>
+        </select>
+        <br>
+        <label for="imagen_perfil" class="form-label">Foto de perfil</label>
+        <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil">
+        <br>
+        {% if dato %}
+            <button type="submit" class="btn btn-info">Actualizar</button>
+        {% else %}
+            <button type="submit" class="btn btn-success">Guardar</button>
+        {% endif %}
+        
+    </form>
+</div>
+{% endblock %}

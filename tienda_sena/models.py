@@ -11,10 +11,10 @@ class Usuario(models.Model):
         (3, "Vendedor"),
     )
     rol = models.IntegerField(choices=ROLES, default=2)
-#    imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)  # Campo para la foto de perfil
+    imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)  # Campo para la foto de perfil
 
     def __str__(self):
-        return f"{self.nombre} - {self.rol}"
+        return f"{self.nombre_apellido} - {self.rol}"
     
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
