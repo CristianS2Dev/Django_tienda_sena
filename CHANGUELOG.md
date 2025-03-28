@@ -16,6 +16,18 @@
 
 ### CHANGELOG
 
+## [v1.4.0-alpha.1] - 28-03-2025
+
+### Added
+
+- se agrega archivo `utils.py`
+- se agrega carpeta `media`
+- se configura setting
+- se agregan vistas
+- Se agregan botones al Base `Registrar, Iniciar Session`
+
+---
+
 ## [v1.3.0-alpha.1] - 28-03-2025
 
 ### Added
