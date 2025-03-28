@@ -15,3 +15,49 @@ class Usuario(models.Model):
 
     def __str__(self):
         return f"{self.nombre} - {self.rol}"
+    
+class Producto(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=254)
+    stock = models.IntegerField()
+    vendedor = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    CATEGORIAS = (
+        (0, ""),
+        (1, "Moda"),
+        (2, "Tecnologia"),
+        (3, "Artesania"),
+        (4, "Accesorios"),
+        (5, "Servicios"),
+        (6, "Otros"),
+    )
+    categoria = models.IntegerField(choices=CATEGORIAS, default=0, null=True, blank=True)
+    COLORES = (
+        (0,"Ninguno"),
+        (1,"Gris"),
+        (2,"Blanco"),
+        (3,"Negro"),
+        (4,"Amarillo"),
+        (5,"Azul"),
+        (6,"Rojo"),
+    )  
+    color = models.IntegerField(choices=COLORES, default=0, null=True, blank=True)
+    en_oferta = models.BooleanField(default=False)
+    precio_original = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    @property
+    def precio(self):
+        """Calcula el precio final basado en el descuento."""
+        if self.en_oferta and self.descuento > 0:
+            return round(self.precio_original - (self.precio_original * self.descuento / Decimal(100)), 2)
+        return self.precio_original
+
+    def __str__(self):
+        return f"{self.cod} - {self.nombre} - ({self.stock} unidades)"
+    
+class ImagenProducto(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes')
+    imagen = models.ImageField(upload_to='productos/')
+
+    def __str__(self):
+        return f"Imagen de {self.producto.nombre}"
