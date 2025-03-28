@@ -216,3 +216,75 @@ def eliminar_producto(request, id_producto):
     except Exception as e:
         messages.error(request, f"Error {e}")
     return redirect("lista_productos")
+
+#-------------------------------------
+def usuarios(request):
+
+    q = Usuario.objects.all()
+    contexto = { "data": q }
+    return render(request, "administrador/usuarios/listar_usuarios.html", contexto)
+
+def agregar_usuario(request):
+    if request.method == "POST":
+        nombre_apellido = request.POST.get("nombre")
+        correo = request.POST.get("correo")
+        password = request.POST.get("password")
+        rol = request.POST.get("rol")
+        imagen_perfil = request.FILES.get("imagen_perfil")  # para obtener la imagen del formulario
+        try:
+            if imagen_perfil:
+            # Validar formatos permitidos
+                formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
+                if imagen_perfil.content_type not in formatos_permitidos:
+                    raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
+            q = Usuario(
+                nombre_apellido=nombre_apellido,
+                correo=correo,
+                password=password,
+                rol=rol,
+                imagen_perfil=imagen_perfil  # Si es 1 solo archivo
+            )
+            q.save()
+            messages.success(request, "Usuario guardado correctamente!")
+        except ValidationError as ve:
+            messages.error(request, f"Error de validación: {ve}")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+        return redirect("usuarios")
+    else:
+        return render(request, "administrador/usuarios/agregar_usuarios.html")
+
+def editar_usuario(request, id_usuario):
+    if request.method == "POST":
+        q = Usuario.objects.get(pk = id_usuario)
+        # procesar datos
+        nombre_apellido = request.POST.get("nombre")
+        correo = request.POST.get("correo")
+        password = request.POST.get("password")
+        rol = request.POST.get("rol")
+        try:
+            q.nombre_apellido = nombre_apellido
+            q.correo = correo
+            q.password = password
+            q.rol = rol
+            q.save()
+            messages.success(request, "Usuario actualizado correctamente!")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+        return redirect("usuarios")
+    else:
+        q = Usuario.objects.get(pk = id_usuario)
+        return render(request, "administrador/usuarios/agregar_usuarios.html", {"dato": q})
+
+
+def eliminar_usuario(request, id_usuario):
+    try:
+        q = Usuario.objects.get(pk = id_usuario)
+        q.delete()
+        messages.success(request, 'Producto eliminado Correctamente...')
+    except Usuario.DoesNotExist:
+        messages.warning(request, "Error: El usuaro no existe")
+    except Exception as e:
+        messages.error(request, f"Error {e}")
+
+    return redirect("usuarios")

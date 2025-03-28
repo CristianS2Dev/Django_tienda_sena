@@ -10,12 +10,19 @@ urlpatterns = [
     path('logout', views.logout, name="logout"),
     path('registrarse/', views.registrarse, name='registrarse'),
 
-     # Crud productos
+    # Crud productos
     path('lista_productos', views.lista_productos, name='lista_productos'),
     path('agregar_producto', views.agregar_producto, name='agregar_producto'),
     path('editar_producto/<int:id_producto>/', views.editar_producto, name='editar_producto'),
     path('producto/<int:id_producto>/', views.detalle_producto, name='detalle_producto'),
     path('eliminar_producto/<int:id_producto>/', views.eliminar_producto, name='eliminar_producto'),
+    
+    #Crud Usuarios
+    path('usuarios', views.usuarios, name='usuarios'),
+    path('agregar_usuario', views.agregar_usuario, name="agregar_usuario"),
+    path("editar_usuario/<int:id_usuario>/", views.editar_usuario, name="editar_usuario"),
+    path("eliminar_usuario/<int:id_usuario>/", views.eliminar_usuario, name="eliminar_usuario"),
+
 ]
 
 if settings.DEBUG:
