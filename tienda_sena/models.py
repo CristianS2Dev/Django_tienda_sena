@@ -54,7 +54,7 @@ class Producto(models.Model):
         return self.precio_original
 
     def __str__(self):
-        return f"{self.cod} - {self.nombre} - ({self.stock} unidades)"
+        return f"{self.nombre} - ({self.stock} unidades)"
     
 class ImagenProducto(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes')

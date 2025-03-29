@@ -34,16 +34,16 @@
                 <a class="nav-link active fw-medium text-white " aria-current="page" href="#">Tienda</a>
               </li>
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    Categorías
-                </a>
-                <ul class="dropdown-menu">
-                    {% for key, value in categorias %}
-                    <li><a class="dropdown-item" href="#">{{ value }}</a></li>
-                    {% endfor %}
-                </ul>
-            </li>
+                  <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                      Categorías
+                  </a>
+                  <ul class="dropdown-menu">
+                      {% for key, value in categorias %}
+                      <li><a class="dropdown-item" href="{% url 'productos_por_categoria' key %}">{{ value }}</a></li>
+                      {% endfor %}
+                  </ul>
+              </li>
               
             </ul>
             <form class="d-flex" role="search">

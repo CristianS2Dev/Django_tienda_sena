@@ -16,6 +16,18 @@
 
 ### CHANGELOG
 
+### [v1.7.3-alpha.1] - 30-03-2025
+
+### Added
+
+- Se agrega funcionalidad para las categorias de los productos
+
+### Fixed
+
+- Se corrigen errores con los productos, categorias y el modelo
+
+---
+
 ## [v1.6.2-alpha.1] - 29-03-2025
 
 ### Fixed
