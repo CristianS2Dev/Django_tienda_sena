@@ -294,3 +294,19 @@ def eliminar_usuario(request, id_usuario):
         messages.error(request, f"Error {e}")
 
     return redirect("usuarios")
+
+
+
+def productos_por_categoria(request, categoria):
+    try:
+        # Convertir el valor de categoria a entero
+        categoria = int(categoria)
+        productos = Producto.objects.filter(categoria=categoria)
+        # Obtener el nombre de la categoría
+        categoria_nombre = dict(Producto.CATEGORIAS).get(categoria, "Categoría desconocida")
+    except ValueError:
+        # Si no es un entero, mostrar categoría desconocida
+        productos = []
+
+    contexto = {'productos': productos, 'categoria': categoria_nombre}
+    return render(request, 'productos/productos_por_categoria.html', contexto)
