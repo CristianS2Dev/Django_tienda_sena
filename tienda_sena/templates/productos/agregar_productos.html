@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'bases/base.html' %}
 {% load static humanize %}
 
 {% block main %}
@@ -19,10 +19,6 @@
                 <div class="card-body">
                     <form action="#" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label>Código:</label>
-                            <input type="number" name="codigo" required="" class="form-control" value="{{ dato.cod|default:'' }}" />
-                        </div>
                         <div class="mb-3">
                             <label class="form-label">Nombre:</label>
                             <input type="text" name="nombre" required="" class="form-control" value="{{ dato.nombre|default:'' }}" />
