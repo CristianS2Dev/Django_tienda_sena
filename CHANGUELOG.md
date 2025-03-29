@@ -16,6 +16,14 @@
 
 ### CHANGELOG
 
+## [v1.6.1-alpha.1] - 29-03-2025
+
+### Fixed
+
+- Se corrigen errores con los productos
+
+---
+
 # [v1.6.1-alpha.1] - 28-03-2025
 
 ### Added
