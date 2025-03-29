@@ -1,10 +1,13 @@
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from decimal import Decimal
 from .models import *
 from .utils import *
+from .templatetags.custom_filters import *
+
 
 
 from django.contrib import messages
@@ -27,7 +30,7 @@ def login(request):
                 "nombre": q.nombre_apellido
             }
             messages.success(request, "Bienvenido!!")
-            return redirect("principal")
+            return redirect("index")
         except Usuario.DoesNotExist:
             # Autenticación: Vaciamos la variable de sesión ----------
             request.session["pista"] = None
@@ -51,6 +54,9 @@ def logout(request):
         return redirect("index")
 
 def registrarse(request):
+    if request.session.get("pista"):
+        messages.info(request, "Ya tienes una sesión activa. :)")
+        return redirect("index") 
     if request.method == "POST":
         nombre = request.POST.get("nombre")
         apellido = request.POST.get("apellido")
