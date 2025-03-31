@@ -16,6 +16,21 @@
 
 ### CHANGELOG
 
+---
+
+### [v1.8.5-alpha.1] - 30-03-2025
+
+### Chaanged
+
+- Se cammbio la vista de agregar productos
+
+### Fixed
+
+- Se corrigen errores con los productos y categorias
+- Se corrigen errores con el precio y oferta de los productos
+
+---
+
 ### [v1.8.4-alpha.1] - 30-03-2025
 
 ### Added

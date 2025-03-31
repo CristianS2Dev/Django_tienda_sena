@@ -2,21 +2,5 @@
 {% load static %}
 {% block main %}
 <h1>Productos en la categoría: {{ categoria }}</h1>
-<div class="row">
-    {% for producto in productos %}
-    <div class="col-md-4">
-        <div class="card mb-4">
-            <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ producto.nombre }}</h5>
-                <p class="card-text">{{ producto.descripcion }}</p>
-                <p class="card-text"><strong>Precio:</strong> ${{ producto.precio }}</p>
-                <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-primary">Ver detalles</a>
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <p>No hay productos en esta categoría.</p>
-    {% endfor %}
-</div>
+{% include 'bases/_productos.html' with data=productos %}
 {% endblock %}
