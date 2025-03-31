@@ -58,8 +58,7 @@ def registrarse(request):
         messages.info(request, "Ya tienes una sesión activa. :)")
         return redirect("index") 
     if request.method == "POST":
-        nombre = request.POST.get("nombre")
-        apellido = request.POST.get("apellido")
+        nombre_apellido = request.POST.get("nombre")
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         rol = request.POST.get("rol")
@@ -71,8 +70,7 @@ def registrarse(request):
                 if imagen_perfil.content_type not in formatos_permitidos:
                     raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
             usuario = Usuario(
-                nombre=nombre,
-                apellido=apellido,
+                nombre_apellido=nombre_apellido,
                 correo=correo,
                 password=password,
                 rol=rol,
@@ -96,6 +94,14 @@ def perfil_usuario(request):
     else:
         messages.error(request, "Debes iniciar sesión para acceder a tu perfil.")
         return redirect("login")
+    
+def perfil_usuario_id(request, id_usuario):
+    q = Usuario.objects.get(pk=id_usuario)
+    return render(request, "usuarios/perfil_usuario.html",{
+        
+        "dato": q,
+    })
+
 # -----------------------------------------------------  
         #CRUD Listar productos usuario
 # -----------------------------------------------------
@@ -105,6 +111,28 @@ def lista_productos(request):
     contexto = {'data': q}
     return (render(request, 'productos/listar_productos.html', contexto))
 
+def productos_vendedor(request, id_vendedor):
+    productos = Producto.objects.filter(vendedor_id=id_vendedor)
+    contexto = {'data': productos}
+    return render(request, 'productos/listar_productos.html', contexto)
+
+def producto_vendedor(request, id_vendedor):
+    try:
+        # Obtener el vendedor
+        vendedor = Usuario.objects.get(pk=id_vendedor)
+        # Obtener los productos asociados al vendedor
+        productos = Producto.objects.filter(vendedor_id=id_vendedor)
+        imagenes = []
+        for producto in productos:
+            fotos = ImagenProducto.objects.filter(producto = producto)
+            imagenes.append(fotos)
+            
+    except Usuario.DoesNotExist:
+        messages.error(request, "Vendedor no encontrado")
+        return redirect("detalle_producto", id_producto=id_vendedor)
+
+    contexto = {'data': productos, 'vendedor': vendedor, 'fotos': imagenes}
+    return render(request, 'productos/detalle_producto.html', contexto)
 # -----------------------------------------------------
 
 @session_rol_permission(1, 3)
@@ -170,11 +198,11 @@ def editar_producto(request, id_producto):
         categoria = request.POST.get("categoria")
         color = request.POST.get("color")
         imagenes = request.FILES.getlist("imagenes")
+        rol = request.session.get("pista")["rol"]
 
         try:
             # Obtener el producto a editar
             producto = Producto.objects.get(pk=id_producto)
-
             # Actualizar los campos del producto
             producto.nombre = nombre
             producto.descripcion = descripcion
@@ -185,19 +213,21 @@ def editar_producto(request, id_producto):
             producto.vendedor_id = vendedor
             producto.categoria = categoria
             producto.color = color
-
             producto.save()
-
             # Guardar las nuevas imágenes asociadas al producto
             for imagen in imagenes:
                 ImagenProducto.objects.create(producto=producto, imagen=imagen)
 
             messages.success(request, "Producto actualizado correctamente!")
+            if rol == 1:
+                return redirect("productos") 
+            else:    
+                return redirect("lista_productos") 
+            
         except Producto.DoesNotExist:
             messages.error(request, "Producto no encontrado")
         except Exception as e:
             messages.error(request, f"Error: {e}")
-        return redirect("lista_productos")
     else:
         producto = Producto.objects.get(pk=id_producto)
         return render(request, "productos/agregar_productos.html", {"dato": producto})
@@ -233,7 +263,6 @@ def panel_admin(request):
 
 #--------------USUARIOS-----------------------
 def usuarios(request):
-
     q = Usuario.objects.all()
     contexto = { "data": q }
     return render(request, "administrador/usuarios/listar_usuarios.html", contexto)

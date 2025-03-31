@@ -17,12 +17,8 @@
         <form action="{% url 'registrarse' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="mb-3 position-relative">
-                <label for="nombre" class="form-label">Nombre</label>
+                <label for="nombre" class="form-label">Nombre y apellido</label>
                 <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresa tu nombre">
-            </div>
-            <div class="mb-3 position-relative">
-                <label for="apellido" class="form-label">Apellido</label>
-                <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Ingresa tu apellido">
             </div>
             <div class="mb-3 position-relative">
                 <label for="correo" class="form-label">Email</label>

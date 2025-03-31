@@ -3,7 +3,7 @@
 
 {% block main %}
 <div class="d-flex flex-wrap content">
-    {% include 'bases/_sidebar_admin.html' %}
+    {% include 'bases/_sidebar_usuario.html' %}
     <div class="container mt-5">
         <h1>Usuarios</h1>
         <a href="{% url 'agregar_usuario' %}" class="btn btn-success mb-3">Agregar</a>
@@ -22,7 +22,7 @@
                         <td>{{ x.nombre_apellido }}</td>
                         <td>{{ x.get_rol_display }}</td>
                         <td>
-                            <a href="#" class="btn btn-warning">Detalles</a>
+                            <a href="{% url 'perfil_usuario_id' x.id %}" class="btn btn-warning">Detalles</a>
                             <a href="{% url 'editar_usuario' x.id %}" class="btn btn-info">Editar</a>
                             <a href="{% url 'eliminar_usuario' x.id %}" class="btn btn-secondary">Eliminar</a>
                         </td>

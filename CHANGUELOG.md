@@ -18,6 +18,20 @@
 
 ---
 
+### [v1.10.8-alpha.1] - 30-03-2025
+
+### Note
+
+- Arreglar las fotos de los productos
+
+
+### Fixed
+
+- Se corrigen errores con el sidebar
+
+
+---
+
 ## [v1.9.7-alpha.1] - 30-03-2025
 
 ### Fixed
