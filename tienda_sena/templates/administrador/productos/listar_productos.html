@@ -1,0 +1,44 @@
+{% extends 'bases/base.html' %}
+{% load static %}
+
+
+{% block titulo %}Listar Productos{% endblock %}
+{% block title %}Listar Productos{% endblock %}
+
+{% block main %}
+<div class="d-flex flex-wrap content">
+    {% include 'bases/_sidebar_admin.html' %}
+    <div class="container mt-5">
+        <h1>Productos</h1>
+        <a href="{% url 'agregar_producto' %}" class="btn btn-success mb-3">Agregar</a>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Vendedor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for x in data %}
+                <tr>
+                    <td>{{ x.id }}</td>
+                    <td>{{ x.nombre }}</td>
+                    <td>{{ x.precio }}</td>
+                    <td>{{ x.stock }}</td>
+                    <td>{{ x.vendedor }}</td>
+                    <td>
+                        <a href="#" class="btn btn-warning">Detalles</a>
+                        <a href="{% url 'editar_producto' %}" class="btn btn-info">Editar</a>
+                        <a href="{% url 'eliminar_producto' %}" class="btn btn-secondary">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>   
+</div>      
+{% endblock %}

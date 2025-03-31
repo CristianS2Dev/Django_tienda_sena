@@ -223,7 +223,17 @@ def eliminar_producto(request, id_producto):
         messages.error(request, f"Error {e}")
     return redirect("lista_productos")
 
-#-------------------------------------
+
+
+
+# -----------------------------------------------------
+#Admin
+# -----------------------------------------------------
+
+def panel_admin(request):
+    return render(request, 'administrador/panel_admin.html')
+
+#--------------USUARIOS-----------------------
 def usuarios(request):
 
     q = Usuario.objects.all()
@@ -282,7 +292,6 @@ def editar_usuario(request, id_usuario):
         q = Usuario.objects.get(pk = id_usuario)
         return render(request, "administrador/usuarios/agregar_usuarios.html", {"dato": q})
 
-
 def eliminar_usuario(request, id_usuario):
     try:
         q = Usuario.objects.get(pk = id_usuario)
@@ -294,8 +303,6 @@ def eliminar_usuario(request, id_usuario):
         messages.error(request, f"Error {e}")
 
     return redirect("usuarios")
-
-
 
 def productos_por_categoria(request, categoria):
     try:
@@ -310,3 +317,11 @@ def productos_por_categoria(request, categoria):
 
     contexto = {'productos': productos, 'categoria': categoria_nombre}
     return render(request, 'productos/productos_por_categoria.html', contexto)
+
+#-------------PRODUCTOS------------------------
+
+def productos(request):
+    q = Producto.objects.all()
+    contexto = { "data": q }
+    return render(request, "administrador/productos/listar_productos.html", contexto)
+
