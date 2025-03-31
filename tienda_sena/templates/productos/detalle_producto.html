@@ -10,6 +10,14 @@
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="">
+                {% for f in fotos %}
+                    {{ f }} <br>
+                    {% for g in f %}
+                    <img id="mainImage" src="{{ g }}" class="card-img-top img-fluid mb-3"
+                        
+                    {% endfor %}
+                {% endfor %}
+                <h1 class="h2 mb-3">{{ producto.nombre }}</h1>
                 {% if producto.imagenes.all|length > 0 %}
                 <img id="mainImage" src="{{ producto.imagenes.all.0.imagen.url }}" class="card-img-top img-fluid mb-3"
                     alt="Imagen del producto">
@@ -31,7 +39,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <p>Publicado por: {{ producto.vendedor.nombre }}</p>
+            <p>Publicado por: {{ producto.vendedor.nombre_apellido }}</p>
             <h1 class="h2 mb-3">{{ producto.nombre }}</h1>
             <div class="mb-3">
                 <span class="h4 me-2 text-primary">${{ producto.precio|floatformat:0|intcomma|replace_comma }}</span>

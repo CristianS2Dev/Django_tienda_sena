@@ -1,0 +1,144 @@
+<ul class="nav flex-column" id="sidebarMenu">
+        <!-- Ítem con submenú: Mi Cuenta -->
+    {% if request.session.pista.rol == 1 %}
+        <ul class="nav flex-column" id="sidebarMenu">
+            <li class="nav-item">
+            <a class="nav-link text-white" href="{% url 'panel_admin' %}">
+                <i class="fas fa-user-circle me-2"></i> Dashboard
+            </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'perfil_usuario' %}">
+                    <i class="fas fa-user-circle me-2"></i> Mi Perfil
+                </a>
+            </li>
+            <!-- Ítem con submenú: Mi Cuenta -->
+            <li class="nav-item">
+            <!-- Botón que despliega el colapso -->
+            <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" 
+                href="#miCuentaCollapse" 
+                role="button" 
+                aria-expanded="false" 
+                aria-controls="miCuentaCollapse">
+                <span><i class="fas fa-user me-2"></i> Pedidos</span>
+                <i class="fas fa-chevron-down"></i>
+            </a>
+    
+            <!-- Submenú colapsable -->
+            <ul class="collapse list-unstyled" id="miCuentaCollapse">
+                <li><a class="nav-link text-white ms-4" href="#">....</a></li>
+                <li><a class="nav-link text-white ms-4" href="#">....</a></li>
+                <li><a class="nav-link text-white ms-4" href="#">....</a></li>
+            </ul>
+            </li>
+            
+            <!-- Ítems sin submenú -->
+        
+            <li class="nav-item">
+            <a class="nav-link text-white" href="{% url 'productos' %}">
+                <i class="fas fa-user-circle me-2"></i> Productos
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link text-white" href="#">
+                <i class="fas fa-cog me-2"></i> Categorias
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link text-white" href="{% url 'usuarios' %}">
+                <i class="fas fa-user me-2"></i> Usuarios
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link text-white" href="#">
+                <i class="fas fa-cog me-2"></i> Configuracion
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link text-white" href="#">
+                <i class="fas fa-cog me-2"></i> Configuracion Personal
+            </a>
+            </li>
+            
+            <!-- Banner de publicidad -->
+            <div class=" bottom-0 m-2 mt-5" style="width: 230px; height: 300px;">
+                <div class="card text-center shadow" style="height: 100%;">
+                    <div class="card-body">
+                        <p class="mb-0">Banner</p>
+                    </div>
+                </div>
+            </div>
+            <div class="logout-button">
+                <a class="nav-link text-white" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                </a>
+            </div>
+        </ul>  
+
+    {% else %} 
+        
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" 
+                href="#miCuentaCollapse" 
+                role="button" 
+                aria-expanded="false" 
+                aria-controls="miCuentaCollapse">
+                    <span><i class="fas fa-user me-2"></i> Mi Cuenta</span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <ul class="collapse list-unstyled" id="miCuentaCollapse">
+                    <li><a class="nav-link text-white ms-4" href="#">Compras</a></li>
+                    <li><a class="nav-link text-white ms-4" href="#">Favoritos</a></li>
+                    <li><a class="nav-link text-white ms-4" href="#">Preguntas</a></li>
+                </ul>
+            </li>
+            <!-- Ítem con submenú: Ventas -->
+            {% if request.session.pista.rol == 3 %}
+            <li class="nav-item">
+                <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                data-bs-toggle="collapse" 
+                href="#ventasCollapse" 
+                role="button" 
+                aria-expanded="false" 
+                aria-controls="ventasCollapse">
+                    <span><i class="fas fa-shopping-bag me-2"></i> Ventas</span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <ul class="collapse list-unstyled" id="ventasCollapse">
+                    <li><a class="nav-link text-white ms-4" href="{% url 'lista_productos' %}">Publicaciones</a></li>
+                   
+                    <li><a class="nav-link text-white ms-4" href="{% url 'productos_vendedor' request.session.pista.id %}">Ventas</a></li>
+                   
+                    <li><a class="nav-link text-white ms-4" href="#">Reputación</a></li>
+                    
+                </ul>
+            </li>
+            {% endif %}
+            <!-- Ítems sin submenú -->
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#">
+                    <i class="fas fa-user-circle me-2"></i> Mi Perfil
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="#">
+                    <i class="fas fa-cog me-2"></i> Configuración
+                </a>
+            </li>
+            <!-- Banner de publicidad -->
+            <div class=" bottom-0 m-2 mt-5" style="width: 230px; height: 300px;">
+                <div class="card text-center shadow" style="height: 100%;">
+                    <div class="card-body">
+                        <p class="mb-0">Banner</p>
+                    </div>
+                </div>
+            </div>
+            <div class="logout-button">
+                <a class="nav-link text-white" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                </a>
+            </div>
+    {% endif %}
+</ul>
