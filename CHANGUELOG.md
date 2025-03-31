@@ -18,6 +18,14 @@
 
 ---
 
+### [v1.9.5-alpha.1] - 30-03-2025
+
+### Added
+
+- Se agrego la vista Perfil
+
+---
+
 ### [v1.8.5-alpha.1] - 30-03-2025
 
 ### Chaanged
