@@ -18,6 +18,25 @@
 
 ---
 
+## [v1.9.6-alpha.1] - 30-03-2025
+
+### Added
+
+- Se agrega el archivo `.gitignore` para ignorar archivos innecesarios
+
+### Changed
+
+- Se mejora el banner de la vista de productos
+
+### Fixed
+
+- Se corrigen errores con los productos
+
+### Notes
+
+- Falta mejorar el diseño de la vista de editar y agregar productos
+---
+
 ### [v1.9.5-alpha.1] - 30-03-2025
 
 ### Added
