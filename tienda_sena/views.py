@@ -98,30 +98,31 @@ def lista_productos(request):
     return (render(request, 'productos/listar_productos.html', contexto))
 
 # -----------------------------------------------------
+
 @session_rol_permission(1, 3)
 def agregar_producto(request):
     if request.method == "POST":
+        # Obtener datos del formulario
         nombre = request.POST.get("nombre")
         descripcion = request.POST.get("descripcion")
-        # Manejar valores predeterminados para precio_original y descuento
         precio_original = request.POST.get("precio_original", "0")
         descuento = request.POST.get("descuento", "0")
+        en_oferta = request.POST.get("en_oferta") == "on"
+        stock = request.POST.get("stock")
+        vendedor = request.POST.get("vendedor")
+        categoria = request.POST.get("categoria")
+        color = request.POST.get("color")
+        imagenes = request.FILES.getlist("imagenes")
+
         try:
-            precio_original = Decimal(precio_original) if precio_original else Decimal(0)
-            descuento = Decimal(descuento) if descuento else Decimal(0)
-            en_oferta = request.POST.get("en_oferta") == "on"
-            stock = request.POST.get("stock")
-            vendedor = request.POST.get("vendedor")
-            categoria = request.POST.get("categoria")
-            color = request.POST.get("color")
-            imagenes = request.FILES.getlist("imagenes")
-            # Validar imágenes
-            if len(imagenes) > 5:
-                raise ValidationError("No puedes subir más de 5 imágenes.")
-            formatos_permitidos = ["image/jpeg", "image/png", "image/gif", "image/webp"]
-            for imagen in imagenes:
-                if imagen.content_type not in formatos_permitidos:
-                    raise ValidationError(f"Formato no permitido: {imagen.content_type}. Solo se aceptan JPEG, PNG, GIF o WEBP.")
+            # Calcular el precio final
+            precio_original = Decimal(precio_original)
+            descuento = Decimal(descuento)
+            if en_oferta and descuento > 0:
+                precio_final = round(precio_original - (precio_original * descuento / Decimal(100)), 2)
+            else:
+                precio_final = precio_original
+
             # Crear el producto
             producto = Producto(
                 nombre=nombre,
@@ -131,68 +132,67 @@ def agregar_producto(request):
                 en_oferta=en_oferta,
                 stock=stock,
                 vendedor_id=vendedor,
-                categoria=categoria,
+                categoria=int(categoria),
                 color=color,
+                precio=precio_final,  # Guardar el precio final calculado
             )
             producto.save()
+
+            # Guardar imágenes
             for imagen in imagenes:
                 ImagenProducto.objects.create(producto=producto, imagen=imagen)
+
             messages.success(request, "Producto guardado correctamente!")
-        except ValidationError as ve:
-            messages.error(request, f"Error de validación: {ve}")
         except Exception as e:
             messages.error(request, f"Error: {e}")
         return redirect("lista_productos")
     else:
         user = request.session.get("pista")
         roles = dict(Usuario.ROLES).get(user["rol"], "Desconocido")
-        return render(request, "productos/agregar_productos.html", {'user': user, 'roles': roles})
+        categorias = Producto.CATEGORIAS
+
+        return render(request, "productos/agregar_productos.html", {
+            'user': user,
+            'roles': roles,
+            'categorias': categorias,
+        })
     
 # -----------------------------------------------------
+
 @session_rol_permission(1, 3)
 def editar_producto(request, id_producto):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
         descripcion = request.POST.get("descripcion")
-        precio = request.POST.get("precio")
         precio_original = request.POST.get("precio_original")
-        descuento = Decimal(request.POST.get("descuento", 0))  # Porcentaje de descuento
+        descuento = request.POST.get("descuento", "0")
         en_oferta = request.POST.get("en_oferta") == "on"
         stock = request.POST.get("stock")
         vendedor = request.POST.get("vendedor")
         categoria = request.POST.get("categoria")
         color = request.POST.get("color")
-        imagenes = request.FILES.getlist("imagenes")  # Obtener las imágenes subidas
+        imagenes = request.FILES.getlist("imagenes")
+
         try:
             # Obtener el producto a editar
-            q = Producto.objects.get(pk=id_producto)
+            producto = Producto.objects.get(pk=id_producto)
 
             # Actualizar los campos del producto
-            q.nombre = nombre
-            q.descripcion = descripcion
+            producto.nombre = nombre
+            producto.descripcion = descripcion
+            producto.precio_original = Decimal(precio_original) if precio_original else Decimal(0)
+            producto.descuento = Decimal(descuento) if descuento else Decimal(0)
+            producto.en_oferta = en_oferta
+            producto.stock = stock
+            producto.vendedor_id = vendedor
+            producto.categoria = categoria
+            producto.color = color
 
-            # Convertir los valores a Decimal para evitar problemas en el cálculo
-            precio = Decimal(precio)
-            q.precio_original = precio
-            descuento_decimal = Decimal(descuento) if descuento else Decimal(0)
-            q.descuento = descuento_decimal
-            q.en_oferta = en_oferta
-
-            # Calcular el precio final si está en oferta
-            if en_oferta and descuento_decimal > 0:
-                q.precio = round(precio - (precio * descuento_decimal / Decimal(100)), 2)
-            else:
-                q.precio = precio
-
-            q.stock = stock
-            q.vendedor_id = vendedor
-            q.categoria = categoria
-            q.color = color
-            q.save()
+            producto.save()
 
             # Guardar las nuevas imágenes asociadas al producto
             for imagen in imagenes:
-                ImagenProducto.objects.create(producto=q, imagen=imagen)
+                ImagenProducto.objects.create(producto=producto, imagen=imagen)
 
             messages.success(request, "Producto actualizado correctamente!")
         except Producto.DoesNotExist:
@@ -201,9 +201,8 @@ def editar_producto(request, id_producto):
             messages.error(request, f"Error: {e}")
         return redirect("lista_productos")
     else:
-        # Obtener el producto para mostrarlo en el formulario de edición
-        q = Producto.objects.get(pk=id_producto)
-        return render(request, "productos/agregar_productos.html", {"dato": q})
+        producto = Producto.objects.get(pk=id_producto)
+        return render(request, "productos/agregar_productos.html", {"dato": producto})
 
 # -----------------------------------------------------
 def detalle_producto(request, id_producto):
@@ -292,6 +291,7 @@ def editar_usuario(request, id_usuario):
         q = Usuario.objects.get(pk = id_usuario)
         return render(request, "administrador/usuarios/agregar_usuarios.html", {"dato": q})
 
+
 def eliminar_usuario(request, id_usuario):
     try:
         q = Usuario.objects.get(pk = id_usuario)
@@ -303,6 +303,8 @@ def eliminar_usuario(request, id_usuario):
         messages.error(request, f"Error {e}")
 
     return redirect("usuarios")
+
+
 
 def productos_por_categoria(request, categoria):
     try:
