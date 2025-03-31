@@ -65,3 +65,12 @@
     padding: 10px; 
     text-align: center;
 }
+
+
+#sidebarMenu {
+  width: 250px; /* Ancho del sidebar */
+}
+
+.content {
+  flex-grow: 1; /* Asegura que el contenido principal ocupe el espacio restante */
+}

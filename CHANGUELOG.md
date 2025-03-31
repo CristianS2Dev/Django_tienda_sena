@@ -16,6 +16,23 @@
 
 ### CHANGELOG
 
+### [v1.8.4-alpha.1] - 30-03-2025
+
+### Added
+
+- Se agrega panel administrador
+- Se sidebar admin y usuarios
+
+### Fixed
+
+- Se cambian de lugar hipervinculos
+- Se mejora la lista de usuarios y productos
+
+### Notes
+
+- Tanto el panel administrador como las vistas de usuarios y productos faltan por hacer responsives.
+---
+
 ### [v1.7.3-alpha.1] - 30-03-2025
 
 ### Added
