@@ -1,57 +1,57 @@
 {% load static humanize custom_filters %}
-<div class="container">
-        {% if request.session.pista.rol == 3 or request.session.pista.rol == 1 %}
-            <a href="{% url 'agregar_producto' %}" class="btn btn-success mb-3">Agregar</a>
-        {% endif %}
-        <h1>Productos</h1>
-        <div class="row">
-            {% for producto in data %}
-            <div class="col-md-3 col-sm-6 mb-4">
-                <div class="card product-card shadow-sm h-100 position-relative">
-                    <div class="position-relative overflow-hidden">
+<div class="container p-3">
+    {% if request.session.pista.rol == 3 or request.session.pista.rol == 1 %}
+        <a href="{% url 'agregar_producto' %}" class="btn btn-success mb-3">Agregar</a>
+    {% endif %}
+    <h1>Productos</h1>
+    <div class="row">
+        {% for producto in data %}
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card product-card shadow-sm h-100 position-relative">
+                <div class="position-relative overflow-hidden">
+                    {% if producto.en_oferta %}
+                    <span class="badge bg-danger position-absolute top-0 end-0 m-2" style="z-index: 9999;">
+                        {{ producto.descuento|floatformat:0 }}% OFF
+                    </span>
+                    {% endif %}
+                    <a href="{% url 'detalle_producto' producto.id %}">
+                        {% if producto.imagenes.all %}
+                        <div class="ratio ratio-1x1">
+                            <img src="{{ producto.imagenes.all.0.imagen.url }}" class="img-fluid object-fit-cover"
+                                alt="{{ producto.nombre }}">
+                        </div>
+                        {% else %}
+                        <img src="{% static 'assets/product.png' %}" class="product-image card-img-top"
+                            alt="Imagen no disponible">
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ producto.nombre }}</h5>
+                    <p class="card-text text-muted">{{ producto.descripcion }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
                         {% if producto.en_oferta %}
-                        <span class="badge bg-danger position-absolute top-0 end-0 m-2" style="z-index: 9999;">
-                            {{ producto.descuento|floatformat:0 }}% OFF
+                        <span class="text-muted text-decoration-line-through">
+                            ${{ producto.precio_original|floatformat:0|intcomma|replace_comma }}
+                        </span>
+                        <span class="h4 mb-0 ms-2 text-primary">
+                            ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
+                        </span>
+                        {% else %}
+                        <span class="h4 mb-0 text-primary">
+                            ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
                         </span>
                         {% endif %}
-                        <a href="{% url 'detalle_producto' producto.id %}">
-                            {% if producto.imagenes.all %}
-                            <div class="ratio ratio-1x1">
-                                <img src="{{ producto.imagenes.all.0.imagen.url }}" class="img-fluid object-fit-cover"
-                                    alt="{{ producto.nombre }}">
-                            </div>
-                            {% else %}
-                            <img src="{% static 'assets/product.png' %}" class="product-image card-img-top"
-                                alt="Imagen no disponible">
-                            {% endif %}
-                        </a>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ producto.nombre }}</h5>
-                        <p class="card-text text-muted">{{ producto.descripcion }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            {% if producto.en_oferta %}
-                            <span class="text-muted text-decoration-line-through">
-                                ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
-                            </span>
-                            <span class="h4 mb-0 ms-2 text-primary">
-                                ${{ producto.precio_descuento|floatformat:0|intcomma|replace_comma }}
-                            </span>
-                            {% else %}
-                            <span class="h4 mb-0 text-primary">
-                                ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
-                            </span>
-                            {% endif %}
-                        </div>
-                        {% if request.session.pista.rol == 1 %}
-                        <div class="d-grid gap-2 mt-3">
-                            <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning">Editar</a>
-                            <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-danger">Eliminar</a>
-                        </div>
-                        {% endif %}
+                    {% if request.session.pista.rol == 3 or request.session.pista.rol == 1%}
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning">Editar</a>
+                        <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-danger">Eliminar</a>
                     </div>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
         </div>
+        {% endfor %}
+    </div>
 </div>

@@ -5,7 +5,7 @@
 {% block titulo %}Detalle del Producto{% endblock %}
 
 {% block main %}
-<link rel="stylesheet" href="{% static 'css/detalle_producto.css' %}" />
+<link rel="stylesheet" href="{% static 'css/style.css' %}" />
 <div class="container py-5">
     <div class="row">
         <div class="col-md-6 mb-4">
@@ -34,10 +34,12 @@
             <p>Publicado por: {{ producto.vendedor.nombre }}</p>
             <h1 class="h2 mb-3">{{ producto.nombre }}</h1>
             <div class="mb-3">
-                <span class="h4 me-2">${{ producto.precio_descuento|floatformat:0|intcomma|replace_comma }}</span>
+                <span class="h4 me-2 text-primary">${{ producto.precio|floatformat:0|intcomma|replace_comma }}</span>
                 {% if producto.en_oferta %}
-                <span class="text-muted text-decoration-line-through"> ${{ producto.precio|floatformat:0|intcomma|replace_comma }}</span>
-                <span class="badge bg-danger ms-2">{{ producto.descuento |floatformat:0  }}% OFF</span>
+                <span class="text-muted text-decoration-line-through">
+                    ${{ producto.precio_original|floatformat:0|intcomma|replace_comma }}
+                </span>
+                <span class="badge bg-danger ms-2">{{ producto.descuento|floatformat:0 }}% OFF</span>
                 {% endif %}
             </div>
             <div class="mb-3">
