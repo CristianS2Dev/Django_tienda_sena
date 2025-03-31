@@ -12,11 +12,10 @@ class UsuarioAdmin(admin.ModelAdmin):
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre', 'descripcion', 'precio', 'stock', 'categoria')
+    list_display = ('nombre', 'stock', 'categoria', 'color', 'en_oferta', 'precio_original', 'descuento')
+    list_filter = ('categoria', 'color')
     search_fields = ('nombre', 'descripcion')
-    list_filter = ('categoria',)
-    ordering = ('-id',)
-    list_per_page = 10
+    
 
 @admin.register(ImagenProducto)
 class ImagenProductoAdmin(admin.ModelAdmin):
