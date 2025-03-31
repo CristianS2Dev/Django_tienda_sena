@@ -88,13 +88,10 @@ def registrarse(request):
         return render(request, "registrarse.html")
 
 def perfil_usuario(request):
+    q = Usuario.objects.get(pk=request.session["pista"]["id"])
     if request.session.get("pista"):  # Verificar si hay una sesión activa
-        usuario = request.session["pista"]  # Obtener los datos del usuario desde la sesión
-        nombre_apellido = usuario.get("nombre") # Obtener el nombre completo del usuario
-        correo = usuario.get("correo") #  Obtener el correo del usuario
         return render(request, "usuarios/perfil_usuario.html", {
-            "nombre_apellido": nombre_apellido,  # Pasar el nombre al contexto
-            "correo": correo, # Pasar el correo al contexto
+            "dato": q,
         })
     else:
         messages.error(request, "Debes iniciar sesión para acceder a tu perfil.")

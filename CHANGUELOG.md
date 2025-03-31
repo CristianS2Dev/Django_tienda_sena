@@ -18,6 +18,14 @@
 
 ---
 
+## [v1.9.7-alpha.1] - 30-03-2025
+
+### Fixed
+
+- Se corrigen errores con el perfil y el sidebar
+
+---
+
 ## [v1.9.6-alpha.1] - 30-03-2025
 
 ### Added
