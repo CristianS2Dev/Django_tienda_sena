@@ -126,33 +126,23 @@ def agregar_producto(request):
         imagenes = request.FILES.getlist("imagenes")
 
         try:
-            # Calcular el precio final
-            precio_original = Decimal(precio_original)
-            descuento = Decimal(descuento)
-            if en_oferta and descuento > 0:
-                precio_final = round(precio_original - (precio_original * descuento / Decimal(100)), 2)
-            else:
-                precio_final = precio_original
-
             # Crear el producto
             producto = Producto(
                 nombre=nombre,
                 descripcion=descripcion,
-                precio_original=precio_original,
-                descuento=descuento,
+                precio_original=Decimal(precio_original),
+                descuento=Decimal(descuento),
                 en_oferta=en_oferta,
                 stock=stock,
                 vendedor_id=vendedor,
                 categoria=int(categoria),
                 color=color,
-                precio=precio_final,  # Guardar el precio final calculado
             )
             producto.save()
 
             # Guardar imágenes
             for imagen in imagenes:
                 ImagenProducto.objects.create(producto=producto, imagen=imagen)
-
             messages.success(request, "Producto guardado correctamente!")
         except Exception as e:
             messages.error(request, f"Error: {e}")
@@ -214,6 +204,7 @@ def editar_producto(request, id_producto):
     else:
         producto = Producto.objects.get(pk=id_producto)
         return render(request, "productos/agregar_productos.html", {"dato": producto})
+
 
 # -----------------------------------------------------
 def detalle_producto(request, id_producto):
