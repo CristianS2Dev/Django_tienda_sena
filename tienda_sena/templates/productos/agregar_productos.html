@@ -4,27 +4,26 @@
 {% block main %}
 
 {% if request.session.pista %}
-
-    <div class="container p-3">
+    <div class="container justify-content-center"> 
         {% if dato %}
         <h1>Actualizar Producto {{ dato }}</h1>
         {% else %}
              <h1>Agregar Producto</h1>
         {% endif %}
-        <div class="row">
-            <div class="col-md-8 card p-3">
+        <div class="row ">
+            <div class="card p-3">
                 <form action="{% if dato %}{% url 'editar_producto' dato.id %}{% else %}{% url 'agregar_producto' %}{% endif %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-group mb-3">
-                        <label class="mb-3" for="nombreProducto">Nombre del producto</label>
+                        <label class="mb-2" for="nombreProducto">Nombre del producto</label>
                         <input type="text" class="form-control" id="nombreProducto" name="nombre" placeholder="Nombre del producto" value="{{ dato.nombre|default:'' }}" required>
                     </div>
                     <div class="form-group mb-3">
-                        <label class="mb-3" for="descripcionProducto">Descripción del producto</label>
+                        <label class="mb-2" for="descripcionProducto">Descripción del producto</label>
                         <textarea class="form-control" id="descripcionProducto" name="descripcion" rows="3" required>{{ dato.descripcion|default:'' }}</textarea>
                     </div>
                     <div class="form-group mb-3">
-                        <label class="mb-3" for="precioProducto">Precio Original</label>
+                        <label class="mb-2" for="precioProducto">Precio Original</label>
                         <input type="number" class="form-control" id="precioProducto" name="precio_original" placeholder="Ingrese precio" value="{{ dato.precio_original|default:'' }}" required>
                     </div>
                     <div class="form-group mb-3">
@@ -32,15 +31,15 @@
                         <input type="checkbox" id="enOferta" name="en_oferta" class="form-check-input" {% if dato.en_oferta %}checked{% endif %}>
                     </div>
                     <div class="form-group mb-3">
-                        <label class="mb-3" for="precioDescuento">Descuento (%)</label>
+                        <label class="mb-2" for="precioDescuento">Descuento (%)</label>
                         <input type="number" class="form-control" id="precioDescuento" name="descuento" placeholder="Ingrese descuento" value="{{ dato.descuento|default:'0' }}">
                     </div>
                     <div class="form-group mb-3">
-                        <label class="mb-3" for="stockProducto">Stock</label>
+                        <label class="mb-2" for="stockProducto">Stock</label>
                         <input type="number" class="form-control" id="stockProducto" name="stock" placeholder="Ingrese stock" value="{{ dato.stock|default:'' }}" required>
                     </div>
                     <div class="form-group mb-3">
-                        <label class="mb-3" for="colorProducto">Color</label>
+                        <label class="mb-2" for="colorProducto">Color</label>
                         <select class="form-control" id="colorProducto" name="color">
                             {% for key, value in colores %}
                             <option value="{{ key }}" {% if key == dato.color %}selected{% endif %}>{{ value }}</option>
@@ -48,19 +47,18 @@
                         </select>
                     </div>
                     <div class="form-group mb-3">
-                        <label class="mb-3" for="categoriaProducto">Categoría</label>
+                        <label class="mb-2" for="categoriaProducto">Categoría</label>
                         <select class="form-control" id="categoriaProducto" name="categoria" required>
                             {% for key, value in categorias %}
                             <option value="{{ key }}" {% if key == dato.categoria %}selected{% endif %}>{{ value }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="border p-3 text-center">
-                        <label for="imagenesProducto" class="btn btn-primary">Agregar Imágenes</label>
-                        <input type="file" id="imagenesProducto" name="imagenes" accept="image/*" multiple style="display: none;">
-                        <p class="mt-2">O arrastra y suelta archivos aquí</p>
-                    </div>
                     <div class="form-group mb-3">
+                        <label for="imagenes" class="form-label">Imágenes (máximo 5)</label>
+                        <input class="form-control border p-3" type="file" id="imagenes" name="imagenes"  multiple accept=".jpeg,.jpg,.png,.gif,.webp">
+                    </div>
+                    <div class="form-group mb-2">
                         <label for="vendedor">Vendedor</label>
                         {% if dato %}
                         <input type="hidden" name="vendedor" value="{{ dato.vendedor.id }}">
@@ -72,26 +70,24 @@
                     </div>
                     <div class="d-flex justify-content-end">
                         {% if dato %}
-                        <button type="submit" class="btn btn-info">Actualizar</button>
+                        <button type="submit" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#successModal">Actualizar</button>
                         {% else %}
-                        <button type="submit" class="btn btn-success">Guardar</button>
+                        <button type="submit" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#successModal">Guardar</button>
                         {% endif %}
                     </div>
                 </form>
             </div>
-            <div class="col-md-4">
-                
-                <!-- Banner de publicidad -->
-                <div class="mt-4">
-                    <div class="card p-3 text-center">
-                        <p> banner </p>
+            <!-- Banner de publicidad -->
+            <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050; width: 300px; height: 300px;">
+                <div class="card text-center shadow" style="height: 100%;">
+                    <div class="card-body">
+                        <p class="mb-0">Banner</p>
                     </div>
                 </div>
             </div>
+           
         </div>
     </div>
-
-
 {% else %}
 <div class="container">
     <div class="alert alert-danger mt-3" role="alert">
@@ -99,5 +95,6 @@
     </div>
 </div>
 {% endif %}
+
 
 {% endblock %}
