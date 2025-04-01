@@ -39,7 +39,8 @@ urlpatterns = [
         path('productos/categoria/<int:categoria>/', views.productos_por_categoria, name='productos_por_categoria'),
         # Vendedor
             path('productos/vendedor/<int:id_vendedor>/', views.productos_vendedor, name='productos_vendedor'),
-        
+        # Usuario
+            
 
 ]
 

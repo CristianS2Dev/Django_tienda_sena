@@ -270,10 +270,13 @@ def usuarios(request):
 def agregar_usuario(request):
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
+        documento = request.POST.get("documento")
+        contacto = request.POST.get("contacto")
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         rol = request.POST.get("rol")
         imagen_perfil = request.FILES.get("imagen_perfil")  # para obtener la imagen del formulario
+        direccion = request.POST.get("direccion")
         try:
             if imagen_perfil:
             # Validar formatos permitidos
@@ -282,10 +285,13 @@ def agregar_usuario(request):
                     raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
             q = Usuario(
                 nombre_apellido=nombre_apellido,
+                documento = documento,
+                contacto = contacto,
                 correo=correo,
                 password=password,
                 rol=rol,
-                imagen_perfil=imagen_perfil  # Si es 1 solo archivo
+                imagen_perfil=imagen_perfil,  # Si es 1 solo archivo
+                direccion = direccion
             )
             q.save()
             messages.success(request, "Usuario guardado correctamente!")
@@ -302,14 +308,22 @@ def editar_usuario(request, id_usuario):
         q = Usuario.objects.get(pk = id_usuario)
         # procesar datos
         nombre_apellido = request.POST.get("nombre")
+        documento = request.POST.get("documento")
+        contacto = request.POST.get("contacto")
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         rol = request.POST.get("rol")
+        imagen_perfil=imagen_perfil,
+        direccion = request.POST.get("direccion")
         try:
             q.nombre_apellido = nombre_apellido
+            q.documento = documento
+            q.contacto = contacto
             q.correo = correo
             q.password = password
             q.rol = rol
+            q.imagen_perfil = imagen_perfil
+            q.direccion = direccion
             q.save()
             messages.success(request, "Usuario actualizado correctamente!")
         except Exception as e:
