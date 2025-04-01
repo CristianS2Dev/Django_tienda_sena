@@ -65,20 +65,21 @@ def registrarse(request):
         nombre_apellido = request.POST.get("nombre")
         correo = request.POST.get("correo")
         password = request.POST.get("password")
-        rol = request.POST.get("rol")
-        imagen_perfil = request.FILES.get("imagen_perfil")  # para obtener la imagen del formulario
+        rol = 2
+        
+        #imagen_perfil = request.FILES.get("imagen_perfil")  # para obtener la imagen del formulario
         try:
-            if imagen_perfil:
-            # Validar formatos permitidos
-                formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
-                if imagen_perfil.content_type not in formatos_permitidos:
-                    raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
+        #    if imagen_perfil:
+        #    
+        #        formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
+        #        if imagen_perfil.content_type not in formatos_permitidos:
+        #            raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
             usuario = Usuario(
                 nombre_apellido=nombre_apellido,
                 correo=correo,
                 password=password,
                 rol=rol,
-                imagen_perfil=imagen_perfil if imagen_perfil else None  # Si es 1 solo archivo
+                #imagen_perfil=imagen_perfil if imagen_perfil else None  # Si es 1 solo archivo
             )
             usuario.save()
             messages.success(request, "Usuario registrado correctamente!")
@@ -105,7 +106,7 @@ def perfil_usuario_id(request, id_usuario):
         
         "dato": q,
     })
-
+        
 # -----------------------------------------------------  
         #CRUD Listar productos usuario
 # -----------------------------------------------------

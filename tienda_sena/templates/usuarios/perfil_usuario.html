@@ -111,7 +111,7 @@
                 <p><strong>Contacto:</strong> {{ dato.contacto }}</p>
                 <p><strong>Email:</strong> {{ dato.correo }}</p>
                 <p><strong>Direccion:</strong> {{ dato.direccion }}</p>
-                <a class="btn btn-success" href="" >Actualizar Datos</a>
+                <a class="btn btn-success" href="#" >Actualizar Datos</a>
                 <!-- Agregar más detalles según sea necesario -->
             </div>
             <div class="modal-footer">
@@ -131,7 +131,8 @@
             <div class="modal-body">
                 <p><strong>Id Usuario:</strong> {{ dato.id }}</p>
                 <p><strong>Contraseña:</strong> {{ dato.password }}</p>
-                <a class="btn btn-success" href="" >Actualizar Datos</a>
+                <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
+                <a class="btn btn-success" href="#">Actualizar Datos</a>
                 <!-- Agregar más detalles según sea necesario -->
             </div>
             <div class="modal-footer">
