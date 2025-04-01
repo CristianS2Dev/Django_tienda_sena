@@ -16,6 +16,16 @@
 
 ### CHANGELOG
 
+---
+
+## [v1.12.10-alpha.1] - 1-04-2025
+
+### Added
+
+- Se agrega la vista `detalle_producto_admin`  
+
+---
+
 ### [v1.11.9-alpha.1] - 1-04-2025
 
 
