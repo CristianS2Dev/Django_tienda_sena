@@ -16,6 +16,14 @@
 
 ### CHANGELOG
 
+
+## [v1.12.11-alpha.1] - 1-04-2025
+
+### Fixed
+
+- Se modifican los requisitos de registro
+- Se muestra el Rol en los datos de la cuenta
+
 ---
 
 ## [v1.12.10-alpha.1] - 1-04-2025
