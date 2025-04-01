@@ -4,7 +4,16 @@
 {% block titulo %}Tienda Sena{% endblock %}
 
 {% block main %}
+    <h1 class="text-center p-3">Todos nuestros Productos</h1>
     {% block lista_productos %}
         {% include 'bases/_productos.html' %}
     {% endblock %}
+     <!-- Banner de publicidad -->
+    <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050; width: 300px; height: 860px;">
+        <div class="card text-center shadow" style="height: 100%;">
+            <div class="card-body">
+                <p class="mb-0">Banner</p>
+            </div>
+        </div>
+    </div>
 {% endblock %}
