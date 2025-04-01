@@ -1,9 +1,10 @@
 {% load static humanize custom_filters %}
 <div class="container p-3">
-    {% if request.session.pista.rol == 3 or request.session.pista.rol == 1 %}
-        <a href="{% url 'agregar_producto' %}" class="btn btn-success mb-3">Agregar</a>
+    {% if mostrar_boton_agregar %}
+        {% if request.session.pista.rol == 3 or request.session.pista.rol == 1 %}
+            <a href="{% url 'agregar_producto' %}" class="btn btn-success mb-3">Agregar</a>
+        {% endif %}
     {% endif %}
-    <h1>Productos</h1>
     <div class="row">
         {% for producto in data %}
         <div class="col-md-3 col-sm-6 mb-4">

@@ -1,0 +1,119 @@
+{% extends 'bases/base.html' %}
+{% load static humanize custom_filters %}
+
+
+{% block titulo %}Detalle del Producto{% endblock %}
+
+{% block main %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}" />
+<div class="container py-5">
+       <a href="{% url 'productos' %}" class="btn">
+        <i class="bi bi-arrow-left"></i> Volver al listado de productos
+    </a>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="">
+                {% for f in fotos %}
+                    {{ f }} <br>
+                    {% for g in f %}
+                    <img id="mainImage" src="{{ g }}" class="card-img-top img-fluid mb-3"
+                        
+                    {% endfor %}
+                {% endfor %}
+                <h1 class="h2 mb-3">{{ producto.nombre }}</h1>
+                {% if producto.imagenes.all|length > 0 %}
+                <img id="mainImage" src="{{ producto.imagenes.all.0.imagen.url }}" class="card-img-top img-fluid mb-3"
+                    alt="Imagen del producto">
+                {% else %}
+                <img id="mainImage" src="{% static 'images/product.jpg' %}" class="card-img-top img-fluid"
+                    alt="Imagen no disponible">
+                {% endif %}
+                <div class="card-body">
+                    <div class="row g-2 justify-content-center">
+                        {% for imagen in producto.imagenes.all %}
+                        <div class="col-3 col-md-2">
+                            <img src="{{ imagen.imagen.url }}" class="img-thumbnail thumbnail"
+                                alt="Thumbnail {{ forloop.counter }}"
+                                onclick="changeMainImage('{{ imagen.imagen.url }}')">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <p>Publicado por: {{ producto.vendedor.nombre_apellido }}</p>
+            <h1 class="h2 mb-3">{{ producto.nombre }}</h1>
+            <div class="mb-3">
+                <span class="h4 me-2 text-primary">${{ producto.precio|floatformat:0|intcomma|replace_comma }}</span>
+                {% if producto.en_oferta %}
+                <span class="text-muted text-decoration-line-through">
+                    ${{ producto.precio_original|floatformat:0|intcomma|replace_comma }}
+                </span>
+                <span class="badge bg-danger ms-2">{{ producto.descuento|floatformat:0 }}% OFF</span>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="text-warning me-2">
+                        <!-- Poner codigo parara las estrellas  -->
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <span class="text-muted">(128 reviews)</span>
+                </div>
+            </div>
+            <p class="mb-4">{{ producto.descripcion }}</p>
+            <div class="mb-4">
+                <h6 class="mb-2">Color</h6>
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="color" id="color_{{ producto.color }}" checked>
+                    <label class="btn btn-outline-secondary" for="color_{{ producto.color }}">{{ producto.get_color_display }}</label>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="d-flex align-items-center">
+                    <label class="me-2">Cantidad:</label>
+                    <select class="form-select w-auto">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" type="button">Añadir al carrito</button>
+                <button class="btn btn-outline-secondary" type="button">
+                    <i class="far fa-heart me-2"></i>Añadir a favoritos
+                </button>
+            </div>
+            <div class="mt-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-truck text-primary me-2"></i>
+                    <span>Envío gratis en pedidos superiores a $200.000</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-undo text-primary me-2"></i>
+                    <span>Política de devolución de 30 días</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-shield-alt text-primary me-2"></i>
+                    <span>Garantía de 2 años</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function changeMainImage(url) {
+    document.getElementById('mainImage').src = url;
+}
+</script>
+{% endblock %}

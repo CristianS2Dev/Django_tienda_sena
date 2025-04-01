@@ -33,8 +33,22 @@
     background-color: #eeeeee;
 
   }
+   
+  /* section 3 carrusel */
 
-  /*  CARDS SECTION 4*/
+  .carousel-image {
+    max-height: 500px; /* Ajusta este valor según sea necesario */
+    object-fit: cover;
+  }
+
+  @media (max-width: 768px) {
+    .carousel-image {
+      max-height: 200px; /* Ajusta este valor según sea necesario para dispositivos móviles */
+    }
+  }
+
+
+  /*  CARDS SECTION 5*/
   .card_sect4 {
     position: relative; 
     overflow: hidden;
