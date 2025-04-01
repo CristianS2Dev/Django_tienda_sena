@@ -16,7 +16,16 @@
 
 ### CHANGELOG
 
----
+### [v1.11.9-alpha.1] - 1-04-2025
+
+
+### Fixed
+
+- Se corrigen errores con el models.
+
+### Add
+
+- Se agregan modales al perfil del usuario
 
 ### [v1.10.8-alpha.1] - 30-03-2025
 

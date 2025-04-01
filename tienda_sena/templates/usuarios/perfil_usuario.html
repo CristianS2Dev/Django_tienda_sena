@@ -28,7 +28,7 @@
                         <img src="{% static 'assets/Andres.png' %}" class="border rounded-5 img-fluid" alt="Client Avatar">
                     {% endif %}
                 </div>
-                <div class="col-12 col-md-10 row d-flex text-start mb-5 p-2">
+                <div class="col-12 col-md-10 row d-flex text-start mb-5 p-2" data-bs-toggle="modal" data-bs-target="#userModal2">
                     <h5 class="client-name mb-1">{{ dato.nombre_apellido }}</h5>
                     <p>{{ dato.correo }}</p> <!-- Necesito el correo del usuario -->
                 </div>
@@ -41,16 +41,31 @@
                     <div class="col-2 col-sm-1 d-flex align-items-center justify-content-end p-2 d-none d-sm-flex">
                         <i class="border border-dark bi bi-person rounded-5 fs-2" style="width: 50px;"></i>
                     </div>
-                    <div class="col-8 col-md-9 text-start">
+                    <div class="col-8 col-md-9 text-start" data-bs-toggle="modal" data-bs-target="#userModal2">
                         <h5 class="mb-1">Datos de tu cuenta</h5>
                         <p class="mb-0">Datos que representan a la cuenta en Tienda Sena</p>
+                        
                     </div>
                     <div class="col-2 d-flex align-items-center justify-content-end">
                         <i class="fas fa-chevron-right"></i>
                     </div>
                 </div>  
             </a>
-            
+            <a href="#" class="list-group-item list-group-item-action">
+                <div class="row text-center">
+                    <div class="col-2 col-sm-1 d-flex align-items-center justify-content-end p-2 d-none d-sm-flex">
+                        <i class="border border-dark bi bi-person rounded-5 fs-2" style="width: 50px;"></i>
+                    </div>
+                    <div class="col-8 col-md-9 text-start" data-bs-toggle="modal" data-bs-target="#userModal1">
+                        <h5 class="mb-1">Informacion Personal</h5>
+                        <p class="mb-0">Datos que representan tus datos personales</p>
+                        
+                    </div>
+                    <div class="col-2 d-flex align-items-center justify-content-end">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>  
+            </a>
             <a href="#" class="list-group-item list-group-item-action">
                 <div class="row text-center">
                     <div class="col-2 col-sm-1 d-flex align-items-center justify-content-end p-2 d-none d-sm-flex">
@@ -81,6 +96,49 @@
             </a>
         </div>
     </div>    
+</div>
+<!-- Modal 1-->
+<div class="modal fade" id="userModal1" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Detalles del Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Nombre:</strong> {{ dato.nombre_apellido }}</p>
+                <p><strong>Documento:</strong> {{ dato.contacto }}</p>
+                <p><strong>Contacto:</strong> {{ dato.contacto }}</p>
+                <p><strong>Email:</strong> {{ dato.correo }}</p>
+                <p><strong>Direccion:</strong> {{ dato.direccion }}</p>
+                <a class="btn btn-success" href="" >Actualizar Datos</a>
+                <!-- Agregar más detalles según sea necesario -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal 2-->
+<div class="modal fade" id="userModal2" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Detalles del Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Id Usuario:</strong> {{ dato.id }}</p>
+                <p><strong>Contraseña:</strong> {{ dato.password }}</p>
+                <a class="btn btn-success" href="" >Actualizar Datos</a>
+                <!-- Agregar más detalles según sea necesario -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 {% else %}
