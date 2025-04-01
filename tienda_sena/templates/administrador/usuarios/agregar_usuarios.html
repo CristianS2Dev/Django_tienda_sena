@@ -14,8 +14,12 @@
 
     <form action="#" method="post">
         {% csrf_token %}
-        <label>Nombre:</label>
+        <label>Nombre Completo:</label>
         <input type="text" name="nombre" required="" class="form-control" value="{{ dato.nombre_apellido }}"/> <br>
+        <label>Documento:</label>
+        <input type="text" name="documento" required="" class="form-control" value="{{ dato.documento }}"/> <br>
+        <label>Contacto:</label>
+        <input type="number" name="contacto" required="" class="form-control" value="{{ dato.contacto }}"/> <br>
         <label>Correo:</label>
         <input type="email" name="correo" required="" class="form-control" value="{{ dato.correo }}"/> <br>
         <label>Contraseña:</label>
@@ -28,8 +32,9 @@
         </select>
         <br>
         <label for="imagen_perfil" class="form-label">Foto de perfil</label>
-        <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil">
-        <br>
+        <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil"><br>
+        <label>Direccion:</label>
+        <input type="text" name="direccion" required="" class="form-control" value="{{ dato.direccion }}"/> <br>
         {% if dato %}
             <button type="submit" class="btn btn-info">Actualizar</button>
         {% else %}
