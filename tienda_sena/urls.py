@@ -24,7 +24,8 @@ urlpatterns = [
         
             #Crud Productos
             path('productos', views.productos, name='productos'),
-            path('producto_vendedor/<int:id_vendedor>/', views.producto_vendedor, name='producto_vendedor'),
+            path('producto/<int:id_producto>/', views.detalle_producto_admin, name='detalle_producto_admin'),
+
         
 
 

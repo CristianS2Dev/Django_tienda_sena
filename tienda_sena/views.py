@@ -15,7 +15,11 @@ from django.db import IntegrityError
 
 # Create your views here.
 def index(request):
-    return render(request, 'index.html')
+    q = Producto.objects.all()
+    contexto = {'data': q,
+                'mostrar_boton_agregar': False,
+    }
+    return render(request, 'index.html', contexto)
 
 def login(request):
     if request.method == "POST":
@@ -116,23 +120,9 @@ def productos_vendedor(request, id_vendedor):
     contexto = {'data': productos}
     return render(request, 'productos/listar_productos.html', contexto)
 
-def producto_vendedor(request, id_vendedor):
-    try:
-        # Obtener el vendedor
-        vendedor = Usuario.objects.get(pk=id_vendedor)
-        # Obtener los productos asociados al vendedor
-        productos = Producto.objects.filter(vendedor_id=id_vendedor)
-        imagenes = []
-        for producto in productos:
-            fotos = ImagenProducto.objects.filter(producto = producto)
-            imagenes.append(fotos)
-            
-    except Usuario.DoesNotExist:
-        messages.error(request, "Vendedor no encontrado")
-        return redirect("detalle_producto", id_producto=id_vendedor)
-
-    contexto = {'data': productos, 'vendedor': vendedor, 'fotos': imagenes}
-    return render(request, 'productos/detalle_producto.html', contexto)
+def detalle_producto_admin(request, id_producto):
+    producto = get_object_or_404(Producto, id=id_producto)
+    return render(request, 'administrador/productos/detalle_producto_admin.html', {'producto': producto})
 # -----------------------------------------------------
 
 @session_rol_permission(1, 3)
