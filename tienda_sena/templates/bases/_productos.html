@@ -17,13 +17,11 @@
                     {% endif %}
                     <a href="{% url 'detalle_producto' producto.id %}">
                         {% if producto.imagenes.all %}
-                        <div class="ratio ratio-1x1">
-                            <img src="{{ producto.imagenes.all.0.imagen.url }}" class="img-fluid object-fit-cover"
-                                alt="{{ producto.nombre }}">
-                        </div>
+                            <div class="ratio ratio-1x1">
+                                <img src="{{ producto.imagenes.all.0.imagen.url }}" class="img-fluid object-fit-cover" alt="{{ producto.nombre }}">
+                            </div>
                         {% else %}
-                        <img src="{% static 'assets/product.png' %}" class="product-image card-img-top"
-                            alt="Imagen no disponible">
+                            <img src="{% static 'assets/product.png' %}" class="product-image card-img-top" alt="Imagen no disponible">
                         {% endif %}
                     </a>
                 </div>
@@ -44,7 +42,7 @@
                         </span>
                         {% endif %}
                     </div>
-                    {% if request.session.pista.rol == 3 or request.session.pista.rol == 1%}
+                    {% if request.session.pista.rol == 3 or request.session.pista.rol == 1 %}
                     <div class="d-grid gap-2 mt-3">
                         <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning">Editar</a>
                         <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-danger">Eliminar</a>
