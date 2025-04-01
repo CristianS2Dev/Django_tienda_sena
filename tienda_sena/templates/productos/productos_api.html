@@ -1,0 +1,21 @@
+{% extends 'bases/base.html' %}
+
+{% block main %}
+<div class="container py-5">
+    <h1 class="mb-4">Productos desde la API</h1>
+    <div class="row">
+        {% for producto in data %}
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ producto.image }}" class="card-img-top" alt="{{ producto.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ producto.title }}</h5>
+                    <p class="card-text text-muted">{{ producto.description|truncatechars:100 }}</p>
+                    <span class="h5 text-primary">${{ producto.price }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

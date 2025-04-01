@@ -16,6 +16,14 @@
 
 ### CHANGELOG
 
+---
+
+## [v1.12.13-alpha.1] - 1-04-2025
+
+### Fixed
+
+- Se corrigen errores
+
 
 ## [v1.12.11-alpha.1] - 1-04-2025
 
