@@ -10,6 +10,7 @@ from .templatetags.custom_filters import *
 
 
 
+
 from django.contrib import messages
 from django.db import IntegrityError
 
@@ -360,3 +361,5 @@ def productos(request):
     contexto = { "data": q }
     return render(request, "administrador/productos/listar_productos.html", contexto)
 
+def modulo_tienda(request):
+    return render(request, 'productos/tienda.html')
