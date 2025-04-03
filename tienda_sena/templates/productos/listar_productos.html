@@ -4,16 +4,114 @@
 {% block titulo %}Tienda Sena{% endblock %}
 
 {% block main %}
-    <h1 class="text-center p-3">Todos nuestros Productos</h1>
+<style>
+.card-sleek {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-sleek:hover {
+  transform: translateY(-5px);
+}
+
+.card-sleek .card-body {
+  padding: 2rem;
+  flex: 1; /* Permite que el cuerpo de la tarjeta crezca */
+}
+
+.card-sleek .card-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.card-sleek .btn-sleek {
+  background-color: #fff;
+  color: #667eea;
+  font-weight: bold;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  align-self: flex-start; /* Alinea el botón al inicio del eje principal */
+}
+
+.card-sleek .btn-sleek:hover {
+  background-color: #667eea;
+  color: #fff;
+}
+</style>
+    <section class="w-100 text-center p-3 fondo-animado">
+        <div class="text-center">
+        <h1>Bienvenido a Tienda SENA</h1>
+        <p>Descubre productos unicos y creativo, diseñados por jovenes emprendedores con pasion e innovacion</p>
+        </div>
+        <div class="container d-flex flex-column ">
+            <h1 class="text-center mt-5 mb-1">Explora nuestras categorias</h1>        
+            <div class="container row gap-3 d-flex justify-content-center p-5">
+                <div class="card card-sleek col-md-3 h-25" style="max-width: 460px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Moda</h5>
+                        <a href="#" class="btn btn-sleek">Ver mas</a>
+                    </div>
+                </div>
+                <div class="card card-sleek col-md-3 h-25" style="max-width: 460px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Tecnologia</h5>                       
+                        <a href="#" class="btn btn-sleek">Ver mas</a>
+                    </div>
+                </div>
+                <div class="card card-sleek col-md-3 h-25" style="max-width: 460px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Artesania</h5>
+                        <a href="#" class="btn btn-sleek">Ver mas</a>
+                    </div>
+                </div>
+                <div class="card card-sleek col-md-3 h-25" style="max-width: 460px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Accesorios</h5>
+                        <a href="#" class="btn btn-sleek">Ver mas</a>
+                    </div>
+                </div>
+                <div class="card card-sleek col-md-3 h-25" style="max-width: 460px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Servicios</h5>
+                        <a href="#" class="btn btn-sleek">Ver mas</a>
+                    </div>
+                </div>
+                <div class="card card-sleek col-md-3 h-25" style="max-width: 460px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Otros</h5>
+                        <a href="#" class="btn btn-sleek">Ver mas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
     {% block lista_productos %}
         {% include 'bases/_productos.html' %}
     {% endblock %}
-     <!-- Banner de publicidad -->
-    <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050; width: 300px; height: 860px;">
+    <!-- Banner de publicidad -->
+    <!-- <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050; width: 300px; height: 860px;">
         <div class="card text-center shadow" style="height: 100%;">
             <div class="card-body">
                 <p class="mb-0">Banner</p>
             </div>
         </div>
-    </div>
+    </div> -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+          <li class="page-item disabled">
+            <a class="page-link">Anterior</a>
+          </li>
+          <li class="page-item"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item">
+            <a class="page-link" href="#">Siguiente</a>
+          </li>
+        </ul>
+      </nav>
 {% endblock %}
