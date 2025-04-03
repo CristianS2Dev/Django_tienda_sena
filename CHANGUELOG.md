@@ -16,6 +16,12 @@
 
 ### CHANGELOG
 
+## [v1.13.13-alpha.1] - 3-04-2025
+
+### Fixxed
+
+- Se complementa la vista Tienda
+
 ---
 
 ## [v1.12.13-alpha.1] - 1-04-2025
