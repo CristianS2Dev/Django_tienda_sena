@@ -16,6 +16,18 @@
 
 ### CHANGELOG
 
+---
+
+## [v1.13.14-alpha.1] - 4-04-2025
+
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+- Se corrige la vista de los productos
+
+---
+
 ## [v1.13.13-alpha.1] - 3-04-2025
 
 ### Fixxed
