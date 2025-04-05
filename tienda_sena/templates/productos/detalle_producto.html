@@ -10,14 +10,6 @@
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="">
-                {% for f in fotos %}
-                    {{ f }} <br>
-                    {% for g in f %}
-                    <img id="mainImage" src="{{ g }}" class="card-img-top img-fluid mb-3"
-                        
-                    {% endfor %}
-                {% endfor %}
-                <h1 class="h2 mb-3">{{ producto.nombre }}</h1>
                 {% if producto.imagenes.all|length > 0 %}
                 <img id="mainImage" src="{{ producto.imagenes.all.0.imagen.url }}" class="card-img-top img-fluid mb-3"
                     alt="Imagen del producto">
@@ -106,6 +98,18 @@
         </div>
     </div>
 </div>
+
+<section class="text-center py-5 bg-light">
+    <div class="container">
+      <h1 class="display-5 fw-bold text-primary mb-4">Explora Nuestros Productos</h1>
+      <div class="row">
+        {% include 'bases/_productos.html' %}
+       </div>
+       <a href="{% url 'lista_productos' %}" class="btn btn-outline-primary btn-lg mt-4">
+           <i class="bi bi-box-arrow-right"></i> Ver más Productos
+       </a>
+     </div>
+ </section>
 
 <script>
 function changeMainImage(url) {
