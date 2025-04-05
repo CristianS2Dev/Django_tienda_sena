@@ -24,7 +24,7 @@ urlpatterns = [
         
             #Crud Productos
             path('productos', views.productos, name='productos'),
-            path('producto/<int:id_producto>/', views.detalle_producto_admin, name='detalle_producto_admin'),
+            path('producto/admin/<int:id_producto>/', views.detalle_producto_admin, name='detalle_producto_admin'),
 
         
 
@@ -35,7 +35,7 @@ urlpatterns = [
         path('lista_productos', views.lista_productos, name='lista_productos'),
         path('agregar_producto', views.agregar_producto, name='agregar_producto'),
         path('editar_producto/<int:id_producto>/', views.editar_producto, name='editar_producto'),
-        path('producto/<int:id_producto>/', views.detalle_producto, name='detalle_producto'),
+        path('producto/user/<int:id_producto>/', views.detalle_producto, name='detalle_producto'),
         path('eliminar_producto/<int:id_producto>/', views.eliminar_producto, name='eliminar_producto'),
         path('productos/categoria/<int:categoria>/', views.productos_por_categoria, name='productos_por_categoria'),
         # Vendedor

@@ -16,7 +16,7 @@ from django.db import IntegrityError
 
 # Create your views here.
 def index(request):
-    q = Producto.objects.all()
+    q = Producto.objects.all()[:4]
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
     }
@@ -114,7 +114,9 @@ def perfil_usuario_id(request, id_usuario):
 
 def lista_productos(request):
     q = Producto.objects.all()
-    contexto = {'data': q}
+    contexto = {'data': q,
+                'mostrar_boton_agregar': True,
+    }
     return (render(request, 'productos/listar_productos.html', contexto))
 
 def productos_vendedor(request, id_vendedor):
@@ -227,8 +229,11 @@ def editar_producto(request, id_producto):
 
 # -----------------------------------------------------
 def detalle_producto(request, id_producto):
+    q = Producto.objects.all()[:4]
+    contexto = {'data': q
+    }
     producto = get_object_or_404(Producto, id=id_producto)
-    return render(request, 'productos/detalle_producto.html', {'producto': producto})
+    return render(request, 'productos/detalle_producto.html', {'producto': producto , 'data': q})
 
 # -----------------------------------------------------
 @session_rol_permission(1, 3)

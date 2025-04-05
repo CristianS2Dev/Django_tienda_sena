@@ -26,8 +26,8 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">{{ producto.nombre }}</h5>
-                    <p class="card-text text-muted">{{ producto.descripcion }}</p>
+                    <h5 class="card-title">{{ producto.nombre|slice:":20" }}{% if producto.nombre|length > 100 %}...{% endif %}</h5>
+                    <p class="card-text text-muted">{{ producto.descripcion|slice:":50" }}{% if producto.descripcion|length > 100 %}...{% endif %}</p>
                     <div class="d-flex justify-content-between align-items-center">
                         {% if producto.en_oferta %}
                         <span class="text-muted text-decoration-line-through">

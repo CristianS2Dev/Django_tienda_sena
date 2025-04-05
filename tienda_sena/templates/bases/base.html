@@ -28,9 +28,6 @@
                 <a class="nav-link active fw-medium text-white ms-3" aria-current="page" href="{% url 'index' %}">Inicio</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active fw-medium text-white" aria-current="page" href="#">Sobre Nosotros</a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link active fw-medium text-white " aria-current="page" href="{% url 'lista_productos' %}">Tienda</a>
               </li>
               <li class="nav-item dropdown">
@@ -44,7 +41,9 @@
                       {% endfor %}
                   </ul>
               </li>
-              
+              <li class="nav-item">
+                <a class="nav-link active fw-medium text-white" aria-current="page" href="#">Sobre Nosotros</a>
+              </li>
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
