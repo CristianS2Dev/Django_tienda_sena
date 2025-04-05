@@ -68,50 +68,92 @@ Para ejecutar esta plataforma web de manera óptima, tu PC debe cumplir con los 
 
 ---
 
-# Guía de Trabajo con Ramas y Sincronización
+# Guía de Trabajo con Git para Equipos
 
 ### Antes de Comenzar a Hacer Cambios
 
-### Mantener la rama main actualizada (antes de trabajar)
+## 1. Antes de Empezar a Trabajar
 
-1. Cambiar a la rama `main`:
-   ```bash
-   git checkout main
-   ```
+### Mantener la rama `main` actualizada
 
-2. Actualizar la rama `main`:
-   ```bash
-   git pull origin main
-   ```
+```bash
+# Cambiar a la rama main
+git checkout main
 
-### Integrar los últimos cambios de main a tu rama de trabajo
+# Traer los últimos cambios del servidor
+git pull origin main
+```
 
-3. Cambiar a tu rama de trabajo:
-   ```bash
-   git checkout dark
-   # O el nombre de la rama en la que trabajes.
-   ```
+### Crear o actualizar tu rama de trabajo
 
-4. Obtener los últimos cambios de la rama `main` y fusionarlos con `merge`:
-   ```bash
-   git merge main
-   # O usar rebase si prefieres:
-   # git rebase main
-  
-  >[!NOTE]
-  >La diferencia entre merge y rebase es que merge crea un nuevo commit de fusión, mientras que rebase aplica tus cambios sobre los cambios de la rama main, creando un historial más limpio.
+```bash
+# Cambiar a tu rama de trabajo
+git checkout dark  # O el nombre de tu rama
 
+# Fusionar los cambios recientes de main
+git merge main     # O usa git rebase main si prefieres un historial más limpio
+```
 
-5. Realizar cambios, añadir y confirmar:
+---
+
+## 2. Trabajando y Subiendo Cambios
+
+### Hacer cambios y subirlos
+
+```bash
+git add .
+git commit -m "Descripción de los cambios"
+git push origin dark  # O el nombre de tu rama
+```
+
+---
+
+## 3. ¿Qué Hacer Si Otra Persona Ya Subió Cambios?
+
+Si alguien más modificó el mismo archivo y ya subió los cambios:
+
+1. **Guarda tus cambios localmente**
+
    ```bash
    git add .
-   git commit -m "Descripción de los cambios"
-   git tag -a v1.1.0-alpha.1 -m "v1.1.0-alpha.1"
+   git commit -m "Mis cambios locales"
    ```
 
-6. Subir los cambios a la rama remota:
+2. **Trae los últimos cambios del servidor sin fusionarlos directamente**
+
    ```bash
-   git push -u origin dark --tags
-   # O el nombre de la rama en la que trabajes.
+   git fetch origin
    ```
-Recuerda resolver cualquier conflicto que pueda surgir durante el merge o rebase.
+
+3. **Integra los cambios recientes**
+
+   - **Opción 1 (merge, más sencillo):**
+     ```bash
+     git merge origin/dark  # Si tu rama es "dark"
+     ```
+   - **Opción 2 (rebase, mantiene un historial más limpio):**
+     ```bash
+     git rebase origin/dark
+     ```
+>[!NOTE]
+>La diferencia entre merge y rebase es que merge crea un nuevo commit de fusión, mientras que rebase aplica tus cambios sobre los cambios de la rama main, creando un historial más limpio.
+
+4. **Resolver conflictos (si los hay)**
+
+   - Si Git marca un conflicto, abre el archivo y edita las partes conflictivas.
+   - Luego, marca el archivo como resuelto y continúa el proceso:
+     ```bash
+     git add archivo_conflictivo
+     git rebase --continue  # Solo si usaste rebase
+     ```
+
+5. **Subir los cambios corregidos**
+
+   ```bash
+   git push origin dark
+   ```
+   - Si usaste `rebase`, podrías necesitar `git push --force`.
+
+---
+
+
