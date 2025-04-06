@@ -18,6 +18,16 @@
 
 ---
 
+## [v1.13.15-alpha.1] - 4-06-2025
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+- Se corrige la vista de los productos
+- Se corrige la vista index
+
+---
+
 ## [v1.13.14-alpha.1] - 4-04-2025
 
 
