@@ -16,7 +16,7 @@ from django.db import IntegrityError
 
 # Create your views here.
 def index(request):
-    q = Producto.objects.all()[:4]
+    q = Producto.objects.all()[:3]
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
     }
@@ -66,6 +66,7 @@ def registrarse(request):
         nombre_apellido = request.POST.get("nombre")
         correo = request.POST.get("correo")
         password = request.POST.get("password")
+        valid_password = request.POST.get("valid_password")
         rol = 2
         
         #imagen_perfil = request.FILES.get("imagen_perfil")  # para obtener la imagen del formulario
@@ -75,13 +76,17 @@ def registrarse(request):
         #        formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
         #        if imagen_perfil.content_type not in formatos_permitidos:
         #            raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
-            usuario = Usuario(
-                nombre_apellido=nombre_apellido,
-                correo=correo,
-                password=password,
-                rol=rol,
-                #imagen_perfil=imagen_perfil if imagen_perfil else None  # Si es 1 solo archivo
-            )
+            if password ==  valid_password: 
+                usuario = Usuario(
+                    nombre_apellido=nombre_apellido,
+                    correo=correo,
+                    password=password,
+                    rol=rol,
+                    #imagen_perfil=imagen_perfil if imagen_perfil else None  # Si es 1 solo archivo
+                )
+            else:
+                messages.error(request, "Las contraseñas no coinciden.")
+                return redirect("registrarse")
             usuario.save()
             messages.success(request, "Usuario registrado correctamente!")
             return redirect("login")
@@ -229,7 +234,7 @@ def editar_producto(request, id_producto):
 
 # -----------------------------------------------------
 def detalle_producto(request, id_producto):
-    q = Producto.objects.all()[:4]
+    q = Producto.objects.all()[:3]
     contexto = {'data': q
     }
     producto = get_object_or_404(Producto, id=id_producto)
