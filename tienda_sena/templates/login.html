@@ -2,6 +2,11 @@
 {% load static %}
 
 {% block main %}
+<div id="notificaciones">
+    {% if messages %}
+        {% for message in messages %} 
+            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+</div>
 <link rel="stylesheet" href="{% static 'css/login.css' %}" />
 <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
 
@@ -27,7 +32,7 @@
                 <button type="submit" class="btn btn-success btn-lg ">Iniciar Sesion</button>
             </div>
             <div class="text-center mt-1">
-                <a href="#" class="small">¿No tienes una cuenta? <strong>Inscribete</strong></a>
+                <a href="{% url 'registrarse' %}" class="small">¿No tienes una cuenta? <strong>Inscribete</strong></a>
             </div>
         </form>
     </div>
