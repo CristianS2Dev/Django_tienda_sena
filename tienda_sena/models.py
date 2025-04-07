@@ -6,8 +6,8 @@ class Usuario(models.Model):
     nombre_apellido = models.CharField(max_length=150)
     documento = models.CharField(max_length=20, default="000000")
     contacto = models.IntegerField(default=0)
-    correo = models.CharField(max_length=254)
-    password = models.CharField(max_length=254)
+    correo = models.CharField(max_length=254, unique=True)
+    password = models.CharField(max_length=20)
     ROLES = (
         (1, "Administrador"),
         (2, "Cliente"),
