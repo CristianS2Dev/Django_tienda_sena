@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from decimal import Decimal
 from .models import *
 from .utils import *
+import re
 from .templatetags.custom_filters import *
 
 
@@ -69,32 +70,42 @@ def registrarse(request):
         valid_password = request.POST.get("valid_password")
         rol = 2
         
-        #imagen_perfil = request.FILES.get("imagen_perfil")  # para obtener la imagen del formulario
-        try:
-        #    if imagen_perfil:
-        #    
-        #        formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
-        #        if imagen_perfil.content_type not in formatos_permitidos:
-        #            raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
-            if password ==  valid_password: 
-                usuario = Usuario(
-                    nombre_apellido=nombre_apellido,
-                    correo=correo,
-                    password=password,
-                    rol=rol,
-                    #imagen_perfil=imagen_perfil if imagen_perfil else None  # Si es 1 solo archivo
-                )
-            else:
+        try:                 
+            if password != valid_password:
                 messages.error(request, "Las contraseñas no coinciden.")
                 return redirect("registrarse")
+            
+            # Validar contraseña con una sola condición
+            if not (re.search(r'[A-Z]', password) and 
+                    re.search(r'[a-z]', password) and 
+                    re.search(r'\d', password) and 
+                    re.search(r'[!@#$%^&*(),.?":{}|<>]', password) and 
+                    8 <= len(password) <= 20):
+                messages.error(request, "La contraseña debe tener entre 8 y 20 caracteres, al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.")
+                return redirect("registrarse")
+            
+            # Crear el usuario si todo está correcto
+            usuario = Usuario(
+                nombre_apellido=nombre_apellido,
+                correo=correo,
+                password=password,
+                rol=rol,
+            )
             usuario.save()
             messages.success(request, "Usuario registrado correctamente!")
             return redirect("login")
+        except IntegrityError:
+            messages.error(request, "Error: El correo ya está registrado")
+            return redirect("registrarse")
+        except Usuario.DoesNotExist:
+            messages.error(request, "Error: El usuario ya existe")
+            return redirect("registrarse")
         except Exception as e:
             messages.error(request, f"Error: {e}")
             return redirect("registrarse")
     else:
         return render(request, "registrarse.html")
+
 
 def perfil_usuario(request):
     q = Usuario.objects.get(pk=request.session["pista"]["id"])
