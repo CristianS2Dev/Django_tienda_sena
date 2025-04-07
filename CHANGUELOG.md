@@ -18,6 +18,16 @@
 
 ---
 
+## [v1.14.17-alpha.1] - 4-06-2025
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+- Se corrige la vista index
+
+---
+
+
 ## [v1.13.16-alpha.1] - 4-06-2025
 
 ### Fixed
