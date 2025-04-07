@@ -4,6 +4,10 @@
 {% block titulo %}Landin Page{% endblock%}
 
 {% block main %}
+<div id="notificaciones">
+  {% if messages %}
+      {% for message in messages %} 
+          <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
 <section class=" w-100 text-center p-3 fondo-animado">
     <div class="text-center p-5">
               <h1 class="p-3 display-4 fw-bold text-primary">Diseños que inspiran</h1>
@@ -177,7 +181,7 @@
         </div>
         <div class="col-10 col-md-5">
             <h5>Envianos un mensaje</h5>
-            <p>contacto@tiendasena.com</p>
+            <p>tiendasenaccc@gmail.com</p>
             <div class="d-flex flex-column ">
                 <h5><a href="#">Instagram</a></h5>
                 <h5><a href="#">Facebook</a></h5>
