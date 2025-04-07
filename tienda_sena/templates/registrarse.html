@@ -5,6 +5,16 @@
 
 <link rel="stylesheet" href="{% static 'css/registro.css' %}" />
 <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+<nav>
+    <div class="nav_styles navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index'  %}">
+                <img src="{% static 'assets/canvas.png' %}" alt="Logo" width="60" height="48" class="d-inline-block align-text-top">
+            </a>
+        </div>
+    </div>
+</nav>
+
 <section class="container-registro">
     <div class="registro-modal position-relative">
         <div class="sing-up text-end">
@@ -28,6 +38,9 @@
             <div class="mb-3 position-relative">
                 <label for="password" class="form-label">Contraseña</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña">
+                <small class="text-muted" style="display: {% if error_password %}block{% else %}none{% endif %};">
+                    La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.
+                </small>
             </div>
             <div class="mb-3 position-relative">
                 <div id="notificaciones">
