@@ -7,6 +7,8 @@ from decimal import Decimal
 from .models import *
 from .utils import *
 import re
+import json
+from django.http import JsonResponse
 from .templatetags.custom_filters import *
 
 
@@ -161,6 +163,13 @@ def agregar_producto(request):
         imagenes = request.FILES.getlist("imagenes")
 
         try:
+            if precio_original < 0:
+                messages.error(request, "El precio original no puede ser negativo.")
+            if descuento < 0 or descuento > 100:
+                 messages.error(request,"El descuento debe estar entre 0 y 100.")
+            if stock < 0:
+                 messages.error(request,"El stock no puede ser negativo.")
+
             # Crear el producto
             producto = Producto(
                 nombre=nombre,
@@ -173,6 +182,7 @@ def agregar_producto(request):
                 categoria=int(categoria),
                 color=color,
             )
+            producto.full_clean()
             producto.save()
 
             # Guardar imágenes
@@ -223,6 +233,7 @@ def editar_producto(request, id_producto):
             producto.vendedor_id = vendedor
             producto.categoria = categoria
             producto.color = color
+            producto.full_clean()
             producto.save()
             # Guardar las nuevas imágenes asociadas al producto
             for imagen in imagenes:
@@ -245,11 +256,12 @@ def editar_producto(request, id_producto):
 
 # -----------------------------------------------------
 def detalle_producto(request, id_producto):
-    q = Producto.objects.all()[:3]
-    contexto = {'data': q
-    }
     producto = get_object_or_404(Producto, id=id_producto)
-    return render(request, 'productos/detalle_producto.html', {'producto': producto , 'data': q})
+    rango_cantidad = range(1, producto.stock + 1)  # Generar el rango basado en el stock
+    return render(request, 'productos/detalle_producto.html', {
+        'producto': producto,
+        'rango_cantidad': rango_cantidad
+    })
 
 # -----------------------------------------------------
 @session_rol_permission(1, 3)
@@ -384,3 +396,84 @@ def productos(request):
 
 def modulo_tienda(request):
     return render(request, 'productos/tienda.html')
+
+
+
+# ---------------------------------------------
+    ## Carrito de compras
+# ---------------------------------------------
+
+def obtener_carrito(request):
+    if request.session.get("pista"):  # Verifica si hay una sesión activa
+        usuario_id = request.session["pista"]["id"]
+        usuario = get_object_or_404(Usuario, id=usuario_id)  # Obtén el usuario desde tu modelo personalizado
+        carrito, creado = Carrito.objects.get_or_create(usuario=usuario)
+    else:
+        # Usar un carrito basado en cookies para usuarios no autenticados
+        carrito_id = request.session.get('carrito_id')
+        if carrito_id:
+            carrito = Carrito.objects.filter(id=carrito_id).first()
+        else:
+            carrito = Carrito.objects.create()
+            request.session['carrito_id'] = carrito.id
+    return carrito
+
+
+def agregar_carrito(request, id_producto):
+    carrito = obtener_carrito(request)
+    producto = get_object_or_404(Producto, id=id_producto)
+    cantidad = int(request.POST.get('cantidad', 1))
+
+    # Buscar si el producto ya está en el carrito
+    elemento, creado = ElementoCarrito.objects.get_or_create(carrito=carrito, producto=producto)
+    if not creado:
+        elemento.cantidad += cantidad  # Incrementar la cantidad si ya existe
+    else:
+        elemento.cantidad = cantidad  # Establecer la cantidad si es un nuevo elemento
+    elemento.save()
+
+    messages.success(request, f"{producto.nombre} agregado al carrito.")
+    return redirect('carrito')
+
+def carrito(request):
+    carrito = obtener_carrito(request)
+    elementos = carrito.elementos.all()  # Obtener todos los elementos del carrito
+    total = carrito.total()  # Calcular el total del carrito
+
+    contexto = {
+        'elementos': elementos,
+        'total': total,
+    }
+    return render(request, 'productos/carrito/carrito.html', contexto)
+
+
+def eliminar_del_carrito(request, id_elemento):
+    elemento = get_object_or_404(ElementoCarrito, id=id_elemento)
+    elemento.delete()
+    messages.success(request, "Producto eliminado del carrito.")
+    return redirect('carrito')
+
+
+
+def actualizar_carrito(request, id_elemento):
+    if request.method == 'POST':
+        elemento = get_object_or_404(ElementoCarrito, id=id_elemento)
+        nueva_cantidad = int(request.POST.get('cantidad', 1))
+
+        if nueva_cantidad > elemento.producto.stock:
+            return JsonResponse({'error': 'Cantidad excede el stock disponible'}, status=400)
+
+        if nueva_cantidad > 0:
+            elemento.cantidad = nueva_cantidad
+            elemento.save()
+            return JsonResponse({
+                'subtotal': elemento.subtotal(),
+                'total': elemento.carrito.total()
+            })
+        else:
+            elemento.delete()
+            return JsonResponse({
+                'subtotal': 0,
+                'total': elemento.carrito.total()
+            })
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

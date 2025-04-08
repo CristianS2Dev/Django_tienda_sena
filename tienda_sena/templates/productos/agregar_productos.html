@@ -5,6 +5,11 @@
 
 {% if request.session.pista %}
     <div class="container justify-content-center"> 
+        <div class="container justify-content-center"> 
+            {% if messages %}
+            {% for message in messages %} 
+                <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+        </div>
         {% if dato %}
         <h1>Actualizar Producto {{ dato }}</h1>
         {% else %}
@@ -24,7 +29,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <label class="mb-2" for="precioProducto">Precio Original</label>
-                        <input type="number" class="form-control" id="precioProducto" name="precio_original" placeholder="Ingrese precio" value="{{ dato.precio_original|default:'' }}" required>
+                        <input type="number" class="form-control" id="precioProducto" name="precio_original" min="0" step="0.01" placeholder="Ingrese precio" value="{{ dato.precio_original|default:'' }}" required>
                     </div>
                     <div class="form-group mb-3">
                         <label for="enOferta">En Oferta</label>
@@ -32,11 +37,11 @@
                     </div>
                     <div class="form-group mb-3">
                         <label class="mb-2" for="precioDescuento">Descuento (%)</label>
-                        <input type="number" class="form-control" id="precioDescuento" name="descuento" placeholder="Ingrese descuento" value="{{ dato.descuento|default:'0' }}">
+                        <input type="number" class="form-control" id="precioDescuento" name="descuento" min="0" placeholder="Ingrese descuento" value="{{ dato.descuento|default:'0' }}">
                     </div>
                     <div class="form-group mb-3">
                         <label class="mb-2" for="stockProducto">Stock</label>
-                        <input type="number" class="form-control" id="stockProducto" name="stock" placeholder="Ingrese stock" value="{{ dato.stock|default:'' }}" required>
+                        <input type="number" class="form-control" id="stockProducto" name="stock" min="0" placeholder="Ingrese stock" value="{{ dato.stock|default:'' }}" required>
                     </div>
                     <div class="form-group mb-3">
                         <label class="mb-2" for="colorProducto">Color</label>
