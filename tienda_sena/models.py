@@ -1,5 +1,6 @@
 from django.db import models
 from decimal import Decimal
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Usuario(models.Model):
@@ -49,6 +50,14 @@ class Producto(models.Model):
     precio_original = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
+    def clean(self):
+        if self.stock < 0:
+            raise ValidationError("El stock no puede ser negativo.")
+        if self.precio_original is not None and self.precio_original < 0:
+            raise ValidationError("El precio original no puede ser negativo.")
+        if self.descuento < 0:
+            raise ValidationError("El descuento no puede ser negativo.")
+
     @property
     def precio(self):
         """Calcula el precio final basado en el descuento."""
@@ -67,3 +76,26 @@ class ImagenProducto(models.Model):
         return f"Imagen de {self.producto.nombre}"
 
 
+class Carrito(models.Model):
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, null=True, blank=True, related_name='carritos')
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    def total(self):
+        """Calcula el total del carrito sumando los subtotales de los elementos."""
+        return sum(item.subtotal() for item in self.elementos.all()) # suma de los subtotales de cada elemento
+
+    def __str__(self):
+        return f"Carrito de {self.usuario.nombre if self.usuario else 'Invitado'}"
+
+class ElementoCarrito(models.Model):
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='elementos')
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+
+    def subtotal(self):
+        """Calcula el subtotal del elemento (precio del producto * cantidad)."""
+        return self.cantidad * self.producto.precio
+
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre} en {self.carrito}"

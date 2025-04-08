@@ -17,7 +17,8 @@
     
     <!-- Contenido principal -->
     <div class="container content" style="padding: 20px;padding-top: 40px;">
-        <h1>Hola {{ dato.nombre_apellido }}</h1> <!-- Mostrar el nombre del usuario -->
+        <h1>Hola {{ dato.nombre_apellido }}</h1>
+        <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
 
         <div class="card text-center mt-5 mb-3">
             <div class="row d-flex justify-content-end p-2">
