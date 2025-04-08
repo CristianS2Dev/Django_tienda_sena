@@ -15,6 +15,20 @@
 ---
 
 ### CHANGELOG
+---
+
+### [v1.15.18-alpha.1] - 4-08-2025
+
+### Added
+
+- Se agrega la vista `carrito` para el usuario
+- Se agregan validaciones para el registro de productos
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+- Se corrigen errores para el registro de productos
+
 
 ---
 
