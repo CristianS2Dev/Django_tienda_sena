@@ -11,6 +11,7 @@ import json
 from django.http import JsonResponse
 from .templatetags.custom_filters import *
 
+from django.core.exceptions import PermissionDenied
 
 
 
@@ -61,6 +62,13 @@ def logout(request):
         messages.error(request, "Ocurrio un error")
         return redirect("index")
 
+def correo_valido(correo):
+    patron = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(patron, correo) is not None
+
+class CorreoInvalidoError(Exception):
+    pass
+
 def registrarse(request):
     if request.session.get("pista"):
         messages.info(request, "Ya tienes una sesión activa. :)")
@@ -72,7 +80,11 @@ def registrarse(request):
         valid_password = request.POST.get("valid_password")
         rol = 2
         
-        try:                 
+        try:
+            
+            if not correo_valido(correo):
+                raise CorreoInvalidoError("Correo electrónico inválido")
+            
             if password != valid_password:
                 messages.error(request, "Las contraseñas no coinciden.")
                 return redirect("registrarse")
@@ -81,8 +93,8 @@ def registrarse(request):
             if not (re.search(r'[A-Z]', password) and 
                     re.search(r'[a-z]', password) and 
                     re.search(r'\d', password) and 
-                    re.search(r'[!@#$%^&*(),.?":{}|<>]', password) and 
-                    8 <= len(password) <= 20):
+                    re.search(r'[!@#$%^&*(),.?":{}|<>-]', password) and 
+                    4 <= len(password) <= 20):
                 messages.error(request, "La contraseña debe tener entre 8 y 20 caracteres, al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.")
                 return redirect("registrarse")
             
@@ -96,12 +108,16 @@ def registrarse(request):
             usuario.save()
             messages.success(request, "Usuario registrado correctamente!")
             return redirect("login")
+        except CorreoInvalidoError:
+            messages.error(request, 'Error, el correo no es valido')
+            return redirect("registrarse")  
         except IntegrityError:
             messages.error(request, "Error: El correo ya está registrado")
             return redirect("registrarse")
         except Usuario.DoesNotExist:
             messages.error(request, "Error: El usuario ya existe")
             return redirect("registrarse")
+        
         except Exception as e:
             messages.error(request, f"Error: {e}")
             return redirect("registrarse")
@@ -361,9 +377,13 @@ def editar_usuario(request, id_usuario):
 
 def eliminar_usuario(request, id_usuario):
     try:
-        q = Usuario.objects.get(pk = id_usuario)
-        q.delete()
-        messages.success(request, 'Producto eliminado Correctamente...')
+        # respuesta = request.POST.get('confirmar_eliminar_usuario')        
+        q = Usuario.objects.get(pk=id_usuario)  
+        if q.rol != 1:# and respuesta == 'acepto'
+            q.delete()
+            messages.success(request, 'Usuario eliminado Correctamente...')
+        else:
+            messages.error(request,"No puedes eliminar un administrador" )
     except Usuario.DoesNotExist:
         messages.warning(request, "Error: El usuaro no existe")
     except Exception as e:

@@ -17,6 +17,14 @@
 ### CHANGELOG
 ---
 
+### [v1.16.18-alpha.1] - 4-08-2025
+
+### Added
+
+- Se agregan validaciones para el correo y eliminacion de usuarios
+
+
+
 ### [v1.15.18-alpha.1] - 4-08-2025
 
 ### Added

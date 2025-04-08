@@ -14,7 +14,6 @@
         </div>
     </div>
 </nav>
-
 <section class="container-registro">
     <div class="registro-modal position-relative">
         <div class="sing-up text-end">
@@ -35,19 +34,14 @@
                 <label for="correo" class="form-label">Email</label>
                 <input type="email" class="form-control" id="correo" name="correo" placeholder="Ingresa tu correo">
             </div>
+            
             <div class="mb-3 position-relative">
                 <label for="password" class="form-label">Contraseña</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña">
-                <small class="text-muted" style="display: {% if error_password %}block{% else %}none{% endif %};">
-                    La contraseña debe tener entre 8 y 20 caracteres, incluir al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.
-                </small>
+                
             </div>
             <div class="mb-3 position-relative">
-                <div id="notificaciones">
-                    {% if messages %}
-                        {% for message in messages %} 
-                            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
-                </div>
+                
                 <label for="password" class="form-label">Confirmar Contraseña</label>
                 <input type="password" class="form-control" id="password" name="valid_password" placeholder="Verifica tu contraseña">
             </div>
@@ -63,13 +57,20 @@
                 <label for="imagen_perfil" class="form-label">Imagen de Perfil</label>
                 <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil">
             </div>-->
+            <div id="notificaciones">
+                {% if messages %}
+                    {% for message in messages %} 
+                        <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+            </div>
             <div class="form-check mb-2">
                 <input type="checkbox" class="form-check-input" id="terms" required>
                 <label class="form-check-label" for="terms">Al crear una cuenta, acepta los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a>.</label>
             </div>
+            
             <div class="text-center mt-1">
                 <button type="submit" class="btn btn-success btn-registro btn-lg">Registrarse</button>
             </div>
+
         </form>
     </div>
 </section>
