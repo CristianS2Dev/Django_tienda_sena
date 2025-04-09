@@ -131,7 +131,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <span class="fw-bold" id="subtotal-{{ elemento.id }}">${{ elemento.subtotal }}</span>
+                                    <span class="fw-bold" id="subtotal-{{ elemento.id }}">${{ elemento.subtotal|floatformat:0|intcomma|replace_comma }}</span>
                                 </div>
                                 <div class="col-md-1">
                                     <form method="POST" action="{% url 'eliminar_del_carrito' elemento.id %}">
@@ -153,10 +153,10 @@
                     <h5 class="mb-4">Resumen del Pedido</h5>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Total</span>
-                        <span class="fw-bold" id="total">${{ total }}</span>
+                        <span class="fw-bold" id="total">${{ total|floatformat:0|intcomma|replace_comma }}</span> 
                     </div>
                     {% if request.session.pista %}
-                        <button class="btn btn-primary checkout-btn w-100 mb-3" onclick="window.location.href='{% url 'proceso_pago' %}'">
+                        <button class="btn btn-primary checkout-btn w-100 mb-3" onclick="window.location.href='#">
                             Proceder al Pago
                         </button>
                     {% else %}

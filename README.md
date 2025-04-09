@@ -24,12 +24,25 @@ git clone https://github.com/Ausuga3/tienda_sena_django.git
 cd tienda-sena  
 ```
 
-### 2. Migraciones de base de datos  
+### 2. Instalar dependencias  
+Asegúrate de tener un entorno virtual configurado y activo. Luego, instala las dependencias necesarias:  
+
+```bash
+pip install -r requirements.txt
+```
+
+Si las dependencias **Pillow** y **pyClamd** no están en el archivo `requirements.txt`, instálalas manualmente:  
+
+```bash
+pip install pillow pyclamd
+```
+
+### 3. Migraciones de base de datos  
 ```bash
 python manage.py migrate  
 ```
 
-### 3. Ejecutar el servidor  
+### 4. Ejecutar el servidor  
 Ubícate en la carpeta principal del proyecto, donde está el archivo `manage.py`, y ejecuta:  
 
 En **Linux**:  
