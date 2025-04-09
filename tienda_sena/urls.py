@@ -23,7 +23,7 @@ urlpatterns = [
         path('perfil_usuario_id/<int:id_usuario>/', views.perfil_usuario_id, name='perfil_usuario_id'),
         
             #Crud Productos
-            path('productos', views.productos, name='productos'),
+            path('productos_admnin', views.productos_admnin, name='productos_admnin'),
             path('producto/admin/<int:id_producto>/', views.detalle_producto_admin, name='detalle_producto_admin'),
 
               # vistas de carrito
@@ -32,9 +32,6 @@ urlpatterns = [
                 path('carrito/eliminar/<int:id_elemento>/', views.eliminar_del_carrito, name='eliminar_del_carrito'),
                 path('carrito/actualizar/<int:id_elemento>/', views.actualizar_carrito, name='actualizar_carrito'),
                 path('carrito/actualizar/<int:id_elemento>/', views.actualizar_carrito, name='actualizar_carrito'),
-
-        
-
 
     
     # Vista Usuario

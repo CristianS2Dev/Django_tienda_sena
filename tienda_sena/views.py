@@ -10,6 +10,7 @@ import re
 import json
 from django.http import JsonResponse
 from .templatetags.custom_filters import *
+import pyclamd
 
 from django.core.exceptions import PermissionDenied
 
@@ -141,6 +142,40 @@ def perfil_usuario_id(request, id_usuario):
         
         "dato": q,
     })
+
+def validar_archivo(imagen):
+    """Valida el tipo de archivo permitido."""
+    formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
+    if imagen.content_type not in formatos_permitidos:
+        raise ValidationError(f"Formato no permitido: {imagen.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
+
+def validar_tamano_archivo(imagen, max_size_mb=5):
+    """Valida el tamaño del archivo subido."""
+    if imagen.size > max_size_mb * 1024 * 1024:
+        raise ValidationError(f"El archivo excede el tamaño máximo permitido de {max_size_mb} MB.")
+
+def escanear_archivo(imagen):
+    """Escanea el archivo en busca de virus usando ClamAV."""
+    cd = pyclamd.ClamdNetworkSocket()  # Conéctate al demonio ClamAV
+    if not cd.ping():
+        raise Exception("ClamAV no está disponible.")
+    result = cd.scan_stream(imagen.read())
+    if result:
+        raise ValidationError("El archivo contiene un virus.")
+    
+
+def validar_imagen(imagen, max_size_mb=5):
+    """Valida el tipo, tamaño y seguridad del archivo."""
+    try:
+        validar_archivo(imagen)
+        validar_tamano_archivo(imagen, max_size_mb)
+        escanear_archivo(imagen)
+    except ValidationError as ve:
+        raise ValidationError(f"Error de validación: {ve}")
+    except Exception as e:
+        raise Exception(f"Error al escanear archivo: {e}")
+
+
         
 # -----------------------------------------------------  
         #CRUD Listar productos usuario
@@ -161,7 +196,7 @@ def productos_vendedor(request, id_vendedor):
 def detalle_producto_admin(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)
     return render(request, 'administrador/productos/detalle_producto_admin.html', {'producto': producto})
-# -----------------------------------------------------
+
 
 @session_rol_permission(1, 3)
 def agregar_producto(request):
@@ -185,6 +220,19 @@ def agregar_producto(request):
                  messages.error(request,"El descuento debe estar entre 0 y 100.")
             if stock < 0:
                  messages.error(request,"El stock no puede ser negativo.")
+
+            # Validar y procesar imágenes
+            for imagen in imagenes:
+                try:
+                    validar_archivo(imagen)
+                    validar_tamano_archivo(imagen)
+                    escanear_archivo(imagen)
+                except ValidationError as ve:
+                    messages.error(request, f"Error de validación: {ve}")
+                    return redirect("agregar_producto")
+                except Exception as e:
+                    messages.error(request, f"Error al escanear archivo: {e}")
+                    return redirect("agregar_producto")
 
             # Crear el producto
             producto = Producto(
@@ -219,7 +267,6 @@ def agregar_producto(request):
             'categorias': categorias,
         })
     
-# -----------------------------------------------------
 
 @session_rol_permission(1, 3)
 def editar_producto(request, id_producto):
@@ -249,6 +296,19 @@ def editar_producto(request, id_producto):
             producto.vendedor_id = vendedor
             producto.categoria = categoria
             producto.color = color
+
+            for imagen in imagenes:
+                try:
+                    validar_archivo(imagen)
+                    validar_tamano_archivo(imagen)
+                    escanear_archivo(imagen)
+                except ValidationError as ve:
+                    messages.error(request, f"Error de validación: {ve}")
+                    return redirect("editar_producto", id_producto=id_producto)
+                except Exception as e:
+                    messages.error(request, f"Error al escanear archivo: {e}")
+                    return redirect("editar_producto", id_producto=id_producto)
+
             producto.full_clean()
             producto.save()
             # Guardar las nuevas imágenes asociadas al producto
@@ -270,7 +330,6 @@ def editar_producto(request, id_producto):
         return render(request, "productos/agregar_productos.html", {"dato": producto})
 
 
-# -----------------------------------------------------
 def detalle_producto(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)
     rango_cantidad = range(1, producto.stock + 1)  # Generar el rango basado en el stock
@@ -279,7 +338,6 @@ def detalle_producto(request, id_producto):
         'rango_cantidad': rango_cantidad
     })
 
-# -----------------------------------------------------
 @session_rol_permission(1, 3)
 def eliminar_producto(request, id_producto):
     try:
@@ -292,11 +350,27 @@ def eliminar_producto(request, id_producto):
         messages.error(request, f"Error {e}")
     return redirect("lista_productos")
 
+def productos_por_categoria(request, categoria):
+    try:
+        # Convertir el valor de categoria a entero
+        categoria = int(categoria)
+        productos = Producto.objects.filter(categoria=categoria)
+        # Obtener el nombre de la categoría
+        categoria_nombre = dict(Producto.CATEGORIAS).get(categoria, "Categoría desconocida")
+    except ValueError:
+        # Si no es un entero, mostrar categoría desconocida
+        productos = []
+
+    contexto = {'productos': productos, 'categoria': categoria_nombre}
+    return render(request, 'productos/productos_por_categoria.html', contexto)
+
+# -----------------------------------------------------
+# -----------------------------------------------------
 
 
 
 # -----------------------------------------------------
-#Admin
+                #ADMINISTRADOR
 # -----------------------------------------------------
 
 def panel_admin(request):
@@ -316,23 +390,32 @@ def agregar_usuario(request):
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         rol = request.POST.get("rol")
-        imagen_perfil = request.FILES.get("imagen_perfil")  # para obtener la imagen del formulario
+        imagen_perfil = request.FILES.get("imagen_perfil")  # Obtener la imagen del formulario
         direccion = request.POST.get("direccion")
+
         try:
             if imagen_perfil:
-            # Validar formatos permitidos
-                formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
-                if imagen_perfil.content_type not in formatos_permitidos:
-                    raise ValidationError(f"Formato no permitido: {imagen_perfil.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
+                try:
+                    validar_archivo(imagen_perfil) 
+                    validar_tamano_archivo(imagen_perfil) 
+                    escanear_archivo(imagen_perfil) 
+                except ValidationError as ve:
+                    messages.error(request, f"Error de validación: {ve}")
+                    return redirect("agregar_usuario")
+                except Exception as e:
+                    messages.error(request, f"Error al escanear archivo: {e}")
+                    return redirect("agregar_usuario")
+
+            # Crear el usuario
             q = Usuario(
                 nombre_apellido=nombre_apellido,
-                documento = documento,
-                contacto = contacto,
+                documento=documento,
+                contacto=contacto,
                 correo=correo,
                 password=password,
                 rol=rol,
-                imagen_perfil=imagen_perfil,  # Si es 1 solo archivo
-                direccion = direccion
+                imagen_perfil=imagen_perfil,  # Guardar la imagen si es válida
+                direccion=direccion
             )
             q.save()
             messages.success(request, "Usuario guardado correctamente!")
@@ -343,6 +426,7 @@ def agregar_usuario(request):
         return redirect("usuarios")
     else:
         return render(request, "administrador/usuarios/agregar_usuarios.html")
+
 
 def editar_usuario(request, id_usuario):
     if request.method == "POST":
@@ -357,6 +441,18 @@ def editar_usuario(request, id_usuario):
         imagen_perfil=imagen_perfil,
         direccion = request.POST.get("direccion")
         try:
+            if imagen_perfil:
+                try:
+                    validar_archivo(imagen_perfil) 
+                    validar_tamano_archivo(imagen_perfil) 
+                    escanear_archivo(imagen_perfil) 
+                except ValidationError as ve:
+                    messages.error(request, f"Error de validación: {ve}")
+                    return redirect("agregar_usuario")
+                except Exception as e:
+                    messages.error(request, f"Error al escanear archivo: {e}")
+                    return redirect("agregar_usuario")
+
             q.nombre_apellido = nombre_apellido
             q.documento = documento
             q.contacto = contacto
@@ -391,25 +487,12 @@ def eliminar_usuario(request, id_usuario):
 
     return redirect("usuarios")
 
-
-
-def productos_por_categoria(request, categoria):
-    try:
-        # Convertir el valor de categoria a entero
-        categoria = int(categoria)
-        productos = Producto.objects.filter(categoria=categoria)
-        # Obtener el nombre de la categoría
-        categoria_nombre = dict(Producto.CATEGORIAS).get(categoria, "Categoría desconocida")
-    except ValueError:
-        # Si no es un entero, mostrar categoría desconocida
-        productos = []
-
-    contexto = {'productos': productos, 'categoria': categoria_nombre}
-    return render(request, 'productos/productos_por_categoria.html', contexto)
+# -----------------------------------------------------
+# -----------------------------------------------------
 
 #-------------PRODUCTOS------------------------
 
-def productos(request):
+def productos_admnin(request):
     q = Producto.objects.all()
     contexto = { "data": q }
     return render(request, "administrador/productos/listar_productos.html", contexto)
