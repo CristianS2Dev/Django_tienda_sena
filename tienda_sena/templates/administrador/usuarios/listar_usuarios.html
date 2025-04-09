@@ -5,6 +5,11 @@
 <div class="d-flex flex-wrap content">
     {% include 'bases/_sidebar_usuario.html' %}
     <div class="container mt-5">
+        <div id="notificaciones">
+            {% if messages %}
+                {% for message in messages %} 
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+        </div>
         <h1>Usuarios</h1>
         <a href="{% url 'agregar_usuario' %}" class="btn btn-success mb-3">Agregar</a>
         <table class="table">
@@ -32,4 +37,30 @@
         </table>
     </div>    
 </div>
+<!-- <div class="modal fade" id="userModal3" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true"> -->
+    <!-- <div class="modal-dialog"> -->
+        <!-- <div class="modal-content"> -->
+            <!-- <div class="modal-header"> -->
+                <!-- <h5 class="modal-title" id="userModalLabel">Detalles del Usuario</h5> -->
+                <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+            <!-- </div> -->
+            <!-- <div class="modal-body"> -->
+                <!-- <p>¿Estás seguro de que deseas eliminar al usuario <strong>{{ usuario.nombre }}</strong>? Esta acción no se puede deshacer.</p> -->
+                <!-- <form action="#" method="post"> -->
+                    <!-- {% csrf_token %} -->
+                    <!-- <input type="hidden" name="id_usuario" value="{{ usuario.id }}"> -->
+                    <!-- <label for="confirmar_eliminar_usuario">Escribe 'acepto' para confirmar:</label> -->
+                    <!-- <input type="text" id="confirmar_eliminar_usuario" name="confirmar_eliminar_usuario" class="form-control" required> -->
+                    <!-- <div class="mt-3"> -->
+                        <!-- <button type="submit" class="btn btn-danger">Eliminar</button> -->
+                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button> -->
+                    <!-- </div> -->
+                <!-- </form> -->
+            <!-- </div> -->
+            <!-- <div class="modal-footer"> -->
+                <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button> -->
+            <!-- </div> -->
+        <!-- </div> -->
+    <!-- </div> -->
+<!-- </div> -->
 {% endblock %}
