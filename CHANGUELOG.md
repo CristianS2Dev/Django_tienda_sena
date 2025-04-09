@@ -15,6 +15,20 @@
 ---
 
 ### CHANGELOG
+
+---
+
+### [v1.17.19-alpha.1] - 4-08-2025
+
+### Added
+
+- Se agrega validaciones para la imagen de los productos
+- Se agrega validacion para escanear la imagen de los productos 
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+
 ---
 
 ### [v1.16.18-alpha.1] - 4-08-2025
