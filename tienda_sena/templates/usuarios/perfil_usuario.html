@@ -81,20 +81,6 @@
                     </div>
                 </div>  
             </a>
-            <a href="#" class="list-group-item list-group-item-action">
-                <div class="row text-center">
-                    <div class="col-2 col-sm-1 d-flex align-items-center justify-content-end p-2 d-none d-sm-flex">
-                        <i class="border border-dark bi bi-geo-alt-fill rounded-5 fs-2" style="width: 50px;"></i>
-                    </div>
-                    <div class="col-8 col-md-9 text-start">
-                        <h5 class="mb-1">Direcciones</h5>
-                        <p class="mb-0">Direcciones guardadas en tu cuenta</p>  
-                    </div>
-                    <div class="col-2 d-flex align-items-center justify-content-end">
-                        <i class="fas fa-chevron-right"></i>
-                    </div>
-                </div>  
-            </a>
         </div>
     </div>    
 </div>
@@ -112,7 +98,7 @@
                 <p><strong>Contacto:</strong> {{ dato.contacto }}</p>
                 <p><strong>Email:</strong> {{ dato.correo }}</p>
                 <p><strong>Direccion:</strong> {{ dato.direccion }}</p>
-                <a class="btn btn-success" href="#" >Actualizar Datos</a>
+                <a class="btn btn-success" href="{% url 'actualizar_perfil' %}" >Actualizar Datos</a>
                 <!-- Agregar más detalles según sea necesario -->
             </div>
             <div class="modal-footer">
@@ -131,9 +117,7 @@
             </div>
             <div class="modal-body">
                 <p><strong>Id Usuario:</strong> {{ dato.id }}</p>
-                <p><strong>Contraseña:</strong> {{ dato.password }}</p>
                 <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
-                <a class="btn btn-success" href="#">Actualizar Datos</a>
                 <!-- Agregar más detalles según sea necesario -->
             </div>
             <div class="modal-footer">
