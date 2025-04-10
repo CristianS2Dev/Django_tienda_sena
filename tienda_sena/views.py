@@ -13,6 +13,7 @@ from .templatetags.custom_filters import *
 from django.contrib.auth.hashers import check_password
 from django.urls import reverse
 from .utils import session_rol_permission
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -152,6 +153,37 @@ def perfil_usuario_id(request, id_usuario):
         
         "dato": q,
     })
+
+
+@login_required
+def actualizar_perfil(request):
+    usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
+    if request.method == "POST":
+        nombre_apellido = request.POST.get("nombre")
+        contacto = request.POST.get("contacto")
+        direccion = request.POST.get("direccion")
+        imagen_perfil = request.FILES.get("imagen_perfil")
+
+        try:
+            if imagen_perfil:
+                validar_archivo(imagen_perfil)
+                validar_tamano_archivo(imagen_perfil)
+                escanear_archivo(imagen_perfil)
+                usuario.imagen_perfil = imagen_perfil  # Actualizar la imagen de perfil
+
+            usuario.nombre_apellido = nombre_apellido
+            usuario.contacto = contacto
+            usuario.direccion = direccion
+            usuario.save()
+            messages.success(request, "Perfil actualizado correctamente!")
+        except ValidationError as ve:
+            messages.error(request, f"Error de validación: {ve}")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+        return redirect("perfil_usuario")
+    else:
+        return render(request, "usuarios/actualizar_perfil.html", {"usuario": usuario})
+
 
 def validar_archivo(imagen):
     """Valida el tipo de archivo permitido."""
