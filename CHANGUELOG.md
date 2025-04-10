@@ -18,6 +18,21 @@
 
 ---
 
+### [v1.18.17-alpha.1] - 4-08-2025
+
+### Added
+
+- Se agrega validaciones para el carrito de compras
+- Se agrega validacion para la incriptacion de la contraseña
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+- Se corrigen errores con el carrito de compras
+
+
+---
+
 ### [v1.17.19-alpha.1] - 4-08-2025
 
 ### Added
