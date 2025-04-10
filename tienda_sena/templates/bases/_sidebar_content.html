@@ -122,7 +122,8 @@
             </li>
             {% if request.session.pista.rol == 2 %}
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="#">
+
+                    <a class="nav-link text-white" href="{% url 'actualizar_perfil' %}">
                         <i class="fas fa-cog me-2"></i> Completar Perfil
                     </a>
                 </li>
