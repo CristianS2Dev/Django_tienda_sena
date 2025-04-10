@@ -1,6 +1,7 @@
 from django.db import models
 from decimal import Decimal
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password
 
 # Create your models here.
 class Usuario(models.Model):
@@ -8,7 +9,7 @@ class Usuario(models.Model):
     documento = models.CharField(max_length=20, default="000000")
     contacto = models.IntegerField(default=0)
     correo = models.CharField(max_length=254, unique=True)
-    password = models.CharField(max_length=20)
+    password = models.CharField(max_length=128)
     ROLES = (
         (1, "Administrador"),
         (2, "Cliente"),
@@ -18,6 +19,13 @@ class Usuario(models.Model):
     imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)  # Campo para la foto de perfil
     direccion = models.CharField(max_length=254, default="none")
     
+    def save(self, *args, **kwargs):
+        # Encriptar la contraseña si no está encriptada
+        if not self.password.startswith('pbkdf2_'):  # Evitar encriptar una contraseña ya encriptada
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
+
+
     def __str__(self):
         return f"{self.nombre_apellido} - {self.rol}"
     
