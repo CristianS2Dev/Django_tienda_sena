@@ -32,7 +32,7 @@ urlpatterns = [
                 path('carrito/eliminar/<int:id_elemento>/', views.eliminar_del_carrito, name='eliminar_del_carrito'),
                 path('carrito/actualizar/<int:id_elemento>/', views.actualizar_carrito, name='actualizar_carrito'),
                 path('carrito/actualizar/<int:id_elemento>/', views.actualizar_carrito, name='actualizar_carrito'),
-
+                path('pagar_carrito/', views.pagar_carrito, name='pagar_carrito'),
     
     # Vista Usuario
         path('perfil_usuario/', views.perfil_usuario, name='perfil_usuario'),
