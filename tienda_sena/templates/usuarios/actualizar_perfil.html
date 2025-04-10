@@ -1,0 +1,30 @@
+{% extends "bases/base.html" %}
+
+{% block main %}
+<div class="container">
+    <div class="m-5">
+        <h2 class="text-tittle text-center">Actualizar Perfil</h2>
+    </div>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="nombre">Nombre Completo:</label>
+        <input type="text" id="nombre" name="nombre"  class="form-control" value="{{ usuario.nombre_apellido }}" required><br>
+    
+        <label>Documento:</label>
+        <input type="text" id="documento" name="documento" class="form-control" value="{{ usuario.documento }}" required> <br>
+    
+        <label for="contacto">Contacto:</label>
+        <input type="text" id="contacto" name="contacto" class="form-control" value="{{ usuario.contacto }}" required><br>
+    
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion" name="direccion" class="form-control" value="{{ usuario.direccion }}" required><br>
+    
+        <label for="imagen_perfil">Imagen de Perfil:</label>
+        <input type="file" id="imagen_perfil" name="imagen_perfil"><br>
+        <div class="d-grid gap-2 col-3 mx-auto mb-5">
+            <button  class="btn btn-success btn-lg" type="submit">Actualizar</button>
+            <a class="btn btn-danger btn-lg" href="{% url 'perfil_usuario' %}" > Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

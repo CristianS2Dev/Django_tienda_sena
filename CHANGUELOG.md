@@ -16,6 +16,18 @@
 
 ### CHANGELOG
 
+### [v1.19.18-alpha.1] - 4-10-2025
+
+### Added
+
+- Se agrega template de actualizar datos.
+- Se agrega funcion para actualizar datos.
+
+
+### Fixed
+
+- Se mejora navbar para cerrar secion directamente.
+
 ---
 
 ### [v1.18.17-alpha.1] - 4-08-2025
