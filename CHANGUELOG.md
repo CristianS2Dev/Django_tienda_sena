@@ -15,6 +15,11 @@
 ---
 
 ### CHANGELOG
+### [v1.19.19-alpha.1] - 4-10-2025
+
+### Added
+
+- Se agrega vista del sobre nosotros
 
 ---
 
