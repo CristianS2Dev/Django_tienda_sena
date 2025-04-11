@@ -1,0 +1,32 @@
+{% extends 'bases/base.html' %}
+{% load static %}
+
+{% block main %}
+<div id="notificaciones">
+    {% if messages %}
+        {% for message in messages %} 
+            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+</div>
+<div class="container">
+
+    <div class="m-5">
+        <h2 class="text-tittle text-center">Actualizar Contraseña</h2>
+    </div>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="contraseña">Contraseña actual:</label>
+        <input type="password" id="password" name="password"  class="form-control" required><br>
+        
+        <label for="contraseña">Nueva contraseña:</label>
+        <input type="password" id="new_password" name="new_password"  class="form-control" required><br>
+
+        <label for="contraseña">Confirmar contraseña:</label>
+        <input type="password" id="confirm_new_password" name="confirm_new_password"  class="form-control" required><br>
+
+        <div class="d-grid gap-2 col-3 mx-auto mb-5">
+            <button  class="btn btn-success btn-lg" type="submit">Actualizar</button>
+            <a class="btn btn-danger btn-lg" href="{% url 'perfil_usuario' %}" > Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
