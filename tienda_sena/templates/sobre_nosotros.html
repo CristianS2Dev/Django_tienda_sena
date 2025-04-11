@@ -1,0 +1,131 @@
+{% extends 'bases/base.html' %}
+{% load static %}
+
+{% block title %} Mi perfil {% endblock %}
+
+{% block main %}
+<link rel="stylesheet" href="{% static 'css/sobre_nosotros.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+<section class="about-us py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 col-sm-2">
+              <h3 class="card-title display-5 text-primary m-1 fw-semibold mb-4">Conoce nuestra historia</h3>
+                <p class="text-muted mb-4 fw-semibold">Descubre cómo transformamos sueños estudiantiles en realidades <br />
+                  empresariales.</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-primary">Nuestra Misión</h5>
+                        <ul class="list-unstyled">
+                            <p>Fomentamos el espíritu emprendedor entre los estudiantes, brindándoles las herramientas necesarias para innovar.
+                              Nuestro objetivo es conectar ideas creativas con oportunidades reales de mercado.
+                              Creemos en el potencial de cada estudiante para cambiar el mundo con sus ideas únicas.</p>
+                        </ul>
+                    </div>
+                </div>
+                <a href="{% url 'registrarse' %}" class="btn btn-primary mt-4">Unete a nosotros</a>
+            </div>
+            <div class="col-md-6">
+                <img src="{% static 'assets/img_principal.jpg' %}" alt="About Us" class="img-fluid rounded shadow img" style="object-fit: cover; object-position: top; width: 100%; max-height: 400px;">
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-3 col-6 mb-4">
+                <div class="text-center">
+                    <i class="bi bi-people fs-1 text-primary mb-2"></i>
+                    <h2 class="fw-bold">500+</h2>
+                    <p class="text-muted">Clients</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="text-center">
+                    <i class="bi bi-briefcase fs-1 text-primary mb-2"></i>
+                    <h2 class="fw-bold">1000+</h2>
+                    <p class="text-muted">Projects</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="text-center">
+                    <i class="bi bi-trophy fs-1 text-primary mb-2"></i>
+                    <h2 class="fw-bold">50+</h2>
+                    <p class="text-muted">Awards</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-4">
+                <div class="text-center">
+                    <i class="bi bi-globe fs-1 text-primary mb-2"></i>
+                    <h2 class="fw-bold">20+</h2>
+                    <p class="text-muted">Countries</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="py-6 bg-soft">
+  <div class="container py-5">
+      <!-- Section Header -->
+      <div class="row justify-content-center text-center mb-5">
+          <div class="col-lg-6">
+              <div class="section display-1 text-primary ">Nuestro equipo</div>
+              <h2 class="section-title">TIENDA SENA</h2>
+              <p class="text-muted">Trabajando juntos para crear experiencias excepcionales</p>
+          </div>
+      </div>
+
+      <!-- Team Members -->
+      <div class="row g-4">
+          <!-- Team Member 1 -->
+          <div class="col-lg-3 col-md-6">
+              <div class="team-card h-100">
+                  <img src="https://randomuser.me/api/portraits/women/4.jpg" alt="Team member" class="team-image w-100">
+                  <div class="p-4">
+                      <span class="role-tag">Fundador</span>
+                      <h5>Andres Usuga Arenas</h5>
+                      <p class="text-muted mb-4">Visionary leader with a passion for innovation and sustainable
+                          growth.</p>
+                      <div class="member-social d-flex">
+                          <a href="#" class="social-link">LinkedIn</a>
+                          <a href="#" class="social-link">Twitter</a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Team Member 2 -->
+          <div class="col-lg-3 col-md-6">
+              <div class="team-card h-100">
+                  <img src="https://randomuser.me/api/portraits/men/63.jpg" alt="Team member" class="team-image w-100">
+                  <div class="p-4">
+                      <span class="role-tag">Design Lead</span>
+                      <h5>Juan Camilo Gallego</h5>
+                      <p class="text-muted mb-4">Creating beautiful, intuitive experiences that inspire and delight.
+                      </p>
+                      <div class="member-social d-flex">
+                          <a href="#" class="social-link">LinkedIn</a>
+                          <a href="#" class="social-link">Dribbble</a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <!-- Team Member 4 -->
+          <div class="col-lg-3 col-md-6">
+              <div class="team-card h-100">
+                  <img src="https://randomuser.me/api/portraits/men/14.jpg" alt="Team member" class="team-image w-100">
+                  <div class="p-4">
+                      <span class="role-tag">Strategy</span>
+                      <h5>Cristian David Vargas A</h5>
+                      <p class="text-muted mb-4">Driving growth through strategic planning and market analysis.</p>
+                      <div class="member-social d-flex">
+                          <a href="#" class="social-link">LinkedIn</a>
+                          <a href="#" class="social-link">Twitter</a>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+
+{% endblock %}
