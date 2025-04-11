@@ -15,6 +15,17 @@
 ---
 
 ### CHANGELOG
+## [v1.21.21-alpha.1] - 4-11-2025
+
+### Added
+
+- Se agrega funcionalidad para cambiar contraseña
+
+
+
+### Changed
+
+- Se cambia validacion de contraseña y se convierte en una funcion
 
 ---
 

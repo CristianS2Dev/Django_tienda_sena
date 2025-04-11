@@ -22,7 +22,7 @@ urlpatterns = [
         path("editar_usuario/<int:id_usuario>/", views.editar_usuario, name="editar_usuario"),
         path("eliminar_usuario/<int:id_usuario>/", views.eliminar_usuario, name="eliminar_usuario"),
         path('perfil_usuario_id/<int:id_usuario>/', views.perfil_usuario_id, name='perfil_usuario_id'),
-        
+        path('actualizar_contraseña', views.actualizar_contraseña, name="actualizar_contraseña"),
             #Crud Productos
             path('productos_admnin', views.productos_admnin, name='productos_admnin'),
             path('producto/admin/<int:id_producto>/', views.detalle_producto_admin, name='detalle_producto_admin'),

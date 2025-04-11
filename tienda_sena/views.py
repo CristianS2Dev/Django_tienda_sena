@@ -85,6 +85,28 @@ def correo_valido(correo):
 class CorreoInvalidoError(Exception):
     pass
 
+def validar_contraseña(password):
+    if not password:
+        return False, "La contraseña no puede estar vacía."
+    
+    if not (8 <= len(password) <= 20):
+        return False, "La contraseña debe tener entre 8 y 20 caracteres."
+    
+    if not re.search(r'[A-Z]', password):
+        return False, "La contraseña debe contener al menos una letra mayúscula."
+    
+    if not re.search(r'[a-z]', password):
+        return False, "La contraseña debe contener al menos una letra minúscula."
+    
+    if not re.search(r'\d', password):
+        return False, "La contraseña debe contener al menos un número."
+    
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>-]', password):
+        return False, "La contraseña debe contener al menos un carácter especial."
+    
+    return True, "Contraseña válida."
+
+
 def registrarse(request):
     if request.session.get("pista"):
         messages.info(request, "Ya tienes una sesión activa. :) ")
@@ -106,19 +128,16 @@ def registrarse(request):
                 return redirect("registrarse")
             
             # Validar contraseña con una sola condición
-            if not (re.search(r'[A-Z]', password) and 
-                    re.search(r'[a-z]', password) and 
-                    re.search(r'\d', password) and 
-                    re.search(r'[!@#$%^&*(),.?":{}|<>-]', password) and 
-                    4 <= len(password) <= 20):
-                messages.error(request, "La contraseña debe tener entre 8 y 20 caracteres, al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.")
+            es_valida = validar_contraseña(password)
+            if not es_valida:
+                messages.error(request, "No es valido")
                 return redirect("registrarse")
             
             # Crear el usuario si todo está correcto
             usuario = Usuario(
                 nombre_apellido=nombre_apellido,
                 correo=correo,
-                password=password,
+                password=make_password(password),
                 rol=rol,
             )
             usuario.save()
@@ -162,10 +181,6 @@ def perfil_usuario_id(request, id_usuario):
 
 
 def actualizar_perfil(request):
-    if not request.session.get("pista") or not request.session["pista"].get("id"):
-        messages.error(request, "Debes iniciar sesión para acceder a esta página.")
-        return redirect("login")
-
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
@@ -191,6 +206,46 @@ def actualizar_perfil(request):
         return redirect("perfil_usuario")
     else:
         return render(request, "usuarios/actualizar_perfil.html", {"usuario": usuario})
+
+
+def actualizar_contraseña(request):
+    usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
+    if request.method == "POST":
+        password = request.POST.get("password")
+        new_password = request.POST.get("new_password") 
+        confirm_new_password = request.POST.get("confirm_new_password")
+        
+        try:
+            # Verificar la contraseña actual
+            if not check_password(password, usuario.password):
+                messages.error(request, "La contraseña actual es incorrecta.")
+                return redirect("actualizar_contraseña")
+            
+            # Verificar que las nuevas contraseñas coincidan
+            if new_password != confirm_new_password:
+                messages.error(request, "Las nuevas contraseñas no coinciden.")
+                return redirect("actualizar_contraseña")
+            
+            # Validar la nueva contraseña
+            es_valida, mensaje = validar_contraseña(new_password)
+            if not es_valida:
+                messages.error(request, "la contraseña no es valida!")
+                return redirect("actualizar_contraseña")
+            
+            # Actualizar la contraseña encriptada
+            usuario.password = make_password(new_password)
+            usuario.save()
+            messages.success(request, "Contraseña actualizada correctamente!")
+            return redirect("perfil_usuario")
+        except ValidationError as ve:
+            messages.error(request, f"Error de validación: {ve}")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+        return redirect("actualizar_contraseña")
+    else:
+        return render(request, "usuarios/actualizar_contraseña.html", {"usuario": usuario})
+
+
 
 
 def validar_archivo(imagen):
@@ -451,11 +506,12 @@ def agregar_usuario(request):
                 documento=documento,
                 contacto=contacto,
                 correo=correo,
-                password=password,
+                password=make_password(password),
                 rol=rol,
                 imagen_perfil=imagen_perfil,  # Guardar la imagen si es válida
                 direccion=direccion
             )
+            
             q.save()
             messages.success(request, "Usuario guardado correctamente!")
         except ValidationError as ve:
@@ -495,7 +551,7 @@ def editar_usuario(request, id_usuario):
             q.documento = documento
             q.contacto = contacto
             q.correo = correo
-            q.password = password
+            q.password = make_password(password)
             q.rol = rol
             q.imagen_perfil = imagen_perfil
             q.direccion = direccion
