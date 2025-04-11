@@ -15,11 +15,31 @@
 ---
 
 ### CHANGELOG
+
+---
+
+## [v1.20.20-alpha.1] - 4-10-2025
+
+### Added
+
+- Se agrega funcionalidad para el buscador de productos
+- Se crea la vista del buscador de productos
+
+
+### Changed
+
+- Se centra el buscador
+- Se mejora el diseño del buscador
+
+---
+
 ### [v1.19.19-alpha.1] - 4-10-2025
 
 ### Added
 
 - Se agrega vista del sobre nosotros
+
+---
 
 ### [v1.19.18-alpha.1] - 4-10-2025
 
