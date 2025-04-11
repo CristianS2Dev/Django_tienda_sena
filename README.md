@@ -31,10 +31,10 @@ Asegúrate de tener un entorno virtual configurado y activo. Luego, instala las 
 pip install -r requirements.txt
 ```
 
-Si las dependencias **Pillow** y **pyClamd** no están en el archivo `requirements.txt`, instálalas manualmente:  
+Si las dependencias **Pillow** no están en el archivo `requirements.txt`, instálalas manualmente:  
 
 ```bash
-pip install pillow pyclamd
+pip install pillow
 ```
 
 ### 3. Migraciones de base de datos  

@@ -21,6 +21,44 @@
 
 - Se agrega vista del sobre nosotros
 
+### [v1.19.18-alpha.1] - 4-10-2025
+
+### Added
+
+- Se agrega template de actualizar datos.
+- Se agrega funcion para actualizar datos.
+
+
+### Fixed
+
+- Se mejora navbar para cerrar secion directamente.
+
+---
+
+### [v1.18.18-alpha.1] - 4-08-2025
+
+### Fixed
+- Se corrigen errores de sintaxis 
+
+### Note
+
+- Corregir errores con las ramas
+
+---
+
+### [v1.18.17-alpha.1] - 4-08-2025
+
+### Added
+
+- Se agrega validaciones para el carrito de compras
+- Se agrega validacion para la incriptacion de la contraseña
+
+### Fixed
+
+- Se corrigen errores de sintaxis
+- Se corrigen errores con el carrito de compras
+
+
 ---
 
 ### [v1.17.19-alpha.1] - 4-08-2025
