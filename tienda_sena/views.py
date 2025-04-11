@@ -10,6 +10,15 @@ import re
 import json
 from django.http import JsonResponse
 from .templatetags.custom_filters import *
+from django.contrib.auth.hashers import check_password
+from django.urls import reverse
+from .utils import session_rol_permission
+from django.contrib.auth.decorators import login_required
+
+
+
+
+
 
 from django.core.exceptions import PermissionDenied 
 
@@ -26,28 +35,31 @@ def index(request):
     }
     return render(request, 'index.html', contexto)
 
+
+
 def login(request):
     if request.method == "POST":
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         try:
-            q = Usuario.objects.get(correo = correo, password = password)
-            # Autenticación: Creamos la variable de sesión +++++++++
-            request.session["pista"] = {
-                "id": q.id,
-                "rol": q.rol,
-                "nombre": q.nombre_apellido
-            }
-            messages.success(request, "Bienvenido!!")
-            return redirect("index")
+            q = Usuario.objects.get(correo=correo)
+            if check_password(password, q.password):  # Verificar la contraseña
+                # Autenticación: Creamos la variable de sesión
+                request.session["pista"] = {
+                    "id": q.id,
+                    "rol": q.rol,
+                    "nombre": q.nombre_apellido
+                }
+                messages.success(request, "Bienvenido!!")
+                return redirect("index")
+            else:
+                raise Usuario.DoesNotExist
         except Usuario.DoesNotExist:
-            # Autenticación: Vaciamos la variable de sesión ----------
+            # Autenticación: Vaciamos la variable de sesión
             request.session["pista"] = None
-
             messages.error(request, "Usuario o contraseña incorrectos...")
             return redirect("login")
     else:
-        # capturamos la variable de sesión
         verificar = request.session.get("pista", False)
         if verificar:
             return redirect("index")
@@ -75,7 +87,7 @@ class CorreoInvalidoError(Exception):
 
 def registrarse(request):
     if request.session.get("pista"):
-        messages.info(request, "Ya tienes una sesión activa. :)")
+        messages.info(request, "Ya tienes una sesión activa. :) ")
         return redirect("index") 
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
@@ -145,6 +157,37 @@ def perfil_usuario_id(request, id_usuario):
         
         "dato": q,
     })
+
+
+@login_required
+def actualizar_perfil(request):
+    usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
+    if request.method == "POST":
+        nombre_apellido = request.POST.get("nombre")
+        contacto = request.POST.get("contacto")
+        direccion = request.POST.get("direccion")
+        imagen_perfil = request.FILES.get("imagen_perfil")
+
+        try:
+            if imagen_perfil:
+                validar_archivo(imagen_perfil)
+                validar_tamano_archivo(imagen_perfil)
+                escanear_archivo(imagen_perfil)
+                usuario.imagen_perfil = imagen_perfil  # Actualizar la imagen de perfil
+
+            usuario.nombre_apellido = nombre_apellido
+            usuario.contacto = contacto
+            usuario.direccion = direccion
+            usuario.save()
+            messages.success(request, "Perfil actualizado correctamente!")
+        except ValidationError as ve:
+            messages.error(request, f"Error de validación: {ve}")
+        except Exception as e:
+            messages.error(request, f"Error: {e}")
+        return redirect("perfil_usuario")
+    else:
+        return render(request, "usuarios/actualizar_perfil.html", {"usuario": usuario})
+
 
 def validar_archivo(imagen):
     """Valida el tipo de archivo permitido."""
@@ -510,12 +553,18 @@ def modulo_tienda(request):
 # ---------------------------------------------
 
 def obtener_carrito(request):
-    if request.session.get("pista"):  # Verifica si hay una sesión activa
-        usuario_id = request.session["pista"]["id"]
-        usuario = get_object_or_404(Usuario, id=usuario_id)  # Obtén el usuario desde tu modelo personalizado
+    """Obtiene el carrito del usuario autenticado o de la sesión."""
+    if request.user.is_authenticated:
+        # Convertir request.user a una instancia del modelo Usuario personalizado
+        usuario = Usuario.objects.filter(correo=request.user.email).first()
+        if not usuario:
+            # Lanzar una excepción si el usuario no está registrado en el modelo Usuario
+            raise ValueError("El usuario autenticado no está registrado como Usuario en el sistema.")
+        
+        # Si el usuario está autenticado, usa su carrito
         carrito, creado = Carrito.objects.get_or_create(usuario=usuario)
     else:
-        # Usar un carrito basado en cookies para usuarios no autenticados
+        # Si no está autenticado, usa un carrito basado en la sesión
         carrito_id = request.session.get('carrito_id')
         if carrito_id:
             carrito = Carrito.objects.filter(id=carrito_id).first()
@@ -526,25 +575,39 @@ def obtener_carrito(request):
 
 
 def agregar_carrito(request, id_producto):
-    carrito = obtener_carrito(request)
+    """Agrega un producto al carrito."""
+    try:
+        carrito = obtener_carrito(request)
+    except ValueError as e:
+        messages.error(request, str(e))
+        return redirect('login')  # Redirigir al login si no se puede obtener el carrito
+
     producto = get_object_or_404(Producto, id=id_producto)
     cantidad = int(request.POST.get('cantidad', 1))
-
-    # Buscar si el producto ya está en el carrito
+    
+    # Validar cantidad
+    if cantidad <= 0:
+        messages.error(request, "La cantidad debe ser mayor a 0.")
+        return redirect('carrito')
+    if cantidad > producto.stock:
+        messages.error(request, "La cantidad excede el stock disponible.")
+        return redirect('carrito')
+    
+    # Buscar o crear el elemento en el carrito
     elemento, creado = ElementoCarrito.objects.get_or_create(carrito=carrito, producto=producto)
     if not creado:
         elemento.cantidad += cantidad  # Incrementar la cantidad si ya existe
     else:
         elemento.cantidad = cantidad  # Establecer la cantidad si es un nuevo elemento
     elemento.save()
-
     messages.success(request, f"{producto.nombre} agregado al carrito.")
     return redirect('carrito')
 
 def carrito(request):
+    """Muestra el carrito del usuario."""
     carrito = obtener_carrito(request)
     elementos = carrito.elementos.all()  # Obtener todos los elementos del carrito
-    total = carrito.total()  # Calcular el total del carrito
+    total = sum(elemento.producto.precio * elemento.cantidad for elemento in elementos)  # Calcular el total en el servidor
 
     contexto = {
         'elementos': elementos,
@@ -554,32 +617,70 @@ def carrito(request):
 
 
 def eliminar_del_carrito(request, id_elemento):
-    elemento = get_object_or_404(ElementoCarrito, id=id_elemento)
+    """Elimina un producto del carrito."""
+    carrito = obtener_carrito(request)
+    elemento = get_object_or_404(ElementoCarrito, id=id_elemento, carrito=carrito)
     elemento.delete()
     messages.success(request, "Producto eliminado del carrito.")
     return redirect('carrito')
 
 
-
 def actualizar_carrito(request, id_elemento):
+    """Actualiza la cantidad de un producto en el carrito."""
     if request.method == 'POST':
-        elemento = get_object_or_404(ElementoCarrito, id=id_elemento)
+        carrito = obtener_carrito(request)
+        elemento = get_object_or_404(ElementoCarrito, id=id_elemento, carrito=carrito)
         nueva_cantidad = int(request.POST.get('cantidad', 1))
+
+        if nueva_cantidad <= 0:
+            elemento.delete()
+            return JsonResponse({'subtotal': 0, 'total': carrito.total()})
 
         if nueva_cantidad > elemento.producto.stock:
             return JsonResponse({'error': 'Cantidad excede el stock disponible'}, status=400)
 
-        if nueva_cantidad > 0:
-            elemento.cantidad = nueva_cantidad
-            elemento.save()
-            return JsonResponse({
-                'subtotal': elemento.subtotal(),
-                'total': elemento.carrito.total()
-            })
-        else:
-            elemento.delete()
-            return JsonResponse({
-                'subtotal': 0,
-                'total': elemento.carrito.total()
-            })
+        # Recalcular el subtotal en el servidor
+        elemento.cantidad = nueva_cantidad
+        elemento.save()
+        subtotal = elemento.producto.precio * elemento.cantidad
+        total = sum(
+            e.producto.precio * e.cantidad for e in carrito.elementos.all()
+        )
+        return JsonResponse({
+            'subtotal': subtotal,
+            'total': total
+        })
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+
+from django.db.models import F
+
+@session_rol_permission()
+def pagar_carrito(request):
+    """Procesa el pago del carrito."""
+    carrito = obtener_carrito(request)
+
+    # Verificar si el carrito está vacío
+    if not carrito.elementos.exists():
+        messages.error(request, "El carrito está vacío.")
+        return redirect('carrito')
+
+    # Aquí iría la lógica de procesamiento del pago
+    messages.success(request, "Pago procesado correctamente.")
+    carrito.elementos.all().delete()  # Vaciar el carrito después del pago
+    return redirect('index')
+
+
+def combinar_carritos(request):
+    if request.user.is_authenticated:
+        session_carrito_id = request.session.get('carrito_id')
+        if session_carrito_id:
+            session_carrito = Carrito.objects.filter(id=session_carrito_id).first()
+            user_carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+            if session_carrito:
+                for elemento in session_carrito.elementos.all():
+                    elemento.carrito = user_carrito
+                    elemento.save()
+                session_carrito.delete()
+            del request.session['carrito_id']
