@@ -44,6 +44,11 @@
 }
 </style>
     <section class="w-100 text-center p-3 fondo-animado">
+        <div id="notificaciones">
+            {% if messages %}
+                {% for message in messages %} 
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+        </div>
         <div class="text-center">
             <h1>Bienvenido a Tienda SENA</h1>
             <p>Descubre productos únicos y creativos, diseñados por jóvenes emprendedores con pasión e innovación</p>

@@ -30,6 +30,17 @@
 
 ---
 
+### [v1.18.18-alpha.1] - 4-08-2025
+
+### Fixed
+- Se corrigen errores de sintaxis 
+
+### Note
+
+- Corregir errores con las ramas
+
+---
+
 ### [v1.18.17-alpha.1] - 4-08-2025
 
 ### Added

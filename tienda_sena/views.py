@@ -603,7 +603,7 @@ def carrito(request):
     """Muestra el carrito del usuario."""
     carrito = obtener_carrito(request)
     elementos = carrito.elementos.all()  # Obtener todos los elementos del carrito
-    total = carrito.total()  # Calcular el total del carrito
+    total = sum(elemento.producto.precio * elemento.cantidad for elemento in elementos)  # Calcular el total en el servidor
 
     contexto = {
         'elementos': elementos,
@@ -635,15 +635,22 @@ def actualizar_carrito(request, id_elemento):
         if nueva_cantidad > elemento.producto.stock:
             return JsonResponse({'error': 'Cantidad excede el stock disponible'}, status=400)
 
+        # Recalcular el subtotal en el servidor
         elemento.cantidad = nueva_cantidad
         elemento.save()
+        subtotal = elemento.producto.precio * elemento.cantidad
+        total = sum(
+            e.producto.precio * e.cantidad for e in carrito.elementos.all()
+        )
         return JsonResponse({
-            'subtotal': elemento.subtotal(),
-            'total': carrito.total()
+            'subtotal': subtotal,
+            'total': total
         })
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 
+
+from django.db.models import F
 
 @session_rol_permission()
 def pagar_carrito(request):

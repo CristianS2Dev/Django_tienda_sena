@@ -28,13 +28,14 @@
             {% csrf_token %}
             <div class="mb-3 position-relative">
                 <label for="nombre" class="form-label">Nombre y apellido</label>
-                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresa tu nombre">
+                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresa tu nombre"
+                       value="{{ nombre|default:'' }}">
             </div>
             <div class="mb-3 position-relative">
                 <label for="correo" class="form-label">Email</label>
-                <input type="email" class="form-control" id="correo" name="correo" placeholder="Ingresa tu correo">
-            </div>
-            
+                <input type="email" class="form-control" id="correo" name="correo" placeholder="Ingresa tu correo"
+                       value="{{ correo|default:'' }}">
+            </div>            
             <div class="mb-3 position-relative">
                 <label for="password" class="form-label">Contraseña</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña">
@@ -45,18 +46,6 @@
                 <label for="password" class="form-label">Confirmar Contraseña</label>
                 <input type="password" class="form-control" id="password" name="valid_password" placeholder="Verifica tu contraseña">
             </div>
-            <!--<div class="mb-3 position-relative">
-                <label for="rol" class="form-label">Rol</label>
-                <select class="form-control" id="rol" name="rol">
-                    <option value="1">Administrador</option>
-                    <option value="2">Cliente</option>
-                    <option value="3">Vendedor</option>
-                </select>
-            </div> 
-            <div class="mb-3 position-relative">
-                <label for="imagen_perfil" class="form-label">Imagen de Perfil</label>
-                <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil">
-            </div>-->
             <div id="notificaciones">
                 {% if messages %}
                     {% for message in messages %} 
