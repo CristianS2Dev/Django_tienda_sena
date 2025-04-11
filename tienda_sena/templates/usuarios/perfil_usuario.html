@@ -5,6 +5,7 @@
 
 {% if user.is_authenticated %}
 {% block main %}
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <div class="d-flex" style="min-height: 100vh;">
     <!-- Botón de menú hamburguesa para pantallas pequeñas -->
@@ -17,6 +18,11 @@
     
     <!-- Contenido principal -->
     <div class="container content" style="padding: 20px;padding-top: 40px;">
+        <div id="notificaciones">
+            {% if messages %}
+                {% for message in messages %} 
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+        </div>
         <h1>Hola {{ dato.nombre_apellido }}</h1>
         <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
 
@@ -118,6 +124,7 @@
             <div class="modal-body">
                 <p><strong>Id Usuario:</strong> {{ dato.id }}</p>
                 <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
+                <a href="{% url 'actualizar_contraseña' %}" class="btn btn-success">Cambiar Contraseña</a>
                 <!-- Agregar más detalles según sea necesario -->
             </div>
             <div class="modal-footer">
