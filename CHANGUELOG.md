@@ -17,6 +17,11 @@
 ### CHANGELOG
 
 ---
+## [v1.20.21-alpha.1] - 4-11-2025
+
+### Changed
+
+- Se corrige la vista de sobre nosotros el responsive.
 
 ## [v1.20.20-alpha.1] - 4-10-2025
 
