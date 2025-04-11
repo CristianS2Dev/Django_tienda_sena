@@ -1,0 +1,101 @@
+.about-us {
+    background-color: #f8f9fa;
+}
+
+.about-us img {
+    transition: transform 0.3s ease-in-out;
+}
+
+.about-us img:hover {
+    transform: scale(1.05);
+}
+
+.about-us .list-unstyled li {
+    margin-bottom: 10px;
+}
+
+.about-us .btn-primary {
+    transition: all 0.3s ease;
+}
+
+.about-us .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.bg-soft {
+    background-color: #f8f9fa;
+}
+
+.team-card {
+    border: none;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05);
+}
+
+.team-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 32px -1px rgba(0, 0, 0, 0.1);
+}
+
+.team-image {
+    height: 320px;
+    object-fit: cover;
+    filter: grayscale(100%);
+    transition: all 0.5s ease;
+}
+
+.team-card:hover .team-image {
+    filter: grayscale(0%);
+}
+
+.role-tag {
+    display: inline-block;
+    padding: 6px 16px;
+    background-color: #e9ecef;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    color: #495057;
+    margin-bottom: 1rem;
+}
+
+.section-subtitle {
+    color: #0d6efd;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+.member-social {
+    gap: 1rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.team-card:hover .member-social {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.social-link {
+    color: #495057;
+    font-size: 1.25rem;
+    transition: color 0.3s ease;
+    text-decoration: none;
+}
+
+.social-link:hover {
+    color: #0d6efd;
+}

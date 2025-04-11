@@ -20,7 +20,7 @@ from django.contrib.auth.decorators import login_required
 
 
 
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied 
 
 
 
@@ -73,6 +73,10 @@ def logout(request):
     except:
         messages.error(request, "Ocurrio un error")
         return redirect("index")
+
+def sobre_nosotros(request):
+    return render(request, 'sobre_nosotros.html')
+
 
 def correo_valido(correo):
     patron = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
