@@ -17,60 +17,79 @@
 
 <body>
   <header class="text-white">
-    <nav class=" nav_styles navbar navbar-expand-lg">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="{% url 'index'  %}">
-            <img src="{% static 'assets/canvas.png' %}" alt="Logo" width="60" height="48" class="d-inline-block align-text-top">
-          </a>
-          <button class="navbar-toggler bg-white  " type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon "></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link active fw-medium text-white" aria-current="page" href="{% url 'index' %}">Inicio</a>
+    <nav class="nav_styles navbar navbar-expand-lg position-relative">
+      <div class="container-fluid">
+    
+        <!-- Logo -->
+        <a class="navbar-brand" href="{% url 'index' %}">
+          <img src="{% static 'assets/canvas.png' %}" alt="Logo" width="60" height="48" class="d-inline-block align-text-top">
+        </a>
+    
+        <!-- Botón para colapsar en móviles -->
+        <button class="navbar-toggler bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+    
+        <!-- Caja colapsable -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          
+          <!-- Menú izquierdo -->
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active fw-medium text-white" href="{% url 'index' %}">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active fw-medium text-white" href="{% url 'lista_productos' %}">Tienda</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Categorías
+              </a>
+              <ul class="dropdown-menu">
+                {% for key, value in categorias %}
+                  <li><a class="dropdown-item" href="{% url 'productos_por_categoria' key %}">{{ value }}</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active fw-medium text-white" href="{% url 'sobre_nosotros' %}">Sobre Nosotros</a>
+            </li>
+          </ul>
+    
+          <!-- Íconos de usuario -->
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link contact-button fw-medium text-white" href="{% url 'carrito' %}">
+                <i class="fas fa-shopping-cart"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              {% if request.session.pista %}
+              <div class="d-flex">
+                <a class="nav-link contact-button fw-medium text-white iniciar-sesion-btn" href="{% url 'logout' %}">Cerrar sesión</a>
+                <a class="nav-link contact-button fw-medium text-white iniciar-sesion-btn" href="{% url 'perfil_usuario' %}">
+                  {% if request.session.pista.rol == 1 %}Admin{% else %}Mi Perfil{% endif %}
+                </a>
+              </div>
+              {% else %}
+                <a class="nav-link contact-button fw-medium text-white" href="{% url 'registrarse' %}">Regístrate</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link active fw-medium text-white " aria-current="page" href="{% url 'lista_productos' %}">Tienda</a>
-              </li>
-              <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
-                      aria-expanded="false">
-                      Categorías
-                  </a>
-                  <ul class="dropdown-menu">
-                      {% for key, value in categorias %}
-                      <li><a class="dropdown-item" href="{% url 'productos_por_categoria' key %}">{{ value }}</a></li>
-                      {% endfor %}
-                  </ul>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active fw-medium text-white" aria-current="page" href="{% url 'sobre_nosotros' %}">Sobre Nosotros</a>
-              </li>
-            </ul>
-            <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-            <ul class="navbar-nav ms-auto">
-              <a class="nav-link contact-button fw-medium text-white" href="{% url 'carrito' %}"><i class="fas fa-shopping-cart"></i></a>
-              <li class="nav-item ">
-                {% if request.session.pista %}
-                <div class="d-flex">
-                  <a class="nav-link contact-button fw-medium text-white iniciar-sesion-btn" href="{% url 'logout' %}">Cerrar sesión</a>
-                  <a class="nav-link contact-button fw-medium text-white iniciar-sesion-btn" href="{% url 'perfil_usuario' %}">{% if request.session.pista.rol == 1 %}Admin {% else %}Mi Perfil {% endif %}</a>
-                </div>
-                {% else %}
-                  <a class="nav-link contact-button fw-medium text-white" href="{% url 'registrarse' %}">Regístrate</a>
-                </li>
-                <li class="nav-item iniciar-sesion-btn">
-                  <a class="nav-link contact-button fw-medium text-white " href="{% url 'login' %}">Inicie Sesión</a>
-                {% endif %}
-              </li>
-            </ul>
-          </div>
+              <li class="nav-item iniciar-sesion-btn">
+                <a class="nav-link contact-button fw-medium text-white" href="{% url 'login' %}">Inicie Sesión</a>
+              {% endif %}
+            </li>
+          </ul>
         </div>
-      </nav>
+    
+        <!-- Buscador centrado visualmente con posición absoluta -->
+        <form class="position-absolute top-50 start-50 translate-middle d-flex" role="search" method="get" action="{% url 'buscar_productos' %}" >
+        <input class="form-control" type="search" name="q" placeholder="Buscar productos..." aria-label="Search" style="min-width: 300px;">
+        </form>
+    
+      </div>
+    </nav>
+        
   </header>
   
     <main>

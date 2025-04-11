@@ -159,8 +159,13 @@ def perfil_usuario_id(request, id_usuario):
     })
 
 
-@login_required
+
+
 def actualizar_perfil(request):
+    if not request.session.get("pista") or not request.session["pista"].get("id"):
+        messages.error(request, "Debes iniciar sesión para acceder a esta página.")
+        return redirect("login")
+
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
@@ -172,7 +177,6 @@ def actualizar_perfil(request):
             if imagen_perfil:
                 validar_archivo(imagen_perfil)
                 validar_tamano_archivo(imagen_perfil)
-                escanear_archivo(imagen_perfil)
                 usuario.imagen_perfil = imagen_perfil  # Actualizar la imagen de perfil
 
             usuario.nombre_apellido = nombre_apellido
@@ -200,14 +204,7 @@ def validar_tamano_archivo(imagen, max_size_mb=5):
     if imagen.size > max_size_mb * 1024 * 1024:
         raise ValidationError(f"El archivo excede el tamaño máximo permitido de {max_size_mb} MB.")
 
-def escanear_archivo(imagen):
-    """Escanea el archivo en busca de virus usando ClamAV."""
-    cd = pyclamd.ClamdNetworkSocket()  # Conéctate al demonio ClamAV
-    if not cd.ping():
-        raise Exception("ClamAV no está disponible.")
-    result = cd.scan_stream(imagen.read())
-    if result:
-        raise ValidationError("El archivo contiene un virus.")
+
     
 
 def validar_imagen(imagen, max_size_mb=5):
@@ -215,7 +212,6 @@ def validar_imagen(imagen, max_size_mb=5):
     try:
         validar_archivo(imagen)
         validar_tamano_archivo(imagen, max_size_mb)
-        escanear_archivo(imagen)
     except ValidationError as ve:
         raise ValidationError(f"Error de validación: {ve}")
     except Exception as e:
@@ -272,7 +268,6 @@ def agregar_producto(request):
                 try:
                     validar_archivo(imagen)
                     validar_tamano_archivo(imagen)
-                    escanear_archivo(imagen)
                 except ValidationError as ve:
                     messages.error(request, f"Error de validación: {ve}")
                     return redirect("agregar_producto")
@@ -347,7 +342,6 @@ def editar_producto(request, id_producto):
                 try:
                     validar_archivo(imagen)
                     validar_tamano_archivo(imagen)
-                    escanear_archivo(imagen)
                 except ValidationError as ve:
                     messages.error(request, f"Error de validación: {ve}")
                     return redirect("editar_producto", id_producto=id_producto)
@@ -444,7 +438,6 @@ def agregar_usuario(request):
                 try:
                     validar_archivo(imagen_perfil) 
                     validar_tamano_archivo(imagen_perfil) 
-                    escanear_archivo(imagen_perfil) 
                 except ValidationError as ve:
                     messages.error(request, f"Error de validación: {ve}")
                     return redirect("agregar_usuario")
@@ -491,7 +484,6 @@ def editar_usuario(request, id_usuario):
                 try:
                     validar_archivo(imagen_perfil) 
                     validar_tamano_archivo(imagen_perfil) 
-                    escanear_archivo(imagen_perfil) 
                 except ValidationError as ve:
                     messages.error(request, f"Error de validación: {ve}")
                     return redirect("agregar_usuario")
@@ -668,6 +660,15 @@ def pagar_carrito(request):
 
     # Aquí iría la lógica de procesamiento del pago
     messages.success(request, "Pago procesado correctamente.")
+    #  mostrar mensaje con el valor de la compra 
+    total = sum(elemento.producto.precio * elemento.cantidad for elemento in carrito.elementos.all())
+    # Actualizar el stock de los productos
+    for elemento in carrito.elementos.all():
+        producto = elemento.producto
+        producto.stock = F('stock') - elemento.cantidad
+        producto.save()
+        elemento.delete()
+    # Limpiar el carrito después del pago
     carrito.elementos.all().delete()  # Vaciar el carrito después del pago
     return redirect('index')
 
@@ -684,3 +685,23 @@ def combinar_carritos(request):
                     elemento.save()
                 session_carrito.delete()
             del request.session['carrito_id']
+
+# ---------------------------------------------
+# ---------------------------------------------
+
+
+# ---------------------------------------------
+    # Busqueda de productos
+# ---------------------------------------------
+
+
+def buscar_productos(request):
+    query = request.GET.get('q', '')  # Obtén el término de búsqueda
+    resultados = Producto.objects.filter(nombre__icontains=query) if query else []
+    contexto = {
+        'data': resultados,  # Pasar los productos encontrados
+        'query': query,
+        'mostrar_boton_agregar': False,  # Opcional: Ocultar el botón de agregar
+    }
+    return render(request, 'productos/resultados_busqueda.html', contexto)
+

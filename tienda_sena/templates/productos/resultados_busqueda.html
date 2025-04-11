@@ -1,0 +1,12 @@
+{% extends 'bases/base.html' %}
+{% block main %}
+<div class="container py-5">
+    <h1 class="mb-4">Resultados de búsqueda</h1>
+    <p>Buscaste: <strong>{{ query }}</strong></p>
+    {% if data %}
+        {% include 'bases/_productos.html' with data=data %}
+    {% else %}
+        <p>No se encontraron productos que coincidan con tu búsqueda.</p>
+    {% endif %}
+</div>
+{% endblock %}
