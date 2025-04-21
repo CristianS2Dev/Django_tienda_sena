@@ -15,6 +15,15 @@
 ---
 
 ### CHANGELOG
+
+## [v1.23.22-alpha.1] - 4-11-2025
+
+### Changed
+
+- Refactorización de la funcionalidad de listado y filtrado de productos; actualización de templates y estilos para mejorar la experiencia de usuario
+
+---
+
 ## [v1.21.21-alpha.1] - 4-11-2025
 
 ### Added

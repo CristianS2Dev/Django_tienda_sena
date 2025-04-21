@@ -65,11 +65,15 @@
             </div>
             <p class="mb-4">{{ producto.descripcion }}</p>
             <div class="mb-4">
-                <h6 class="mb-2">Color</h6>
-                <div class="btn-group" role="group">
-                    <input type="radio" class="btn-check" name="color" id="color_{{ producto.color }}" checked>
-                    <label class="btn btn-outline-secondary" for="color_{{ producto.color }}">{{ producto.get_color_display }}</label>
-                </div>
+                <h6 class="mb-2">Color disponible:</h6>
+                {% if producto.color and producto.color != 0 %}
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle border border-light" style="width: 30px; height: 30px; background-color: {{ color_codigo }};"></div>
+                        <span>{{ color_nombre }}</span>
+                    </div>
+                {% else %}
+                    <p>No hay color disponible</p>
+                {% endif %}
             </div>
             <div class="mb-4">
                 <div class="d-flex align-items-center">
