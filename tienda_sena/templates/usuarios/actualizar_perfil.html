@@ -21,10 +21,17 @@
     
         <label for="imagen_perfil">Imagen de Perfil:</label>
         <input type="file" id="imagen_perfil" name="imagen_perfil"><br>
+        {% if request.session.pista.rol == 2 %}
+        <hr>
+        <h3 class="text-tittle">Quieres vender?</h3><br>
+            <span class="">Envia tu certificado estudiantil</span><br>
+            <input type="file" id="certificado_sena" name="certificado_sena">
+        {% endif %}
         <div class="d-grid gap-2 col-3 mx-auto mb-5">
             <button  class="btn btn-success btn-lg" type="submit">Actualizar</button>
             <a class="btn btn-danger btn-lg" href="{% url 'perfil_usuario' %}" > Cancelar</a>
         </div>
+
     </form>
 </div>
 {% endblock %}
