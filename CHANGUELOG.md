@@ -15,6 +15,17 @@
 ---
 
 ### CHANGELOG
+
+## [v1.22.21-alpha.1] - 4-21-2025
+
+### Added
+
+- Se agrega funcionalidad de modales para confirmar la eliminación de productos y usuarios
+
+### Fixed
+
+- Se soluciona error al actualizar Usuarios, crear productos.
+
 ## [v1.21.21-alpha.1] - 4-11-2025
 
 ### Added

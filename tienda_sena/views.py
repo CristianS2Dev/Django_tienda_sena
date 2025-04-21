@@ -187,13 +187,13 @@ def actualizar_perfil(request):
         contacto = request.POST.get("contacto")
         direccion = request.POST.get("direccion")
         imagen_perfil = request.FILES.get("imagen_perfil")
+        
 
         try:
             if imagen_perfil:
                 validar_archivo(imagen_perfil)
                 validar_tamano_archivo(imagen_perfil)
                 usuario.imagen_perfil = imagen_perfil  # Actualizar la imagen de perfil
-
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
             usuario.direccion = direccion
@@ -227,7 +227,7 @@ def actualizar_contraseña(request):
                 return redirect("actualizar_contraseña")
             
             # Validar la nueva contraseña
-            es_valida, mensaje = validar_contraseña(new_password)
+            es_valida = validar_contraseña(new_password)
             if not es_valida:
                 messages.error(request, "la contraseña no es valida!")
                 return redirect("actualizar_contraseña")
@@ -311,12 +311,15 @@ def agregar_producto(request):
         imagenes = request.FILES.getlist("imagenes")
 
         try:
+            precio_original = Decimal(precio_original)
+            descuento = Decimal(descuento)
+            stock = int(stock)
             if precio_original < 0:
                 messages.error(request, "El precio original no puede ser negativo.")
             if descuento < 0 or descuento > 100:
-                 messages.error(request,"El descuento debe estar entre 0 y 100.")
+                messages.error(request,"El descuento debe estar entre 0 y 100.")
             if stock < 0:
-                 messages.error(request,"El stock no puede ser negativo.")
+                messages.error(request,"El stock no puede ser negativo.")
 
             # Validar y procesar imágenes
             for imagen in imagenes:
@@ -344,6 +347,7 @@ def agregar_producto(request):
             )
             producto.full_clean()
             producto.save()
+            
 
             # Guardar imágenes
             for imagen in imagenes:
@@ -352,6 +356,8 @@ def agregar_producto(request):
         except Exception as e:
             messages.error(request, f"Error: {e}")
         return redirect("lista_productos")
+        
+        
     else:
         user = request.session.get("pista")
         roles = dict(Usuario.ROLES).get(user["rol"], "Desconocido")
@@ -436,14 +442,18 @@ def detalle_producto(request, id_producto):
 @session_rol_permission(1, 3)
 def eliminar_producto(request, id_producto):
     try:
+        respuesta = request.POST.get("confirmar_eliminar_producto")        
         q = Producto.objects.get(pk=id_producto)
-        q.delete()
+        if respuesta == 'acepto':
+            q.delete()
         messages.success(request, 'Producto eliminado Correctamente...')
+        return redirect("productos_admnin")
     except Producto.DoesNotExist:
         messages.warning(request, "Error: El producto no existe")
     except Exception as e:
         messages.error(request, f"Error {e}")
     return redirect("lista_productos")
+    
 
 def productos_por_categoria(request, categoria):
     try:
@@ -533,19 +543,9 @@ def editar_usuario(request, id_usuario):
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         rol = request.POST.get("rol")
-        imagen_perfil=imagen_perfil,
         direccion = request.POST.get("direccion")
+        imagen_perfil = request.FILES.get("imagen_perfil")
         try:
-            if imagen_perfil:
-                try:
-                    validar_archivo(imagen_perfil) 
-                    validar_tamano_archivo(imagen_perfil) 
-                except ValidationError as ve:
-                    messages.error(request, f"Error de validación: {ve}")
-                    return redirect("agregar_usuario")
-                except Exception as e:
-                    messages.error(request, f"Error al escanear archivo: {e}")
-                    return redirect("agregar_usuario")
 
             q.nombre_apellido = nombre_apellido
             q.documento = documento
@@ -553,8 +553,19 @@ def editar_usuario(request, id_usuario):
             q.correo = correo
             q.password = make_password(password)
             q.rol = rol
-            q.imagen_perfil = imagen_perfil
             q.direccion = direccion
+            
+            if imagen_perfil:
+                try:
+                    validar_archivo(imagen_perfil) 
+                    validar_tamano_archivo(imagen_perfil)
+                    q.imagen_perfil = imagen_perfil 
+                except ValidationError as ve:
+                    messages.error(request, f"Error de validación: {ve}")
+                    return redirect("agregar_usuario")
+                except Exception as e:
+                    messages.error(request, f"Error al escanear archivo: {e}")
+                    return redirect("agregar_usuario")
             q.save()
             messages.success(request, "Usuario actualizado correctamente!")
         except Exception as e:
@@ -567,15 +578,15 @@ def editar_usuario(request, id_usuario):
 
 def eliminar_usuario(request, id_usuario):
     try:
-        # respuesta = request.POST.get('confirmar_eliminar_usuario')        
+        respuesta = request.POST.get("confirmar_eliminar_usuario")        
         q = Usuario.objects.get(pk=id_usuario)  
-        if q.rol != 1:# and respuesta == 'acepto'
+        if q.rol != 1 and respuesta == "acepto":
             q.delete()
             messages.success(request, 'Usuario eliminado Correctamente...')
         else:
-            messages.error(request,"No puedes eliminar un administrador" )
+            messages.error(request, "No puedes eliminar un administrador")
     except Usuario.DoesNotExist:
-        messages.warning(request, "Error: El usuaro no existe")
+        messages.warning(request, "Error: El usuario no existe")
     except Exception as e:
         messages.error(request, f"Error {e}")
 
