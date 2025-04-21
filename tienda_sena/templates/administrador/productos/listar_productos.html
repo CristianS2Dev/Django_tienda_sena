@@ -9,11 +9,6 @@
 <div class="d-flex flex-wrap content">
     {% include 'bases/_sidebar_usuario.html' %}
     <div class="container mt-5">
-        <div id="notificaciones">
-            {% if messages %}
-                {% for message in messages %} 
-                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
-        </div>
         <h1>Productos</h1>
         <a href="{% url 'agregar_producto' %}" class="btn btn-success mb-3">Agregar</a>
         <table class="table">
@@ -38,34 +33,9 @@
                     <td>
                         <a href="{% url 'detalle_producto_admin' x.id %}" class="btn btn-warning">Detalles</a>
                         <a href="{% url 'editar_producto' x.id %}" class="btn btn-info">Editar</a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarEliminarProductoModal{{ x.id }}">
-                            Eliminar
-                        </button>
-                        <div class="modal fade" id="confirmarEliminarProductoModal{{ x.id }}" tabindex="-1" aria-labelledby="confirmarEliminarProductoModalLabel{{ x.id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="confirmarEliminarProductoModalLabel{{ x.id }}">Confirmar Eliminación</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        ¿Estás seguro de que deseas eliminar este Producto? Esta acción no se puede deshacer.
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                        <form method="POST" action="{% url 'eliminar_producto' x.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="confirmar_eliminar_producto" value="acepto">
-                                            <button type="submit" class="btn btn-danger">Eliminar</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <a href="{% url 'eliminar_producto' x.id %}" class="btn btn-secondary">Eliminar</a>
                     </td>
                 </tr>
-
-
                 {% endfor %}
             </tbody>
         </table>

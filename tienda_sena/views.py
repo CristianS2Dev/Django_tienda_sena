@@ -187,13 +187,13 @@ def actualizar_perfil(request):
         contacto = request.POST.get("contacto")
         direccion = request.POST.get("direccion")
         imagen_perfil = request.FILES.get("imagen_perfil")
-        
 
         try:
             if imagen_perfil:
                 validar_archivo(imagen_perfil)
                 validar_tamano_archivo(imagen_perfil)
                 usuario.imagen_perfil = imagen_perfil  # Actualizar la imagen de perfil
+
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
             usuario.direccion = direccion
@@ -227,7 +227,7 @@ def actualizar_contraseña(request):
                 return redirect("actualizar_contraseña")
             
             # Validar la nueva contraseña
-            es_valida = validar_contraseña(new_password)
+            es_valida, mensaje = validar_contraseña(new_password)
             if not es_valida:
                 messages.error(request, "la contraseña no es valida!")
                 return redirect("actualizar_contraseña")
@@ -278,12 +278,94 @@ def validar_imagen(imagen, max_size_mb=5):
         #CRUD Listar productos usuario
 # -----------------------------------------------------
 
-def lista_productos(request):
-    q = Producto.objects.all()
-    contexto = {'data': q,
-                'mostrar_boton_agregar': True,
+def lista_productos(request, id_categoria=None):
+    """
+    Vista para mostrar la lista de productos con filtros opcionales.
+    Si se proporciona una categoría, filtra los productos por esa categoría.
+    """
+    productos = Producto.objects.all()
+
+    # Obtener colores y categorías disponibles del modelo Producto
+    colores_disponibles = Producto.COLORES
+    categorias_disponibles = Producto.CATEGORIAS
+    colores_disponibles = Producto.COLORES
+
+    COLOR_CODES = {
+        "Gris": "#808080",
+        "Blanco": "#ffffff",
+        "Negro": "#000000",
+        "Amarillo": "#ffff00",
+        "Azul": "#0000ff",
+        "Rojo": "#ff0000",
     }
-    return (render(request, 'productos/listar_productos.html', contexto))
+
+    colores_con_codigo = []
+    for color in colores_disponibles:
+        if color[0] != 0:
+            colores_con_codigo.append({
+                "id": color[0],
+                "nombre": color[1],
+                "codigo": COLOR_CODES.get(color[1], "#cccccc")
+            })
+
+    categoria = None
+    if id_categoria is not None:
+        try:
+            id_categoria = int(id_categoria)
+            categoria = id_categoria
+            productos = productos.filter(categoria=id_categoria)
+        except (ValueError, TypeError):
+            categoria = None
+
+    nombre = request.GET.get('nombre')
+    if nombre:
+        productos = productos.filter(nombre__icontains=nombre)
+
+    precio_min = request.GET.get('precio_min')
+    precio_max = request.GET.get('precio_max')
+    if precio_min:
+        try:
+            productos = productos.filter(precio_original__gte=float(precio_min))
+        except ValueError:
+            pass
+    if precio_max:
+        try:
+            productos = productos.filter(precio_original__lte=float(precio_max))
+        except ValueError:
+            pass
+
+    colores = request.GET.getlist('color')
+    if colores:
+        try:
+            colores_int = [int(c) for c in colores]
+            productos = productos.filter(color__in=colores_int)
+        except ValueError:
+            pass
+
+    # Ordenar productos
+    orden = request.GET.get('orden')
+    if orden == 'popular':
+        productos = productos.order_by('-id')  # Cambia según tu lógica de popularidad
+    elif orden == 'barato':
+        productos = productos.order_by('precio_original')
+    elif orden == 'caro':
+        productos = productos.order_by('-precio_original')
+
+    # Paginación
+    from django.core.paginator import Paginator
+    paginator = Paginator(productos, 9)  # 9 productos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    contexto = {
+        'data': page_obj,
+        'categoria': categoria,
+        'categorias': categorias_disponibles,
+        'colores_disponibles': colores_disponibles,
+        'colores_con_codigo': colores_con_codigo,
+    }
+    return render(request, 'productos/listar_productos.html', contexto)
+
 
 def productos_vendedor(request, id_vendedor):
     productos = Producto.objects.filter(vendedor_id=id_vendedor)
@@ -292,7 +374,7 @@ def productos_vendedor(request, id_vendedor):
 
 def detalle_producto_admin(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)
-    return render(request, 'administrador/productos/detalle_producto_admin.html', {'producto': producto})
+    return render(request, 'productos/detalle_producto.html', {'producto': producto})
 
 
 @session_rol_permission(1, 3)
@@ -311,15 +393,12 @@ def agregar_producto(request):
         imagenes = request.FILES.getlist("imagenes")
 
         try:
-            precio_original = Decimal(precio_original)
-            descuento = Decimal(descuento)
-            stock = int(stock)
             if precio_original < 0:
                 messages.error(request, "El precio original no puede ser negativo.")
             if descuento < 0 or descuento > 100:
-                messages.error(request,"El descuento debe estar entre 0 y 100.")
+                 messages.error(request,"El descuento debe estar entre 0 y 100.")
             if stock < 0:
-                messages.error(request,"El stock no puede ser negativo.")
+                 messages.error(request,"El stock no puede ser negativo.")
 
             # Validar y procesar imágenes
             for imagen in imagenes:
@@ -347,7 +426,6 @@ def agregar_producto(request):
             )
             producto.full_clean()
             producto.save()
-            
 
             # Guardar imágenes
             for imagen in imagenes:
@@ -356,8 +434,6 @@ def agregar_producto(request):
         except Exception as e:
             messages.error(request, f"Error: {e}")
         return redirect("lista_productos")
-        
-        
     else:
         user = request.session.get("pista")
         roles = dict(Usuario.ROLES).get(user["rol"], "Desconocido")
@@ -433,41 +509,49 @@ def editar_producto(request, id_producto):
 
 def detalle_producto(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)
-    rango_cantidad = range(1, producto.stock + 1)  # Generar el rango basado en el stock
+    rango_cantidad = range(1, producto.stock + 1)
+    COLOR_CODES = {
+        1: "#808080",   # Gris
+        2: "#ffffff",   # Blanco
+        3: "#000000",   # Negro
+        4: "#ffff00",   # Amarillo
+        5: "#0000ff",   # Azul
+        6: "#ff0000",   # Rojo
+    }
+    color_codigo = COLOR_CODES.get(producto.color, "#cccccc")
+    color_nombre = dict(Producto.COLORES).get(producto.color, "Ninguno")
     return render(request, 'productos/detalle_producto.html', {
         'producto': producto,
-        'rango_cantidad': rango_cantidad
+        'rango_cantidad': rango_cantidad,
+        'color_codigo': color_codigo,
+        'color_nombre': color_nombre,
     })
 
 @session_rol_permission(1, 3)
 def eliminar_producto(request, id_producto):
     try:
-        respuesta = request.POST.get("confirmar_eliminar_producto")        
         q = Producto.objects.get(pk=id_producto)
-        if respuesta == 'acepto':
-            q.delete()
+        q.delete()
         messages.success(request, 'Producto eliminado Correctamente...')
-        return redirect("productos_admnin")
     except Producto.DoesNotExist:
         messages.warning(request, "Error: El producto no existe")
     except Exception as e:
         messages.error(request, f"Error {e}")
     return redirect("lista_productos")
-    
 
-def productos_por_categoria(request, categoria):
-    try:
-        # Convertir el valor de categoria a entero
-        categoria = int(categoria)
-        productos = Producto.objects.filter(categoria=categoria)
-        # Obtener el nombre de la categoría
-        categoria_nombre = dict(Producto.CATEGORIAS).get(categoria, "Categoría desconocida")
-    except ValueError:
-        # Si no es un entero, mostrar categoría desconocida
-        productos = []
+# def productos_por_categoria(request, id_categoria):
+#     try:
+#         # Convertir el valor de categoria a entero
+#         categoria = int(categoria)
+#         productos = Producto.objects.filter(categoria=categoria)
+#         # Obtener el nombre de la categoría
+#         categoria_nombre = dict(Producto.CATEGORIAS).get(categoria, "Categoría desconocida")
+#     except ValueError:
+#         # Si no es un entero, mostrar categoría desconocida
+#         productos = []
 
-    contexto = {'productos': productos, 'categoria': categoria_nombre}
-    return render(request, 'productos/productos_por_categoria.html', contexto)
+#     contexto = {'productos': productos, 'categoria': categoria_nombre}
+#     return render(request, 'productos/productos_por_categoria.html', contexto)
 
 # -----------------------------------------------------
 # -----------------------------------------------------
@@ -543,9 +627,19 @@ def editar_usuario(request, id_usuario):
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         rol = request.POST.get("rol")
+        imagen_perfil=imagen_perfil,
         direccion = request.POST.get("direccion")
-        imagen_perfil = request.FILES.get("imagen_perfil")
         try:
+            if imagen_perfil:
+                try:
+                    validar_archivo(imagen_perfil) 
+                    validar_tamano_archivo(imagen_perfil) 
+                except ValidationError as ve:
+                    messages.error(request, f"Error de validación: {ve}")
+                    return redirect("agregar_usuario")
+                except Exception as e:
+                    messages.error(request, f"Error al escanear archivo: {e}")
+                    return redirect("agregar_usuario")
 
             q.nombre_apellido = nombre_apellido
             q.documento = documento
@@ -553,19 +647,8 @@ def editar_usuario(request, id_usuario):
             q.correo = correo
             q.password = make_password(password)
             q.rol = rol
+            q.imagen_perfil = imagen_perfil
             q.direccion = direccion
-            
-            if imagen_perfil:
-                try:
-                    validar_archivo(imagen_perfil) 
-                    validar_tamano_archivo(imagen_perfil)
-                    q.imagen_perfil = imagen_perfil 
-                except ValidationError as ve:
-                    messages.error(request, f"Error de validación: {ve}")
-                    return redirect("agregar_usuario")
-                except Exception as e:
-                    messages.error(request, f"Error al escanear archivo: {e}")
-                    return redirect("agregar_usuario")
             q.save()
             messages.success(request, "Usuario actualizado correctamente!")
         except Exception as e:
@@ -578,15 +661,15 @@ def editar_usuario(request, id_usuario):
 
 def eliminar_usuario(request, id_usuario):
     try:
-        respuesta = request.POST.get("confirmar_eliminar_usuario")        
+        # respuesta = request.POST.get('confirmar_eliminar_usuario')        
         q = Usuario.objects.get(pk=id_usuario)  
-        if q.rol != 1 and respuesta == "acepto":
+        if q.rol != 1:# and respuesta == 'acepto'
             q.delete()
             messages.success(request, 'Usuario eliminado Correctamente...')
         else:
-            messages.error(request, "No puedes eliminar un administrador")
+            messages.error(request,"No puedes eliminar un administrador" )
     except Usuario.DoesNotExist:
-        messages.warning(request, "Error: El usuario no existe")
+        messages.warning(request, "Error: El usuaro no existe")
     except Exception as e:
         messages.error(request, f"Error {e}")
 
