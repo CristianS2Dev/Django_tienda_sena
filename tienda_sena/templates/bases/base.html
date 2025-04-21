@@ -43,14 +43,21 @@
               <a class="nav-link active fw-medium text-white" href="{% url 'lista_productos' %}">Tienda</a>
             </li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Categorías
-              </a>
-              <ul class="dropdown-menu">
-                {% for key, value in categorias %}
-                  <li><a class="dropdown-item" href="{% url 'productos_por_categoria' key %}">{{ value }}</a></li>
-                {% endfor %}
-              </ul>
+                <a class="nav-link dropdown-toggle text-white" href="#" id="categoriasDropdown" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Categorías
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="categoriasDropdown">
+                    {% for categoria in categorias %}
+                        {% if categoria.0 != 0 %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'productos_por_categoria' categoria.0 %}">
+                                    {{ categoria.1 }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
             </li>
             <li class="nav-item">
               <a class="nav-link active fw-medium text-white" href="{% url 'sobre_nosotros' %}">Sobre Nosotros</a>
@@ -121,7 +128,7 @@
             <div class="col-12 col-md-4 col-lg-3 mb-4">
               <h6 class="text-uppercase font-weight-bold mb-3">Contacto</h6>
               <p><i class="fas fa-home me-2"></i>Calatrava - Complejo Sur</p>
-              <p><a class="text-decoration-none text-white" href="mailto:tiendasenaccc@gmail.com"><i class="fas fa-envelope me-2 tex"></i>tiendasenaccc@gmail.com</a></p>
+              <p><i class="fas fa-envelope me-2"></i>Tienda_info@soy.sena.com</p>
               <p><i class="fas fa-phone me-2"></i>+01 234 567 88</p>
             </div>
           </div>

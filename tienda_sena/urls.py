@@ -40,11 +40,12 @@ urlpatterns = [
     # Vista Usuario
         path('perfil_usuario/', views.perfil_usuario, name='perfil_usuario'),
         path('lista_productos', views.lista_productos, name='lista_productos'),
+        path('productos/categoria/<int:id_categoria>/', views.lista_productos, name='productos_por_categoria'),
         path('agregar_producto', views.agregar_producto, name='agregar_producto'),
         path('editar_producto/<int:id_producto>/', views.editar_producto, name='editar_producto'),
         path('producto/user/<int:id_producto>/', views.detalle_producto, name='detalle_producto'),
         path('eliminar_producto/<int:id_producto>/', views.eliminar_producto, name='eliminar_producto'),
-        path('productos/categoria/<int:categoria>/', views.productos_por_categoria, name='productos_por_categoria'),
+
         # Vendedor
             path('productos/vendedor/<int:id_vendedor>/', views.productos_vendedor, name='productos_vendedor'),
         # Usuario

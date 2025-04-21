@@ -16,15 +16,13 @@
 
 ### CHANGELOG
 
-## [v1.22.21-alpha.1] - 4-21-2025
+## [v1.23.22-alpha.1] - 4-11-2025
 
-### Added
+### Changed
 
-- Se agrega funcionalidad de modales para confirmar la eliminación de productos y usuarios
+- Refactorización de la funcionalidad de listado y filtrado de productos; actualización de templates y estilos para mejorar la experiencia de usuario
 
-### Fixed
-
-- Se soluciona error al actualizar Usuarios, crear productos.
+---
 
 ## [v1.21.21-alpha.1] - 4-11-2025
 

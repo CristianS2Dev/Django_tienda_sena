@@ -64,12 +64,13 @@
                         <input class="form-control border p-3" type="file" id="imagenes" name="imagenes"  multiple accept=".jpeg,.jpg,.png,.gif,.webp">
                     </div>
                     <div class="form-group mb-2">
+                        <label for="vendedor">Vendedor</label>
                         {% if dato %}
-                        <input type="hidden" name="vendedor" value="{{ dato.vendedor.id }} " style="display:none;">
-                        <input type="text" class="form-control" value="{{ dato.vendedor.get_rol_display }}" style="display:none;" readonly>
+                        <input type="hidden" name="vendedor" value="{{ dato.vendedor.id }}">
+                        <input type="text" class="form-control" value="{{ dato.vendedor.get_rol_display }}" readonly>
                         {% else %}
-                        <input type="hidden" name="vendedor" value="{{ user.id }}" style="display:none;">
-                        <input type="text" class="form-control" value="{{ roles }}" readonly style="display:none;">
+                        <input type="hidden" name="vendedor" value="{{ user.id }}">
+                        <input type="text" class="form-control" value="{{ roles }}" readonly>
                         {% endif %}
                     </div>
                     <div class="d-flex justify-content-end">
