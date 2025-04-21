@@ -16,6 +16,21 @@
 
 ### CHANGELOG
 
+
+## [v1.24.23-alpha.1] - 21-04-2025
+
+### Added
+
+- Se agregan los modelos `Orden` y `OrdenItem` para la gestión de pedidos.
+
+### Changed
+
+- Se actualiza la vista `pagar_carrito` para crear órdenes y sus ítems al realizar el pago.
+- Se mejora el template del carrito para mostrar un mensaje cuando está vacío.
+
+
+---
+
 ## [v1.23.22-alpha.1] - 4-11-2025
 
 ### Changed

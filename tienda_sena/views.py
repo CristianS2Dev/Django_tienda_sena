@@ -14,9 +14,7 @@ from django.contrib.auth.hashers import check_password
 from django.urls import reverse
 from .utils import session_rol_permission
 from django.contrib.auth.decorators import login_required
-
-
-
+from django.db.models import F
 
 
 
@@ -50,6 +48,7 @@ def login(request):
                     "rol": q.rol,
                     "nombre": q.nombre_apellido
                 }
+                combinar_carritos(request)
                 messages.success(request, "Bienvenido!!")
                 return redirect("index")
             else:
@@ -494,18 +493,19 @@ def editar_producto(request, id_producto):
 
             messages.success(request, "Producto actualizado correctamente!")
             if rol == 1:
-                return redirect("productos") 
+                return redirect("productos_admnin") 
             else:    
                 return redirect("lista_productos") 
             
         except Producto.DoesNotExist:
             messages.error(request, "Producto no encontrado")
+            return redirect("lista_productos")  # <-- Añade este return
         except Exception as e:
             messages.error(request, f"Error: {e}")
+            return redirect("editar_producto", id_producto=id_producto)  # <-- Añade este return
     else:
         producto = Producto.objects.get(pk=id_producto)
         return render(request, "productos/agregar_productos.html", {"dato": producto})
-
 
 def detalle_producto(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)
@@ -796,30 +796,32 @@ def actualizar_carrito(request, id_elemento):
 
 
 
-from django.db.models import F
 
 @session_rol_permission()
 def pagar_carrito(request):
-    """Procesa el pago del carrito."""
     carrito = obtener_carrito(request)
-
-    # Verificar si el carrito está vacío
     if not carrito.elementos.exists():
         messages.error(request, "El carrito está vacío.")
         return redirect('carrito')
 
-    # Aquí iría la lógica de procesamiento del pago
-    messages.success(request, "Pago procesado correctamente.")
-    #  mostrar mensaje con el valor de la compra 
     total = sum(elemento.producto.precio * elemento.cantidad for elemento in carrito.elementos.all())
-    # Actualizar el stock de los productos
+    usuario = carrito.usuario
+
+    # Registrar la orden
+    orden = Orden.objects.create(usuario=usuario, total=total)
     for elemento in carrito.elementos.all():
+        OrdenItem.objects.create(
+            orden=orden,
+            producto=elemento.producto,
+            cantidad=elemento.cantidad,
+            precio_unitario=elemento.producto.precio
+        )
         producto = elemento.producto
         producto.stock = F('stock') - elemento.cantidad
         producto.save()
         elemento.delete()
-    # Limpiar el carrito después del pago
-    carrito.elementos.all().delete()  # Vaciar el carrito después del pago
+    carrito.elementos.all().delete()
+    messages.success(request, "Pago procesado correctamente.")
     return redirect('index')
 
 

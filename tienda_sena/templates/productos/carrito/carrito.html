@@ -96,6 +96,9 @@
 </style>
 <div class="cart-wrapper">
     <div class="container">
+        {% if elementos|length == 0 %}
+        <div class="alert alert-info">Tu carrito está vacío.</div>
+{% endif %}
         <div class="row g-4">
             <!-- Cart Items Section -->
             <div class="col-lg-8">
@@ -110,7 +113,7 @@
                 <!-- Product Cards -->
                 <div class="d-flex flex-column gap-3">
                     {% for elemento in elementos %}
-                        <div class="product-card p-3 shadow-sm">
+                                                <div class="d-flex flex-column gap-3"><div class="product-card p-3 shadow-sm" id="product-card-{{ elemento.id }}">
                             <div class="row align-items-center">
                                 <div class="col-md-2">
                                     {% if elemento.producto.imagenes.exists %}
@@ -131,7 +134,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <p><span id="subtotal-{{ elemento.id }}">{{ elemento.producto.precio|floatformat:2 }}</span></p>
+                                    <p><span id="subtotal-{{ elemento.id }}">{{ elemento.subtotal|floatformat:2 }}</span></p>
                                 </div>
                                 <div class="col-md-1">
                                     <form method="POST" action="{% url 'eliminar_del_carrito' elemento.id %}">
@@ -197,10 +200,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.subtotal !== undefined) {
-                    document.getElementById(`subtotal-${elementId}`).innerText = `$${data.subtotal.toFixed(2).replace('.', ',')}`;
+                    if (data.subtotal === 0) {
+                        // Eliminar el elemento del DOM si la cantidad es 0
+                        document.getElementById(`product-card-${elementId}`).remove();
+                    } else {
+                        document.getElementById(`subtotal-${elementId}`).innerText = `$${data.subtotal.toFixed(2).replace('.', ',')}`;
+                    }
                     document.getElementById('total').innerText = `$${data.total.toFixed(2).replace('.', ',')}`;
+                    // Actualizar el contador de items si lo tienes
                 } else if (data.error) {
-                    alert(data.error); // Mostrar error si ocurre
+                    alert(data.error);
                 }
             })
             .catch(error => console.error('Error:', error));

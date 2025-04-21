@@ -107,3 +107,16 @@ class ElementoCarrito(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre} en {self.carrito}"
+    
+
+class Orden(models.Model):
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    # Puedes agregar más campos según lo necesites
+
+class OrdenItem(models.Model):
+    orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='items')
+    producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
