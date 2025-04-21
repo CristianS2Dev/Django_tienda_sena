@@ -124,6 +124,14 @@
             <div class="modal-body">
                 <p><strong>Id Usuario:</strong> {{ dato.id }}</p>
                 <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
+                <p><strong>Certificado SENA:</strong>{{ dato.certificado }}</p>
+                <div class="col-12 col-md-2 d-flex justify-content-center align-items-center p-0">
+                    {% if dato.certificado %}
+                        <img src="{{ dato.certificado.url }}" class="border rounded-5 img-fluid" alt="Client Avatar">
+                    {% else %}
+                        <img src="{% static 'assets/Andres.png' %}" class="border rounded-5 img-fluid" alt="Client Avatar">
+                    {% endif %}
+                </div>
                 <a href="{% url 'actualizar_contraseña' %}" class="btn btn-success">Cambiar Contraseña</a>
                 <!-- Agregar más detalles según sea necesario -->
             </div>
