@@ -18,6 +18,7 @@ class Usuario(models.Model):
     rol = models.IntegerField(choices=ROLES, default=2)
     imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)  # Campo para la foto de perfil
     direccion = models.CharField(max_length=254, default="none")
+    certificado = models.ImageField(upload_to='certificado/', null=True, blank=True)
     
     def save(self, *args, **kwargs):
         # Encriptar la contraseña si no está encriptada

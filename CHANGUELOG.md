@@ -31,7 +31,16 @@
 
 ---
 
-## [v1.23.22-alpha.1] - 4-11-2025
+
+## [v1.24.22-alpha.1] - 4-21-2025
+
+### Changed
+
+- Se agrega certificado al models
+
+---
+
+## [v1.23.22-alpha.1] - 4-21-2025
 
 ### Changed
 

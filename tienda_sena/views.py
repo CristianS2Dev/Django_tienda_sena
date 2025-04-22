@@ -186,16 +186,21 @@ def actualizar_perfil(request):
         contacto = request.POST.get("contacto")
         direccion = request.POST.get("direccion")
         imagen_perfil = request.FILES.get("imagen_perfil")
-
+        certificado = request.FILES.get("certificado_sena")
         try:
             if imagen_perfil:
                 validar_archivo(imagen_perfil)
                 validar_tamano_archivo(imagen_perfil)
                 usuario.imagen_perfil = imagen_perfil  # Actualizar la imagen de perfil
-
+            if certificado:
+                validar_archivo(certificado)
+                validar_tamano_archivo(certificado)
+                usuario.certificado= certificado
+                
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
             usuario.direccion = direccion
+
             usuario.save()
             messages.success(request, "Perfil actualizado correctamente!")
         except ValidationError as ve:
@@ -619,7 +624,7 @@ def agregar_usuario(request):
 
 def editar_usuario(request, id_usuario):
     if request.method == "POST":
-        q = Usuario.objects.get(pk = id_usuario)
+        q = Usuario.objects.get(pk=id_usuario)
         # procesar datos
         nombre_apellido = request.POST.get("nombre")
         documento = request.POST.get("documento")
@@ -627,13 +632,14 @@ def editar_usuario(request, id_usuario):
         correo = request.POST.get("correo")
         password = request.POST.get("password")
         rol = request.POST.get("rol")
-        imagen_perfil=imagen_perfil,
+        imagen_perfil = request.FILES.get("imagen_perfil")
         direccion = request.POST.get("direccion")
         try:
             if imagen_perfil:
                 try:
                     validar_archivo(imagen_perfil) 
-                    validar_tamano_archivo(imagen_perfil) 
+                    validar_tamano_archivo(imagen_perfil)
+                    q.imagen_perfil = imagen_perfil
                 except ValidationError as ve:
                     messages.error(request, f"Error de validación: {ve}")
                     return redirect("agregar_usuario")
@@ -647,7 +653,6 @@ def editar_usuario(request, id_usuario):
             q.correo = correo
             q.password = make_password(password)
             q.rol = rol
-            q.imagen_perfil = imagen_perfil
             q.direccion = direccion
             q.save()
             messages.success(request, "Usuario actualizado correctamente!")
@@ -655,7 +660,7 @@ def editar_usuario(request, id_usuario):
             messages.error(request, f"Error: {e}")
         return redirect("usuarios")
     else:
-        q = Usuario.objects.get(pk = id_usuario)
+        q = Usuario.objects.get(pk=id_usuario)
         return render(request, "administrador/usuarios/agregar_usuarios.html", {"dato": q})
 
 
