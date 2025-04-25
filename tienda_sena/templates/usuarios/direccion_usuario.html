@@ -1,0 +1,80 @@
+{% extends 'bases/base.html' %}
+{% load static humanize custom_filters breadcrumbs %}
+
+
+{% block titulo %}Editar Dirección{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    <li>{{ field }}: {{ errors|join:", " }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+<!-- Breadcrumb -->
+{% render_breadcrumbs breadcrumbs %}
+    <div class="row">
+        <div class="col-md-8 col-lg-9 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Dirección</h4>
+                <a href="{% url 'agregar_direccion' %}" class="btn btn-outline-primary">Agregar Dirección</a>
+            </div>
+            <div class="row">
+                {% for direccion in direcciones %}
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm position-relative">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="fw-bold mb-2">
+                                        {{ direccion.usuario.nombre }}
+                                    </h6>
+                                    {% if direccion.principal %}
+                                    <span class="badge bg-warning text-dark h-50 me-4">Dirección Predeterminada</span>
+                                    {% endif %}
+                                </div>
+            
+                                <div class="text-muted small">
+                                    <div>{{ direccion.direccion }}</div>
+                                    <div>{{ direccion.ciudad }}, {{ direccion.estado }}</div>
+                                    <div>{{ direccion.pais }}, {{ direccion.codigo_postal }}</div>
+                                </div>
+                            </div>
+            
+                            <!-- Dropdown botón de acciones -->
+                            <div class="dropdown position-absolute top-0 end-0 m-2">
+                                <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'editar_direccion' direccion.id %}">Editar</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="{% url 'eliminar_direccion' direccion.id %}">Eliminar</a>
+                                    </li>
+                                        <li>
+                                            <a href="{% url 'set_primary_address' direccion.id %}" class="dropdown-item">
+                                                Establecer como Predeterminada
+                                            </a>
+                                        </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            No tienes direcciones guardadas. Haz clic en <strong>Agregar Dirección</strong> para comenzar.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

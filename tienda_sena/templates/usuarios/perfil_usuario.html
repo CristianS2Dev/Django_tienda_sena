@@ -87,6 +87,20 @@
                     </div>
                 </div>  
             </a>
+            <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#direccionModal">
+                <div class="row text-center">
+                    <div class="col-2 col-sm-1 d-flex align-items-center justify-content-end p-2 d-none d-sm-flex">
+                        <i class="border border-dark bi bi-geo-alt rounded-5 fs-2" style="width: 50px;"></i>
+                    </div>
+                    <div class="col-8 col-md-9 text-start">
+                        <h5 class="mb-1">Dirección</h5>
+                        <p class="mb-0">Ver tu dirección registrada</p>
+                    </div>
+                    <div class="col-2 d-flex align-items-center justify-content-end">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>    
 </div>
@@ -134,6 +148,32 @@
                 </div>
                 <a href="{% url 'actualizar_contraseña' %}" class="btn btn-success">Cambiar Contraseña</a>
                 <!-- Agregar más detalles según sea necesario -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Direccion -->
+<div class="modal fade" id="direccionModal" tabindex="-1" aria-labelledby="direccionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="direccionModalLabel">Dirección principal del Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if direccion_principal %}
+                    <p><strong>Dirección:</strong> {{ direccion_principal.direccion }}</p>
+                    <p><strong>Ciudad:</strong> {{ direccion_principal.ciudad }}</p>
+                    <p><strong>Estado:</strong> {{ direccion_principal.estado }}</p>
+                    <p><strong>País:</strong> {{ direccion_principal.pais }}</p>
+                    <p><strong>Código Postal:</strong> {{ direccion_principal.codigo_postal }}</p>
+                {% else %}
+                    <p>No tienes una dirección principal registrada.</p>
+                {% endif %}
+                <a class="btn btn-success" href="{% url 'direccion_usuario' %}">Gestionar Direcciones</a>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
