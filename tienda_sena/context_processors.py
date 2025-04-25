@@ -7,3 +7,5 @@ def categorias(request):
 def colores(request):
     colores = Producto.COLORES
     return {'colores': colores}
+
+

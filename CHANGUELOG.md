@@ -16,6 +16,29 @@
 
 ### CHANGELOG
 
+---
+
+## [v1.25.24-alpha.1] - 24-04-2025
+
+### Added
+
+- Se agregan modelos para la gestión de direcciones de usuario, incluyendo operaciones CRUD.
+- Se añade funcionalidad para establecer dirección principal.
+- Se crea comando para limpiar carritos de compra huérfanos con más de 7 días.
+- Se mejora el template del perfil de usuario para mostrar y gestionar direcciones.
+- Se agregan breadcrumbs para mejor navegación en la gestión de direcciones.
+- Se actualiza el panel de administración para gestionar los nuevos modelos de direcciones y órdenes.
+
+### Changed
+
+- Se actualizan las vistas para soportar la gestión de direcciones.
+
+### Fixed
+
+- Se añade validación para los campos de dirección.
+
+---
+
 
 ## [v1.24.23-alpha.1] - 21-04-2025
 

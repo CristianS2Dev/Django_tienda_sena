@@ -17,7 +17,6 @@ class Usuario(models.Model):
     )
     rol = models.IntegerField(choices=ROLES, default=2)
     imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)  # Campo para la foto de perfil
-    direccion = models.CharField(max_length=254, default="none")
     certificado = models.ImageField(upload_to='certificado/', null=True, blank=True)
     
     def save(self, *args, **kwargs):
@@ -26,9 +25,28 @@ class Usuario(models.Model):
             self.password = make_password(self.password)
         super().save(*args, **kwargs)
 
-
     def __str__(self):
         return f"{self.nombre_apellido} - {self.rol}"
+    
+
+class Direccion(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='direcciones')
+    direccion = models.CharField(max_length=255)
+    ciudad = models.CharField(max_length=100)
+    estado = models.CharField(max_length=100)
+    codigo_postal = models.CharField(max_length=10)
+    pais = models.CharField(max_length=100, default="Colombia")
+    principal = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.principal:
+            Direccion.objects.filter(usuario=self.usuario, principal=True).exclude(id=self.id).update(principal=False)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.direccion}, {self.ciudad}, {self.estado}, {self.pais}"
+    
+
     
 class Producto(models.Model):
     nombre = models.CharField(max_length=100)
@@ -95,7 +113,7 @@ class Carrito(models.Model):
         return sum(item.subtotal() for item in self.elementos.all()) # suma de los subtotales de cada elemento
 
     def __str__(self):
-        return f"Carrito de {self.usuario.nombre if self.usuario else 'Invitado'}"
+        return f"Carrito de {self.usuario.nombre_apellido if self.usuario else 'Invitado'}"
 
 class ElementoCarrito(models.Model):
     carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='elementos')
@@ -112,12 +130,14 @@ class ElementoCarrito(models.Model):
 
 class Orden(models.Model):
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    direccion = models.ForeignKey('Direccion', on_delete=models.SET_NULL, null=True, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    # Puedes agregar más campos según lo necesites
 
 class OrdenItem(models.Model):
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='items')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+
