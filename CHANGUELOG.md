@@ -16,6 +16,14 @@
 
 ### CHANGELOG
 
+
+## [v1.25.25-alpha.1] - 24-04-2025
+
+### Changed
+
+- Refactorización de la actualización de perfil de usuario para incluir la gestión de dirección principal.
+- Mejora en el manejo y visualización de categorías de productos en las vistas y filtros.
+
 ---
 
 ## [v1.25.24-alpha.1] - 24-04-2025

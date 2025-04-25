@@ -1,5 +1,5 @@
 {% extends "bases/base.html" %}
-
+{% load static %}
 {% block main %}
 <div class="container">
     <div class="m-5">
@@ -16,8 +16,15 @@
         <label for="contacto">Contacto:</label>
         <input type="text" id="contacto" name="contacto" class="form-control" value="{{ usuario.contacto }}" required><br>
     
-        <label for="direccion">Dirección:</label>
-        <input type="text" id="direccion" name="direccion" class="form-control" value="{{ usuario.direccion }}" required><br>
+        {% if direccion_principal %}
+            <div class="mb-3 card p-3 border border-2 rounded-3">
+                <label class="form-label">Dirección principal:</label>
+                <div class="form-control-plaintext">
+                    {{ direccion_principal.direccion }}, {{ direccion_principal.ciudad }}, {{ direccion_principal.estado }}, {{ direccion_principal.pais }}, {{ direccion_principal.codigo_postal }}
+                </div>
+                <a href="{% url 'direccion_usuario' %}" class="btn btn-link p-0">Gestionar direcciones</a>
+            </div>
+        {% endif %}
     
         <label for="imagen_perfil">Imagen de Perfil:</label>
         <input type="file" id="imagen_perfil" name="imagen_perfil"><br>
