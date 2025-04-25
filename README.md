@@ -54,6 +54,16 @@ En **Windows**:
 python manage.py runserver  
 ```
 
+## 🧹 Limpieza de Carritos Huérfanos
+
+Puedes eliminar carritos de compra huérfanos (sin usuario y con más de 7 días de antigüedad) ejecutando el siguiente comando de Django:
+
+```bash
+python manage.py limpiar_carritos_huerfanos
+```
+
+Esto eliminará automáticamente los carritos que no estén asociados a ningún usuario y que sean antiguos, ayudando a mantener la base de datos limpia.
+
 ## 📂 Estructura del Proyecto  
 
 El proyecto cuenta con varias secciones y plantillas diseñadas para una experiencia de usuario intuitiva:  
