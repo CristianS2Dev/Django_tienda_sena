@@ -757,16 +757,18 @@ def eliminar_producto(request, id_producto):
 # -----------------------------------------------------
                 #ADMINISTRADOR
 # -----------------------------------------------------
-
+@session_rol_permission(1)
 def panel_admin(request):
     return render(request, 'administrador/panel_admin.html')
 
 #--------------USUARIOS-----------------------
+@session_rol_permission(1)
 def usuarios(request):
     q = Usuario.objects.all()
     contexto = { "data": q }
     return render(request, "administrador/usuarios/listar_usuarios.html", contexto)
 
+@session_rol_permission(1)
 def agregar_usuario(request):
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
@@ -798,7 +800,6 @@ def agregar_usuario(request):
                 password=make_password(password),
                 rol=rol,
                 imagen_perfil=imagen_perfil,  # Guardar la imagen si es válida
-                direccion=direccion
             )
             
             q.save()
@@ -811,7 +812,7 @@ def agregar_usuario(request):
     else:
         return render(request, "administrador/usuarios/agregar_usuarios.html")
 
-
+@session_rol_permission(1)
 def editar_usuario(request, id_usuario):
     if request.method == "POST":
         q = Usuario.objects.get(pk=id_usuario)
@@ -851,7 +852,7 @@ def editar_usuario(request, id_usuario):
         q = Usuario.objects.get(pk=id_usuario)
         return render(request, "administrador/usuarios/agregar_usuarios.html", {"dato": q})
 
-
+@session_rol_permission(1)
 def eliminar_usuario(request, id_usuario):
     try:
         # respuesta = request.POST.get('confirmar_eliminar_usuario')        
@@ -872,15 +873,11 @@ def eliminar_usuario(request, id_usuario):
 # -----------------------------------------------------
 
 #-------------PRODUCTOS------------------------
-
+@session_rol_permission(1)
 def productos_admnin(request):
     q = Producto.objects.all()
     contexto = { "data": q }
     return render(request, "administrador/productos/listar_productos.html", contexto)
-
-def modulo_tienda(request):
-    return render(request, 'productos/tienda.html')
-
 
 
 # ---------------------------------------------
