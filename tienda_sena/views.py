@@ -190,7 +190,7 @@ def actualizar_perfil(request):
                 
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
-            usuario.direccion = direccion
+            
 
             usuario.save()
             messages.success(request, "Perfil actualizado correctamente!")
@@ -200,8 +200,15 @@ def actualizar_perfil(request):
             messages.error(request, f"Error: {e}")
         return redirect("perfil_usuario")
     else:
-        return render(request, "usuarios/actualizar_perfil.html", {"usuario": usuario})
-
+        direccion_principal = Direccion.objects.filter(usuario=usuario, principal=True).first()
+        return render(
+            request,
+            "usuarios/actualizar_perfil.html",
+            {
+                "usuario": usuario,
+                "direccion_principal": direccion_principal,
+            }
+        )
 
 def actualizar_contraseña(request):
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
@@ -493,13 +500,17 @@ def lista_productos(request, id_categoria=None):
             })
 
     categoria = None
+    categoria_obj = None
     if id_categoria is not None:
         try:
             id_categoria = int(id_categoria)
             categoria = id_categoria
             productos = productos.filter(categoria=id_categoria)
+            # Obtener el objeto de la categoría
+            categoria_obj = next((c for c in categorias_disponibles if c[0] == id_categoria), None)
         except (ValueError, TypeError):
             categoria = None
+            categoria_obj = None
 
     nombre = request.GET.get('nombre')
     if nombre:
@@ -543,7 +554,7 @@ def lista_productos(request, id_categoria=None):
 
     contexto = {
         'data': page_obj,
-        'categoria': categoria,
+        'categoria': categoria_obj,
         'categorias': categorias_disponibles,
         'colores_disponibles': colores_disponibles,
         'colores_con_codigo': colores_con_codigo,
@@ -988,6 +999,16 @@ def pagar_carrito(request):
     if not carrito.elementos.exists():
         messages.error(request, "El carrito está vacío.")
         return redirect('carrito')
+
+    if not carrito.usuario:
+        usuario_id = request.session.get("pista", {}).get("id")
+        if usuario_id:
+            usuario = Usuario.objects.get(pk=usuario_id)
+            carrito.usuario = usuario
+            carrito.save()
+        else:
+            messages.error(request, "Debes iniciar sesión para pagar.")
+            return redirect('login')
 
     total = sum(elemento.producto.precio * elemento.cantidad for elemento in carrito.elementos.all())
     usuario = carrito.usuario

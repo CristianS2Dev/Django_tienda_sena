@@ -117,7 +117,11 @@
                 <p><strong>Documento:</strong> {{ dato.contacto }}</p>
                 <p><strong>Contacto:</strong> {{ dato.contacto }}</p>
                 <p><strong>Email:</strong> {{ dato.correo }}</p>
-                <p><strong>Direccion:</strong> {{ dato.direccion }}</p>
+                {% if direccion_principal %}
+                    <p><strong>Dirección:</strong> {{ direccion_principal.direccion }}</p>
+                {% else %}
+                    <p>No tienes una dirección principal registrada.</p>
+                {% endif %}
                 <a class="btn btn-success" href="{% url 'actualizar_perfil' %}" >Actualizar Datos</a>
                 <!-- Agregar más detalles según sea necesario -->
             </div>
