@@ -66,8 +66,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'tienda_sena.context_processors.categorias',  # se corrige el módulo
-                'tienda_sena.context_processors.colores',  # se corrige el módulo
+                'tienda_sena.context_processors.categorias',  
+                'tienda_sena.context_processors.colores',  
             ],
         },
     },

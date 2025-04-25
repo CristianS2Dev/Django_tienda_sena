@@ -45,6 +45,11 @@ urlpatterns = [
         path('editar_producto/<int:id_producto>/', views.editar_producto, name='editar_producto'),
         path('producto/user/<int:id_producto>/', views.detalle_producto, name='detalle_producto'),
         path('eliminar_producto/<int:id_producto>/', views.eliminar_producto, name='eliminar_producto'),
+        path('direccion_usuario', views.direccion_usuario, name='direccion_usuario'),
+        path('agregar_direccion', views.agregar_direccion, name='agregar_direccion'),
+        path('main_address/<int:id_address>/', views.set_primary_address, name='set_primary_address'),
+        path('editar_direccion/<int:id_direccion>/', views.editar_direccion, name='editar_direccion'),
+        path('eliminar_direccion/<int:id>/', views.eliminar_direccion, name='eliminar_direccion'),
 
         # Vendedor
             path('productos/vendedor/<int:id_vendedor>/', views.productos_vendedor, name='productos_vendedor'),

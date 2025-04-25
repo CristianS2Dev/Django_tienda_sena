@@ -1,29 +1,21 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 from decimal import Decimal
 from .models import *
 from .utils import *
 import re
-import json
 from django.http import JsonResponse
 from .templatetags.custom_filters import *
 from django.contrib.auth.hashers import check_password
-from django.urls import reverse
 from .utils import session_rol_permission
-from django.contrib.auth.decorators import login_required
 from django.db.models import F
-
-
-
-from django.core.exceptions import PermissionDenied 
-
-
-
 from django.contrib import messages
 from django.db import IntegrityError
+from django.db import transaction
+from django.urls import reverse
+
+
 
 # Create your views here.
 def index(request):
@@ -164,6 +156,7 @@ def perfil_usuario(request):
     if request.session.get("pista"):  # Verificar si hay una sesión activa
         return render(request, "usuarios/perfil_usuario.html", {
             "dato": q,
+            "direccion_principal": Direccion.objects.filter(usuario=q, principal=True).first(),
         })
     else:
         messages.error(request, "Debes iniciar sesión para acceder a tu perfil.")
@@ -178,13 +171,11 @@ def perfil_usuario_id(request, id_usuario):
 
 
 
-
 def actualizar_perfil(request):
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
         contacto = request.POST.get("contacto")
-        direccion = request.POST.get("direccion")
         imagen_perfil = request.FILES.get("imagen_perfil")
         certificado = request.FILES.get("certificado_sena")
         try:
@@ -250,7 +241,187 @@ def actualizar_contraseña(request):
         return render(request, "usuarios/actualizar_contraseña.html", {"usuario": usuario})
 
 
+# -----------------------------------------------------
+    #DIRECCION
+#-----------------------------------------------------
 
+
+@session_rol_permission()
+def direccion_usuario(request):
+    """Muestra la dirección del usuario autenticado."""
+    try:
+        usuario = Usuario.objects.get(id=request.session['pista']['id'])
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('login_usuario')
+    
+    direcciones = Direccion.objects.filter(usuario=usuario)
+    
+    breadcrumbs = [
+        ("Inicio", reverse("index")),
+        ("Mi cuenta", reverse("perfil_usuario")),
+        ("Dirección", None)
+    ]
+
+    context = {
+        'usuario': usuario,
+        'breadcrumbs': breadcrumbs,
+        'direcciones': direcciones,
+    }
+    return render(request, 'usuarios/direccion_usuario.html', context)
+
+
+def agregar_direccion(request):
+    """"Agrega una nueva dirección para el usuario autenticado."""
+    try:
+        usuario = Usuario.objects.get(id=request.session['pista']['id'])
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        return redirect('login')
+
+    breadcrumbs = [
+        ("Inicio", reverse("index")),
+        ("Mi cuenta", reverse("perfil_usuario")),
+        ("Dirección", reverse("direccion_usuario")),
+        ("Agregar Dirección", None)
+    ]
+
+    if request.method == 'POST':
+        direccion = request.POST.get('direccion')
+        ciudad = request.POST.get('ciudad')
+        estado = request.POST.get('estado')
+        codigo_postal = request.POST.get('codigo_postal')
+        pais = request.POST.get('pais')
+        principal = request.POST.get('principal') == 'on'  # Verifica si el checkbox está marcado
+
+        try:
+            # Validar los datos de la dirección
+            validar_direccion(direccion, ciudad, estado, codigo_postal, pais)
+
+            # Crear la dirección
+            nueva_direccion = Direccion.objects.create(
+                usuario=usuario,
+                direccion=direccion,
+                ciudad=ciudad,
+                estado=estado,
+                codigo_postal=codigo_postal,
+                pais=pais,
+                principal=principal
+            )
+            messages.success(request, 'Dirección agregada correctamente.')
+            return redirect('direccion_usuario')
+        except ValidationError as ve:
+            messages.error(request, f"Error de validación: {ve}")
+        except Exception as e:
+            messages.error(request, f"Error inesperado: {e}")
+
+
+        # Si hay un error, devolver los datos ingresados al formulario
+        return render(request, 'usuarios/agregar_direccion_usuario.html', {
+            'breadcrumbs': breadcrumbs,
+            'direccion_valor': direccion,
+            'ciudad_valor': ciudad,
+            'estado_valor': estado,
+            'codigo_postal_valor': codigo_postal,
+            'pais_valor': pais,
+            'principal_valor': principal,
+        })
+
+    # Para solicitudes GET, pasar valores vacíos al formulario
+    return render(request, 'usuarios/agregar_direccion_usuario.html', {
+        'breadcrumbs': breadcrumbs,
+        'direccion_valor': '',
+        'ciudad_valor': '',
+        'estado_valor': '',
+        'codigo_postal_valor': '',
+        'pais_valor': '',
+        'principal_valor': False,
+    })
+
+
+@session_rol_permission()
+def editar_direccion(request,id_direccion):
+    """"Actualiza una dirección existente del usuario autenticado."""
+    try:
+        direccion = Direccion.objects.get(id=id_direccion, usuario__id=request.session['pista']['id'])
+    except Direccion.DoesNotExist:
+        messages.error(request, "Dirección no encontrada.")
+        return redirect('direccion_usuario')
+
+    breadcrumbs = [
+        ("Inicio", reverse("index")),
+        ("Mi cuenta", reverse("perfil_usuario")),
+        ("Dirección", reverse("direccion_usuario")),
+        ("Actualizar Dirección", None)
+    ]
+
+    if request.method == 'POST':
+        direccion.direccion = request.POST.get('direccion')
+        direccion.ciudad = request.POST.get('ciudad')
+        direccion.estado = request.POST.get('estado')
+        direccion.codigo_postal = request.POST.get('codigo_postal')
+        direccion.pais = request.POST.get('pais')
+        direccion.principal = request.POST.get('principal') == 'on'  # Verifica si el checkbox está marcado
+        try:
+            # Validar los datos de la dirección
+            validar_direccion(direccion.direccion, direccion.ciudad, direccion.estado, direccion.codigo_postal, direccion.pais)
+            # Guardar los cambios
+            direccion.save()
+            messages.success(request, 'Dirección actualizada correctamente.')
+            return redirect('direccion_usuario')
+        except ValidationError as ve:
+            messages.error(request, f"Error de validación: {ve}")
+        except Exception as e:
+            messages.error(request, f"Error inesperado: {e}")
+
+    return render(request, 'usuarios/agregar_direccion_usuario.html', {
+        'breadcrumbs': breadcrumbs,
+        'direccion': direccion,
+        'direccion_valor': direccion.direccion,
+        'ciudad_valor': direccion.ciudad,
+        'estado_valor': direccion.estado,
+        'codigo_postal_valor': direccion.codigo_postal,
+        'pais_valor': direccion.pais,
+        'principal_valor': direccion.principal,
+    })
+
+def set_primary_address(request, id_address):
+    """Establece una dirección como principal."""
+    try:
+        direccion = Direccion.objects.get(id=id_address, usuario__id=request.session['pista']['id'])
+        Direccion.objects.filter(usuario=direccion.usuario).update(principal=False)
+        direccion.principal = True
+        direccion.save()
+        messages.success(request, 'Dirección establecida como principal.')
+    except Direccion.DoesNotExist:
+        messages.error(request, "Dirección no encontrada.")
+    except Exception as e:
+        messages.error(request, f"Error inesperado: {e}")
+    return redirect('address')
+
+def eliminar_direccion(request, id):
+    """"Elimina una dirección existente del usuario autenticado."""
+    try:
+        direccion = Direccion.objects.get(id=id, usuario__id=request.session['pista']['id'])
+        direccion.delete()
+        messages.success(request, 'Dirección eliminada correctamente.')
+    except Direccion.DoesNotExist:
+        messages.error(request, "Dirección no encontrada.")
+    except Exception as e:
+        messages.error(request, f"Error inesperado: {e}")
+    return redirect('direccion_usuario')
+
+
+
+#------------------------------------------------------
+    # FIN DIRECCION
+#------------------------------------------------------
+
+
+
+# -----------------------------------------------------
+    #VALIDACIONES
+# -----------------------------------------------------
 
 def validar_archivo(imagen):
     """Valida el tipo de archivo permitido."""
@@ -264,8 +435,6 @@ def validar_tamano_archivo(imagen, max_size_mb=5):
         raise ValidationError(f"El archivo excede el tamaño máximo permitido de {max_size_mb} MB.")
 
 
-    
-
 def validar_imagen(imagen, max_size_mb=5):
     """Valida el tipo, tamaño y seguridad del archivo."""
     try:
@@ -277,7 +446,18 @@ def validar_imagen(imagen, max_size_mb=5):
         raise Exception(f"Error al escanear archivo: {e}")
 
 
-        
+def validar_direccion(direccion, ciudad, estado, codigo_postal, pais):
+    """Valida los campos de una dirección."""
+    if not all([direccion, ciudad, estado, codigo_postal, pais]):
+        raise ValidationError("Todos los campos son obligatorios.")
+    if not codigo_postal.isdigit() or len(codigo_postal) != 6:
+        raise ValidationError("El código postal debe ser un número de 5 dígitos.")
+
+# -----------------------------------------------------
+    # FIN VALIDACIONES
+#-----------------------------------------------------
+
+
 # -----------------------------------------------------  
         #CRUD Listar productos usuario
 # -----------------------------------------------------
@@ -585,7 +765,6 @@ def agregar_usuario(request):
         password = request.POST.get("password")
         rol = request.POST.get("rol")
         imagen_perfil = request.FILES.get("imagen_perfil")  # Obtener la imagen del formulario
-        direccion = request.POST.get("direccion")
 
         try:
             if imagen_perfil:
@@ -633,7 +812,6 @@ def editar_usuario(request, id_usuario):
         password = request.POST.get("password")
         rol = request.POST.get("rol")
         imagen_perfil = request.FILES.get("imagen_perfil")
-        direccion = request.POST.get("direccion")
         try:
             if imagen_perfil:
                 try:
@@ -653,7 +831,6 @@ def editar_usuario(request, id_usuario):
             q.correo = correo
             q.password = make_password(password)
             q.rol = rol
-            q.direccion = direccion
             q.save()
             messages.success(request, "Usuario actualizado correctamente!")
         except Exception as e:
@@ -702,16 +879,18 @@ def modulo_tienda(request):
 def obtener_carrito(request):
     """Obtiene el carrito del usuario autenticado o de la sesión."""
     if request.user.is_authenticated:
-        # Convertir request.user a una instancia del modelo Usuario personalizado
+        # Buscar el usuario en tu modelo personalizado
         usuario = Usuario.objects.filter(correo=request.user.email).first()
         if not usuario:
-            # Lanzar una excepción si el usuario no está registrado en el modelo Usuario
-            raise ValueError("El usuario autenticado no está registrado como Usuario en el sistema.")
-        
-        # Si el usuario está autenticado, usa su carrito
+            # Crear el usuario automáticamente si no existe
+            usuario = Usuario.objects.create(
+                nombre_apellido=request.user.get_full_name() or request.user.username,
+                correo=request.user.email,
+                password=request.user.password,
+                rol=2,  # O el rol por defecto que desees
+            )
         carrito, creado = Carrito.objects.get_or_create(usuario=usuario)
     else:
-        # Si no está autenticado, usa un carrito basado en la sesión
         carrito_id = request.session.get('carrito_id')
         if carrito_id:
             carrito = Carrito.objects.filter(id=carrito_id).first()
@@ -719,7 +898,6 @@ def obtener_carrito(request):
             carrito = Carrito.objects.create()
             request.session['carrito_id'] = carrito.id
     return carrito
-
 
 def agregar_carrito(request, id_producto):
     """Agrega un producto al carrito."""
@@ -731,13 +909,16 @@ def agregar_carrito(request, id_producto):
 
     producto = get_object_or_404(Producto, id=id_producto)
     cantidad = int(request.POST.get('cantidad', 1))
-    
+
     # Validar cantidad
     if cantidad <= 0:
         messages.error(request, "La cantidad debe ser mayor a 0.")
         return redirect('carrito')
     if cantidad > producto.stock:
         messages.error(request, "La cantidad excede el stock disponible.")
+        return redirect('carrito')
+    if not producto.stock or producto.stock <= 0:
+        messages.error(request, "Este producto ya no está disponible.")
         return redirect('carrito')
     
     # Buscar o crear el elemento en el carrito
@@ -801,7 +982,6 @@ def actualizar_carrito(request, id_elemento):
 
 
 
-
 @session_rol_permission()
 def pagar_carrito(request):
     carrito = obtener_carrito(request)
@@ -812,23 +992,35 @@ def pagar_carrito(request):
     total = sum(elemento.producto.precio * elemento.cantidad for elemento in carrito.elementos.all())
     usuario = carrito.usuario
 
-    # Registrar la orden
-    orden = Orden.objects.create(usuario=usuario, total=total)
-    for elemento in carrito.elementos.all():
-        OrdenItem.objects.create(
-            orden=orden,
-            producto=elemento.producto,
-            cantidad=elemento.cantidad,
-            precio_unitario=elemento.producto.precio
-        )
-        producto = elemento.producto
-        producto.stock = F('stock') - elemento.cantidad
-        producto.save()
-        elemento.delete()
-    carrito.elementos.all().delete()
-    messages.success(request, "Pago procesado correctamente.")
-    return redirect('index')
+    try:
+        with transaction.atomic():
+            # Verificar stock antes de crear la orden
+            for elemento in carrito.elementos.select_related('producto'):
+                producto = elemento.producto
+                producto.refresh_from_db()
+                if elemento.cantidad > producto.stock:
+                    messages.error(request, f"Stock insuficiente para {producto.nombre}. Disponible: {producto.stock}")
+                    return redirect('carrito')
 
+            # Registrar la orden
+            orden = Orden.objects.create(usuario=usuario, total=total)
+            for elemento in carrito.elementos.all():
+                OrdenItem.objects.create(
+                    orden=orden,
+                    producto=elemento.producto,
+                    cantidad=elemento.cantidad,
+                    precio_unitario=elemento.producto.precio
+                )
+                producto = elemento.producto
+                producto.stock = F('stock') - elemento.cantidad
+                producto.save()
+                elemento.delete()
+            carrito.elementos.all().delete()
+            messages.success(request, "Pago procesado correctamente.")
+    except Exception as e:
+        messages.error(request, f"Error al procesar el pago: {e}")
+        return redirect('carrito')
+    return redirect('index')
 
 def combinar_carritos(request):
     if request.user.is_authenticated:
@@ -842,6 +1034,9 @@ def combinar_carritos(request):
                     elemento.save()
                 session_carrito.delete()
             del request.session['carrito_id']
+
+
+
 
 # ---------------------------------------------
 # ---------------------------------------------
