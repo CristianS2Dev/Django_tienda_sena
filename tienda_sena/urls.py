@@ -10,7 +10,6 @@ urlpatterns = [
         path('login/', views.login, name='login'),
         path('logout', views.logout, name="logout"),
         path('registrarse/', views.registrarse, name='registrarse'),
-        path('modulo_tienda', views.modulo_tienda, name='modulo_tienda'),
         path('sobre_nosotros', views.sobre_nosotros, name='sobre_nosotros'),
 
     #Perfil Administrador
