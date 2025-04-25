@@ -16,6 +16,11 @@
 
 ### CHANGELOG
 
+## [v1.25.26-alpha.1] - 24-04-2025
+
+### Fixed
+
+- Se corrige los permisos de las vistas del administrador para que sean accesibles solo por el usuario correspondiente.
 
 ## [v1.25.25-alpha.1] - 24-04-2025
 
