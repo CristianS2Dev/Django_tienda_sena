@@ -16,6 +16,27 @@
 
 ### CHANGELOG
 
+## [v1.26.27-alpha.1] - 25-04-2025
+
+### Added
+
+- Validación en el modelo Producto para asegurar que los descuentos no excedan el 100% y que los precios finales no sean negativos.
+- Nuevo filtro personalizado para agrupar productos en el carrusel.
+- Se mejora la interfaz de usuario en los formularios de login y registro agregando la opción de mostrar/ocultar contraseña.
+
+### Changed
+
+- Refactorización del template `_productos.html` para mejorar el layout.
+- Se agrega el nuevo template `_productos_carrusel.html` para una mejor visualización de productos.
+- Mejoras en los templates `index.html` y `listar_productos.html` para una mejor experiencia de usuario.
+- Actualización de CSS para mejorar el estilo y la responsividad de las tarjetas y carruseles de productos.
+
+### Fixed
+
+- Mejor manejo de errores y retroalimentación al usuario en las vistas de registro e inicio de sesión.
+
+---
+
 ## [v1.25.26-alpha.1] - 24-04-2025
 
 ### Fixed

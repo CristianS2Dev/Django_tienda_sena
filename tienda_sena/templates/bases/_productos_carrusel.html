@@ -1,0 +1,127 @@
+{% load static humanize custom_filters breadcrumbs %}
+<div class="mb-4">
+  <div class="d-flex justify-content-center justify-content-md-between align-items-center mb-3 flex-wrap gap-2">
+    <h1 class="fw-bold text-primary text-center text-md-start mb-0">
+      Explora Nuestros Productos
+    </h1>
+    <!-- Flechas solo para pantallas grandes -->
+    <div class="d-none d-md-flex gap-2">
+      <button class="btn btn-outline-secondary btn-md" type="button" data-bs-target="#productosCarousel" data-bs-slide="prev">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <button class="btn btn-outline-secondary btn-md" type="button" data-bs-target="#productosCarousel" data-bs-slide="next">
+        <i class="bi bi-arrow-right"></i>
+      </button>
+    </div>
+  </div>  
+</div>
+
+<!-- Carrusel para escritorio (md y más grande) -->
+<div class="d-none d-md-block">
+  <div id="productosCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      {% for grupo in data|group_by:4 %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <div class="row flex-nowrap overflow-auto px-2 d-flex justify-content-center">
+            {% for producto in grupo %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 d-flex px-2" style="min-width: 200px;">
+              <div class="card shadow-sm rounded-3 overflow-hidden w-100">
+                <div class="position-relative">
+                  {% if producto.en_oferta %}
+                    <span class="badge bg-danger position-absolute top-0 end-0 m-2 rounded-pill">
+                      -{{ producto.descuento|floatformat:0 }}%
+                    </span>
+                  {% else %}
+                    <span class="badge bg-dark position-absolute top-0 start-0 m-2 rounded-pill">Nuevo</span>
+                  {% endif %}
+                  {% if producto.id %}
+                    <a href="{% url 'detalle_producto' producto.id %}">
+                  {% else %}
+                    <a href="#" onclick="return false;">
+                  {% endif %}
+                      {% if producto.imagenes.all %}
+                        <img src="{{ producto.imagenes.all.0.imagen.url }}" class="w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" alt="{{ producto.nombre }}">
+                      {% else %}
+                        <img src="{% static 'assets/product.png' %}" class="w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" alt="Imagen no disponible">
+                      {% endif %}
+                    </a>
+                </div>
+                <div class="p-3 d-flex flex-column">
+                  <h6 class="fw-semibold mb-1 text-truncate">{{ producto.nombre }}</h6>
+                  <p class="text-muted small mb-2 text-truncate">{{ producto.descripcion|truncatewords:10 }}</p>
+                  
+                  {% if producto.en_oferta %}
+                    <div class="d-flex align-items-center mb-2">
+                      <small class="text-muted text-decoration-line-through me-2">
+                        ${{ producto.precio_original|floatformat:0|intcomma|replace_comma }}
+                      </small>
+                      <span class="text-primary fw-bold">
+                        ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
+                      </span>
+                    </div>
+                  {% else %}
+                    <p class="text-primary fw-bold mb-2">
+                      ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
+                    </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Para móviles, solo scroll horizontal -->
+<div class="d-block d-md-none">
+  <div class="row flex-nowrap overflow-auto px-2 d-flex justify-content-center">
+    {% for producto in data %}
+    <div class="col-8 col-sm-6 mb-4 d-flex px-2" style="min-width: 160px; max-width: 220px;">
+      <div class="card shadow-sm rounded-3 overflow-hidden w-100">
+        <div class="position-relative">
+          {% if producto.en_oferta %}
+            <span class="badge bg-danger position-absolute top-0 end-0 m-2 rounded-pill">
+              -{{ producto.descuento|floatformat:0 }}%
+            </span>
+          {% else %}
+            <span class="badge bg-dark position-absolute top-0 start-0 m-2 rounded-pill">Nuevo</span>
+          {% endif %}
+          {% if producto.id %}
+            <a href="{% url 'detalle_producto' producto.id %}">
+          {% else %}
+            <a href="#" onclick="return false;">
+          {% endif %}
+              {% if producto.imagenes.all %}
+                <img src="{{ producto.imagenes.all.0.imagen.url }}" class="w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" alt="{{ producto.nombre }}">
+              {% else %}
+                <img src="{% static 'assets/product.png' %}" class="w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" alt="Imagen no disponible">
+              {% endif %}
+            </a>
+        </div>
+        <div class="p-3 d-flex flex-column">
+          <h6 class="fw-semibold mb-1 text-truncate">{{ producto.nombre }}</h6>
+          <p class="text-muted small mb-2 text-truncate">{{ producto.descripcion|truncatewords:10 }}</p>
+          
+          {% if producto.en_oferta %}
+            <div class="d-flex align-items-center mb-2">
+              <small class="text-muted text-decoration-line-through me-2">
+                ${{ producto.precio_original|floatformat:0|intcomma|replace_comma }}
+              </small>
+              <span class="text-primary fw-bold">
+                ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
+              </span>
+            </div>
+          {% else %}
+            <p class="text-primary fw-bold mb-2">
+              ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
