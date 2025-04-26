@@ -19,7 +19,8 @@ from django.urls import reverse
 
 # Create your views here.
 def index(request):
-    q = Producto.objects.all()[:3]
+    """Vista principal de la tienda."""
+    q = Producto.objects.all()[:6]
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
     }
@@ -28,6 +29,7 @@ def index(request):
 
 
 def login(request):
+    """Vista para iniciar sesión."""
     if request.method == "POST":
         correo = request.POST.get("correo")
         password = request.POST.get("password")
@@ -58,6 +60,7 @@ def login(request):
             return render(request, "login.html")
 
 def logout(request):
+    """Vista para cerrar sesión."""
     try:
         del request.session["pista"]
         return redirect("index")
@@ -66,10 +69,12 @@ def logout(request):
         return redirect("index")
 
 def sobre_nosotros(request):
+    """Vista para la sección 'Sobre nosotros'."""
     return render(request, 'sobre_nosotros.html')
 
 
 def correo_valido(correo):
+    """ Valida el formato del correo electrónico. """
     patron = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(patron, correo) is not None
 
@@ -77,6 +82,7 @@ class CorreoInvalidoError(Exception):
     pass
 
 def validar_contraseña(password):
+    """ Valida la contraseña según los criterios establecidos. """
     if not password:
         return False, "La contraseña no puede estar vacía."
     
@@ -95,10 +101,17 @@ def validar_contraseña(password):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>-]', password):
         return False, "La contraseña debe contener al menos un carácter especial."
     
+    contraseñas_comunes = [
+        "123456", "password", "123456789", "qwerty", "abc123", "111111", "123123", "12345", "12345678", "admin"
+    ]
+    if password.lower() in contraseñas_comunes:
+        return False, "La contraseña es demasiado común. Elige una más segura."
+    
     return True, "Contraseña válida."
 
 
 def registrarse(request):
+    """Vista para el registro de nuevos usuarios."""
     if request.session.get("pista"):
         messages.info(request, "Ya tienes una sesión activa. :) ")
         return redirect("index") 
@@ -108,23 +121,27 @@ def registrarse(request):
         password = request.POST.get("password")
         valid_password = request.POST.get("valid_password")
         rol = 2
+
+        campos = {
+            "nombre": nombre_apellido,
+            "correo": correo,
+            "password": password,
+            "valid_password": valid_password,
+        }
         
         try:
-            
             if not correo_valido(correo):
                 raise CorreoInvalidoError("Correo electrónico inválido")
             
             if password != valid_password:
                 messages.error(request, "Las contraseñas no coinciden.")
-                return redirect("registrarse")
+                return render(request, "registrarse.html", campos)
             
-            # Validar contraseña con una sola condición
-            es_valida = validar_contraseña(password)
+            es_valida, mensaje = validar_contraseña(password)
             if not es_valida:
-                messages.error(request, "No es valido")
-                return redirect("registrarse")
+                messages.error(request, mensaje)
+                return render(request, "registrarse.html", campos)
             
-            # Crear el usuario si todo está correcto
             usuario = Usuario(
                 nombre_apellido=nombre_apellido,
                 correo=correo,
@@ -136,22 +153,21 @@ def registrarse(request):
             return redirect("login")
         except CorreoInvalidoError:
             messages.error(request, 'Error, el correo no es valido')
-            return redirect("registrarse")  
+            return render(request, "registrarse.html", campos)
         except IntegrityError:
             messages.error(request, "Error: El correo ya está registrado")
-            return redirect("registrarse")
+            return render(request, "registrarse.html", campos)
         except Usuario.DoesNotExist:
             messages.error(request, "Error: El usuario ya existe")
-            return redirect("registrarse")
-        
+            return render(request, "registrarse.html", campos)
         except Exception as e:
             messages.error(request, f"Error: {e}")
-            return redirect("registrarse")
+            return render(request, "registrarse.html", campos)
     else:
         return render(request, "registrarse.html")
 
-
 def perfil_usuario(request):
+    """Vista para mostrar el perfil del usuario autenticado."""
     q = Usuario.objects.get(pk=request.session["pista"]["id"])
     if request.session.get("pista"):  # Verificar si hay una sesión activa
         return render(request, "usuarios/perfil_usuario.html", {
@@ -163,6 +179,7 @@ def perfil_usuario(request):
         return redirect("login")
     
 def perfil_usuario_id(request, id_usuario):
+    """Vista para mostrar el perfil de un usuario específico."""
     q = Usuario.objects.get(pk=id_usuario)
     return render(request, "usuarios/perfil_usuario.html",{
         
@@ -172,6 +189,7 @@ def perfil_usuario_id(request, id_usuario):
 
 
 def actualizar_perfil(request):
+    """Vista para actualizar el perfil del usuario autenticado."""
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
@@ -211,6 +229,7 @@ def actualizar_perfil(request):
         )
 
 def actualizar_contraseña(request):
+    """Vista para actualizar la contraseña del usuario autenticado."""
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
     if request.method == "POST":
         password = request.POST.get("password")
@@ -304,7 +323,16 @@ def agregar_direccion(request):
         try:
             # Validar los datos de la dirección
             validar_direccion(direccion, ciudad, estado, codigo_postal, pais)
-
+            if Direccion.objects.filter(
+                usuario=usuario,
+                direccion=direccion,
+                ciudad=ciudad,
+                estado=estado,
+                codigo_postal=codigo_postal,
+                pais=pais
+            ).exists():
+                raise ValidationError("Ya tienes registrada esta dirección.")
+            
             # Crear la dirección
             nueva_direccion = Direccion.objects.create(
                 usuario=usuario,
@@ -370,8 +398,17 @@ def editar_direccion(request,id_direccion):
         direccion.pais = request.POST.get('pais')
         direccion.principal = request.POST.get('principal') == 'on'  # Verifica si el checkbox está marcado
         try:
-            # Validar los datos de la dirección
+            if Direccion.objects.filter(
+                usuario=direccion.usuario,
+                direccion=direccion.direccion,
+                ciudad=direccion.ciudad,
+                estado=direccion.estado,
+                codigo_postal=direccion.codigo_postal,
+                pais=direccion.pais
+            ).exclude(id=direccion.id).exists():
+                raise ValidationError("Ya tienes registrada esta dirección.")
             validar_direccion(direccion.direccion, direccion.ciudad, direccion.estado, direccion.codigo_postal, direccion.pais)
+
             # Guardar los cambios
             direccion.save()
             messages.success(request, 'Dirección actualizada correctamente.')
@@ -480,6 +517,15 @@ def lista_productos(request, id_categoria=None):
     colores_disponibles = Producto.COLORES
     categorias_disponibles = Producto.CATEGORIAS
     colores_disponibles = Producto.COLORES
+    categoria = request.GET.get('categoria')
+    
+    if categoria:
+        try:
+            categoria = int(categoria)
+            productos = productos.filter(categoria=categoria)
+            categoria_obj = next((c for c in categorias_disponibles if c[0] == categoria), None)
+        except (ValueError, TypeError):
+            categoria_obj = None
 
     COLOR_CODES = {
         "Gris": "#808080",
@@ -540,7 +586,7 @@ def lista_productos(request, id_categoria=None):
     # Ordenar productos
     orden = request.GET.get('orden')
     if orden == 'popular':
-        productos = productos.order_by('-id')  # Cambia según tu lógica de popularidad
+        productos = productos.order_by('-id') # Suponiendo que los productos más recientes son los más populares
     elif orden == 'barato':
         productos = productos.order_by('precio_original')
     elif orden == 'caro':
@@ -563,17 +609,20 @@ def lista_productos(request, id_categoria=None):
 
 
 def productos_vendedor(request, id_vendedor):
+    """Vista para mostrar los productos de un vendedor específico."""
     productos = Producto.objects.filter(vendedor_id=id_vendedor)
     contexto = {'data': productos}
     return render(request, 'productos/listar_productos.html', contexto)
 
 def detalle_producto_admin(request, id_producto):
+    """Vista para mostrar los detalles de un producto específico."""
     producto = get_object_or_404(Producto, id=id_producto)
     return render(request, 'productos/detalle_producto.html', {'producto': producto})
 
 
 @session_rol_permission(1, 3)
 def agregar_producto(request):
+    """Vista para agregar un nuevo producto."""
     if request.method == "POST":
         # Obtener datos del formulario
         nombre = request.POST.get("nombre")
@@ -594,6 +643,10 @@ def agregar_producto(request):
                  messages.error(request,"El descuento debe estar entre 0 y 100.")
             if stock < 0:
                  messages.error(request,"El stock no puede ser negativo.")
+
+            if len(imagenes) > 5:
+                messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")
+                return redirect("agregar_producto")
 
             # Validar y procesar imágenes
             for imagen in imagenes:
@@ -643,6 +696,7 @@ def agregar_producto(request):
 
 @session_rol_permission(1, 3)
 def editar_producto(request, id_producto):
+    """Vista para editar un producto existente."""
     if request.method == "POST":
         nombre = request.POST.get("nombre")
         descripcion = request.POST.get("descripcion")
@@ -704,6 +758,7 @@ def editar_producto(request, id_producto):
         return render(request, "productos/agregar_productos.html", {"dato": producto})
 
 def detalle_producto(request, id_producto):
+    """Vista para mostrar los detalles de un producto específico."""
     producto = get_object_or_404(Producto, id=id_producto)
     rango_cantidad = range(1, producto.stock + 1)
     COLOR_CODES = {
@@ -725,6 +780,7 @@ def detalle_producto(request, id_producto):
 
 @session_rol_permission(1, 3)
 def eliminar_producto(request, id_producto):
+    """Vista para eliminar un producto."""
     try:
         q = Producto.objects.get(pk=id_producto)
         q.delete()
@@ -759,17 +815,20 @@ def eliminar_producto(request, id_producto):
 # -----------------------------------------------------
 @session_rol_permission(1)
 def panel_admin(request):
+    """Vista para el panel de administración."""
     return render(request, 'administrador/panel_admin.html')
 
 #--------------USUARIOS-----------------------
 @session_rol_permission(1)
 def usuarios(request):
+    """Vista para mostrar la lista de usuarios."""
     q = Usuario.objects.all()
     contexto = { "data": q }
     return render(request, "administrador/usuarios/listar_usuarios.html", contexto)
 
 @session_rol_permission(1)
 def agregar_usuario(request):
+    """Vista para agregar un nuevo usuario."""
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
         documento = request.POST.get("documento")
@@ -814,6 +873,7 @@ def agregar_usuario(request):
 
 @session_rol_permission(1)
 def editar_usuario(request, id_usuario):
+    """Vista para editar un usuario existente."""
     if request.method == "POST":
         q = Usuario.objects.get(pk=id_usuario)
         # procesar datos
@@ -854,6 +914,7 @@ def editar_usuario(request, id_usuario):
 
 @session_rol_permission(1)
 def eliminar_usuario(request, id_usuario):
+    """Vista para eliminar un usuario."""
     try:
         # respuesta = request.POST.get('confirmar_eliminar_usuario')        
         q = Usuario.objects.get(pk=id_usuario)  
@@ -875,6 +936,7 @@ def eliminar_usuario(request, id_usuario):
 #-------------PRODUCTOS------------------------
 @session_rol_permission(1)
 def productos_admnin(request):
+    """Vista para mostrar la lista de productos."""
     q = Producto.objects.all()
     contexto = { "data": q }
     return render(request, "administrador/productos/listar_productos.html", contexto)
@@ -902,10 +964,14 @@ def obtener_carrito(request):
         carrito_id = request.session.get('carrito_id')
         if carrito_id:
             carrito = Carrito.objects.filter(id=carrito_id).first()
+            if not carrito:
+                messages.info(request, "Tu carrito fue eliminado por inactividad. Se ha creado uno nuevo.")
+                carrito = Carrito.objects.create()
+                request.session['carrito_id'] = carrito.id
         else:
             carrito = Carrito.objects.create()
             request.session['carrito_id'] = carrito.id
-    return carrito
+        return carrito
 
 def agregar_carrito(request, id_producto):
     """Agrega un producto al carrito."""
@@ -988,10 +1054,9 @@ def actualizar_carrito(request, id_elemento):
         })
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-
-
 @session_rol_permission()
 def pagar_carrito(request):
+    """Procesa el pago del carrito."""
     carrito = obtener_carrito(request)
     if not carrito.elementos.exists():
         messages.error(request, "El carrito está vacío.")
@@ -1014,8 +1079,7 @@ def pagar_carrito(request):
         with transaction.atomic():
             # Verificar stock antes de crear la orden
             for elemento in carrito.elementos.select_related('producto'):
-                producto = elemento.producto
-                producto.refresh_from_db()
+                producto = Producto.objects.select_for_update().get(pk=elemento.producto.pk)
                 if elemento.cantidad > producto.stock:
                     messages.error(request, f"Stock insuficiente para {producto.nombre}. Disponible: {producto.stock}")
                     return redirect('carrito')
@@ -1023,13 +1087,17 @@ def pagar_carrito(request):
             # Registrar la orden
             orden = Orden.objects.create(usuario=usuario, total=total)
             for elemento in carrito.elementos.all():
+                producto = Producto.objects.select_for_update().get(pk=elemento.producto.pk)
+                if elemento.cantidad > producto.stock:
+                    messages.error(request, f"Stock insuficiente para {producto.nombre}. Disponible: {producto.stock}")
+                    transaction.set_rollback(True)
+                    return redirect('carrito')
                 OrdenItem.objects.create(
                     orden=orden,
-                    producto=elemento.producto,
+                    producto=producto,
                     cantidad=elemento.cantidad,
-                    precio_unitario=elemento.producto.precio
+                    precio_unitario=producto.precio
                 )
-                producto = elemento.producto
                 producto.stock = F('stock') - elemento.cantidad
                 producto.save()
                 elemento.delete()
@@ -1041,6 +1109,7 @@ def pagar_carrito(request):
     return redirect('index')
 
 def combinar_carritos(request):
+    """Combina el carrito de sesión con el carrito del usuario autenticado."""
     if request.user.is_authenticated:
         session_carrito_id = request.session.get('carrito_id')
         if session_carrito_id:
@@ -1066,6 +1135,7 @@ def combinar_carritos(request):
 
 
 def buscar_productos(request):
+    """Vista para buscar productos por nombre."""
     query = request.GET.get('q', '')  # Obtén el término de búsqueda
     resultados = Producto.objects.filter(nombre__icontains=query) if query else []
     contexto = {
