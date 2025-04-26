@@ -84,6 +84,12 @@ class Producto(models.Model):
             raise ValidationError("El precio original no puede ser negativo.")
         if self.descuento < 0:
             raise ValidationError("El descuento no puede ser negativo.")
+        if self.descuento > 100:
+            raise ValidationError("El descuento no puede ser mayor al 100%.")
+        if self.en_oferta and self.precio_original is not None:
+            precio_final = self.precio_original - (self.precio_original * self.descuento / Decimal(100))
+            if precio_final < 0:
+                raise ValidationError("El precio con descuento no puede ser negativo.")
 
     @property
     def precio(self):

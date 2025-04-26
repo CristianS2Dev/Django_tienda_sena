@@ -35,7 +35,7 @@
                     <div class="d-flex flex-wrap gap-2">
                         {% for color in colores_con_codigo %}
                             <label style="cursor: pointer;">
-                                <input type="checkbox" name="color" value="{{ color.id }}" class="d-none" {% if color.id|stringformat:"s" in request.GET.color %}checked{% endif %}>
+                            <input type="checkbox" name="color" value="{{ color.id }}" class="d-none" {% if color.id|stringformat:"s" in request.GET.color %}checked{% endif %}>
                                 <div class="rounded-circle border border-light" style="width: 20px; height: 20px; background-color: {{ color.codigo }};"></div>
                             </label>
                         {% endfor %}

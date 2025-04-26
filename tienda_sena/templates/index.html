@@ -7,7 +7,7 @@
 <div id="notificaciones">
   {% if messages %}
       {% for message in messages %} 
-          <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+<div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
 <section class=" w-100 text-center p-3 fondo-animado">
     <div class="text-center p-5">
               <h1 class="p-3 display-4 fw-bold text-primary">Diseños que inspiran</h1>
@@ -19,7 +19,7 @@
         </h3>
 </section>
 <section class="sect3_carrusel mg-2 mt-5 mb-5">
-  <div id="carouselExampleIndicators" class="carousel slide">
+  <div id="carouselExampleIndicators" class="carousel slide main-carousel">
     <div class="container">
       <div class="carousel-indicators">
         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -38,15 +38,24 @@
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <i class="bi bi-chevron-left fs-1 text-secondary"></i>
         <span class="visually-hidden">Previous</span>
       </button>
       <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <i class="bi bi-chevron-right fs-1 text-secondary"></i>
         <span class="visually-hidden">Next</span>
       </button>
     </div>
   </div> 
+</section>
+  <!-- Seccion de productos -->
+<section class="text-center py-5 bg-light">
+  <div class="container">
+      {% include 'bases/_productos_carrusel.html' %}
+      <a href="{% url 'lista_productos' %}" class="btn btn-outline-primary btn-lg">
+          <i class="bi bi-box-arrow-right"></i> Ver más Productos
+      </a>
+  </div>
 </section>
 <section class="w-100 text-center p-3 sect_2">
   <div class="">
@@ -121,18 +130,6 @@
     </div>
       
   </div>
-</section>
-  <!-- Seccion de productos -->
-<section class="text-center py-5 bg-light">
-     <div class="container">
-       <h1 class="display-5 fw-bold text-primary mb-4">Explora Nuestros Productos</h1>
-       <div class="row">
-         {% include 'bases/_productos.html' %}
-        </div>
-        <a href="{% url 'lista_productos' %}" class="btn btn-outline-primary btn-lg mt-4">
-            <i class="bi bi-box-arrow-right"></i> Ver más Productos
-        </a>
-      </div>
 </section>
 <section class="sect4 " style="background-color: rgb(255, 247, 238);">
     <div class="w-100 text-center p-3">
