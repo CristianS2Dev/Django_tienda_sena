@@ -1,0 +1,31 @@
+{% extends "bases/base.html" %}
+{% block main %}
+<div class="container">
+    <h2>Solicitudes para ser Vendedor</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Certificado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in solicitudes %}
+            <tr>
+                <td>{{ s.usuario.nombre_apellido }}</td>
+                <td><a href="{{ s.certificado.url }}" target="_blank">Ver Certificado</a></td>
+                <td>{{ s.fecha_solicitud }}</td>
+                <td>
+                    <a href="{% url 'aprobar_solicitud_vendedor' s.id %}" class="btn btn-success btn-sm">Aprobar</a>
+                    <a href="{% url 'rechazar_solicitud_vendedor' s.id %}" class="btn btn-danger btn-sm">Rechazar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No hay solicitudes pendientes.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

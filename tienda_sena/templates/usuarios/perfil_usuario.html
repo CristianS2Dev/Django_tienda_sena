@@ -1,5 +1,5 @@
 {% extends 'bases/base.html' %}
-{% load static %}
+{% load static breadcrumbs %}
 
 {% block title %} Mi perfil {% endblock %}
 
@@ -20,13 +20,15 @@
     <div class="container content" style="padding: 20px;padding-top: 40px;">
         <div id="notificaciones">
             {% if messages %}
-                {% for message in messages %} 
-                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+            {% for message in messages %} 
+            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
         </div>
+        {% render_breadcrumbs breadcrumbs %}
         <h1>Hola {{ dato.nombre_apellido }}</h1>
+
         <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
 
-        <div class="card text-center mt-5 mb-3">
+        <div class="card text-center mt-4 mb-3">
             <div class="row d-flex justify-content-end p-2">
                 <div class="col-12 col-md-2 d-flex justify-content-center align-items-center p-0">
                     {% if dato.imagen_perfil %}

@@ -1,44 +1,88 @@
 {% extends "bases/base.html" %}
-{% load static %}
+{% load static breadcrumbs %}
 {% block main %}
 <div class="container">
-    <div class="m-5">
-        <h2 class="text-tittle text-center">Actualizar Perfil</h2>
-    </div>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="nombre">Nombre Completo:</label>
-        <input type="text" id="nombre" name="nombre"  class="form-control" value="{{ usuario.nombre_apellido }}" required><br>
-    
-        <label>Documento:</label>
-        <input type="text" id="documento" name="documento" class="form-control" value="{{ usuario.documento }}" required> <br>
-    
-        <label for="contacto">Contacto:</label>
-        <input type="text" id="contacto" name="contacto" class="form-control" value="{{ usuario.contacto }}" required><br>
-    
-        {% if direccion_principal %}
-            <div class="mb-3 card p-3 border border-2 rounded-3">
-                <label class="form-label">Dirección principal:</label>
-                <div class="form-control-plaintext">
-                    {{ direccion_principal.direccion }}, {{ direccion_principal.ciudad }}, {{ direccion_principal.estado }}, {{ direccion_principal.pais }}, {{ direccion_principal.codigo_postal }}
+    <div class="card shadow-sm border-0 my-5">
+        <div class="card-body p-4">
+          <h2 class="card-title mb-4 text-center">Editar Perfil</h2>
+      
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="nombre" name="nombre" value="{{ usuario.nombre_apellido }}" required>
+                  <label for="nombre">Nombre Completo</label>
                 </div>
-                <a href="{% url 'direccion_usuario' %}" class="btn btn-link p-0">Gestionar direcciones</a>
+              </div>
+      
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="documento" name="documento" value="{{ usuario.documento }}" required>
+                  <label for="documento">Documento</label>
+                </div>
+              </div>
+      
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="text" class="form-control" id="contacto" name="contacto" value="{{ usuario.contacto }}" required>
+                  <label for="contacto">Contacto</label>
+                </div>
+              </div>
+      
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil">
+                  <label for="imagen_perfil">Imagen de Perfil</label>
+                </div>
+              </div>
+      
+              {% if direccion_principal %}
+              <div class="col-12">
+                <div class="card bg-light p-3 border-0">
+                  <h6 class="mb-2">Dirección Principal:</h6>
+                  <p class="form-control-plaintext mb-2">
+                    {{ direccion_principal.direccion }}, {{ direccion_principal.ciudad }}, {{ direccion_principal.estado }}, {{ direccion_principal.pais }}, {{ direccion_principal.codigo_postal }}
+                  </p>
+                  <a href="{% url 'direccion_usuario' %}" class="btn btn-outline-primary btn-sm">Gestionar Direcciones</a>
+                </div>
+              </div>
+              {% endif %}
+      
+              {% if request.session.pista.rol == 2 %}
+                {% if not solicitud_pendiente %}
+                  <div class="col-12">
+                    <a href="{% url 'solicitar_vendedor' %}" class="btn btn-warning w-100 mt-3">
+                      ¿Quieres vender? Solicita ser vendedor
+                    </a>
+                  </div>
+                {% elif solicitud_pendiente.estado == 'pendiente' %}
+                  <div class="col-12">
+                    <div class="alert alert-info mt-3 text-center">
+                      Tu solicitud para ser vendedor está pendiente de aprobación.
+                    </div>
+                  </div>
+                {% elif solicitud_pendiente.estado == 'rechazado' %}
+                  <div class="col-12">
+                    <div class="alert alert-danger mt-3 text-center">
+                      Tu solicitud fue rechazada. Puedes volver a intentarlo.
+                      <br>
+                      <a href="{% url 'solicitar_vendedor' %}" class="btn btn-link">Reintentar</a>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endif %}
+      
+              <div class="col-12 d-flex justify-content-center gap-3 mt-4">
+                <button type="submit" class="btn btn-success btn-lg">Actualizar</button>
+                <a href="{% url 'perfil_usuario' %}" class="btn btn-danger btn-lg">Cancelar</a>
+              </div>
             </div>
-        {% endif %}
-    
-        <label for="imagen_perfil">Imagen de Perfil:</label>
-        <input type="file" id="imagen_perfil" name="imagen_perfil"><br>
-        {% if request.session.pista.rol == 2 %}
-        <hr>
-        <h3 class="text-tittle">Quieres vender?</h3><br>
-            <span class="">Envia tu certificado estudiantil</span><br>
-            <input type="file" id="certificado_sena" name="certificado_sena">
-        {% endif %}
-        <div class="d-grid gap-2 col-3 mx-auto mb-5">
-            <button  class="btn btn-success btn-lg" type="submit">Actualizar</button>
-            <a class="btn btn-danger btn-lg" href="{% url 'perfil_usuario' %}" > Cancelar</a>
+      
+          </form>
         </div>
-
-    </form>
+      </div>
+      
 </div>
 {% endblock %}

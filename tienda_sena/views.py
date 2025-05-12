@@ -21,8 +21,13 @@ from django.urls import reverse
 def index(request):
     """Vista principal de la tienda."""
     q = Producto.objects.all()[:6]
+    pendientes = 0
+    if request.session.get("pista",{}).get("rol") == 1:
+        # Si el usuario es administrador, contar las solicitudes pendientes
+        pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
+                 "pendientes_solicitudes_vendedor": pendientes,
     }
     return render(request, 'index.html', contexto)
 
@@ -169,10 +174,19 @@ def registrarse(request):
 def perfil_usuario(request):
     """Vista para mostrar el perfil del usuario autenticado."""
     q = Usuario.objects.get(pk=request.session["pista"]["id"])
-    if request.session.get("pista"):  # Verificar si hay una sesión activa
+    solicitud_pendiente = SolicitudVendedor.objects.filter(usuario=q).order_by('-fecha_solicitud').first()
+
+    breadcrumbs = [
+        ("Inicio", reverse("index")),
+        ("Mi cuenta", None),
+    ]
+
+    if request.session.get("pista"):
         return render(request, "usuarios/perfil_usuario.html", {
             "dato": q,
             "direccion_principal": Direccion.objects.filter(usuario=q, principal=True).first(),
+            "solicitud_pendiente": solicitud_pendiente,
+            "breadcrumbs": breadcrumbs,
         })
     else:
         messages.error(request, "Debes iniciar sesión para acceder a tu perfil.")
@@ -181,9 +195,15 @@ def perfil_usuario(request):
 def perfil_usuario_id(request, id_usuario):
     """Vista para mostrar el perfil de un usuario específico."""
     q = Usuario.objects.get(pk=id_usuario)
+    breadcrumbs = [
+        ("Inicio Admin", reverse("panel_admin")),
+        ("lista de usuarios", reverse("usuarios")),
+        (q.nombre_apellido, reverse("perfil_usuario_id", args=[q.id])),
+    ]
     return render(request, "usuarios/perfil_usuario.html",{
         
         "dato": q,
+        "breadcrumbs": breadcrumbs,
     })
 
 
@@ -195,21 +215,15 @@ def actualizar_perfil(request):
         nombre_apellido = request.POST.get("nombre")
         contacto = request.POST.get("contacto")
         imagen_perfil = request.FILES.get("imagen_perfil")
-        certificado = request.FILES.get("certificado_sena")
         try:
             if imagen_perfil:
                 validar_archivo(imagen_perfil)
                 validar_tamano_archivo(imagen_perfil)
-                usuario.imagen_perfil = imagen_perfil  # Actualizar la imagen de perfil
-            if certificado:
-                validar_archivo(certificado)
-                validar_tamano_archivo(certificado)
-                usuario.certificado= certificado
+                usuario.imagen_perfil = imagen_perfil 
                 
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
             
-
             usuario.save()
             messages.success(request, "Perfil actualizado correctamente!")
         except ValidationError as ve:
@@ -265,6 +279,24 @@ def actualizar_contraseña(request):
         return redirect("actualizar_contraseña")
     else:
         return render(request, "usuarios/actualizar_contraseña.html", {"usuario": usuario})
+    
+
+@session_rol_permission(2)
+def solicitar_vendedor(request):
+    usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
+    ultima_solicitud = SolicitudVendedor.objects.filter(usuario=usuario).order_by('-fecha_solicitud').first()
+    if ultima_solicitud and ultima_solicitud.estado == 'pendiente':
+        messages.info(request, "Ya tienes una solicitud pendiente.")
+        return redirect("perfil_usuario")
+    if request.method == "POST":
+        certificado = request.FILES.get("certificado_sena")
+        if not certificado:
+            messages.error(request, "Debes adjuntar tu certificado.")
+            return redirect("solicitar_vendedor")
+        SolicitudVendedor.objects.create(usuario=usuario, certificado=certificado)
+        messages.success(request, "Solicitud enviada. Un administrador la revisará.")
+        return redirect("perfil_usuario")
+    return render(request, "usuarios/solicitar_vendedor.html")
 
 
 # -----------------------------------------------------
@@ -617,7 +649,16 @@ def productos_vendedor(request, id_vendedor):
 def detalle_producto_admin(request, id_producto):
     """Vista para mostrar los detalles de un producto específico."""
     producto = get_object_or_404(Producto, id=id_producto)
-    return render(request, 'productos/detalle_producto.html', {'producto': producto})
+    breadcrumbs = [
+        ("Inicio Admin", reverse("panel_admin")),
+        ("Lista de productos", reverse("productos_admnin")),
+        (producto.nombre, None),
+    ]
+    contexto = {
+        'producto': producto,
+        'breadcrumbs': breadcrumbs,
+    }
+    return render(request, 'administrador/productos/detalle_producto_admin.html', contexto)
 
 
 @session_rol_permission(1, 3)
@@ -771,12 +812,20 @@ def detalle_producto(request, id_producto):
     }
     color_codigo = COLOR_CODES.get(producto.color, "#cccccc")
     color_nombre = dict(Producto.COLORES).get(producto.color, "Ninguno")
-    return render(request, 'productos/detalle_producto.html', {
+
+    breadcrumbs = [
+        ("Inicio", reverse("index")),
+        ("Productos", reverse("lista_productos")),
+        (producto.nombre, None),
+    ]
+    contexto = {
         'producto': producto,
         'rango_cantidad': rango_cantidad,
         'color_codigo': color_codigo,
         'color_nombre': color_nombre,
-    })
+        'breadcrumbs': breadcrumbs,
+    }
+    return render(request, 'productos/detalle_producto.html', contexto)
 
 @session_rol_permission(1, 3)
 def eliminar_producto(request, id_producto):
@@ -791,23 +840,10 @@ def eliminar_producto(request, id_producto):
         messages.error(request, f"Error {e}")
     return redirect("lista_productos")
 
-# def productos_por_categoria(request, id_categoria):
-#     try:
-#         # Convertir el valor de categoria a entero
-#         categoria = int(categoria)
-#         productos = Producto.objects.filter(categoria=categoria)
-#         # Obtener el nombre de la categoría
-#         categoria_nombre = dict(Producto.CATEGORIAS).get(categoria, "Categoría desconocida")
-#     except ValueError:
-#         # Si no es un entero, mostrar categoría desconocida
-#         productos = []
-
-#     contexto = {'productos': productos, 'categoria': categoria_nombre}
-#     return render(request, 'productos/productos_por_categoria.html', contexto)
 
 # -----------------------------------------------------
+    # FIN CRUD Listar productos usuario
 # -----------------------------------------------------
-
 
 
 # -----------------------------------------------------
@@ -816,14 +852,28 @@ def eliminar_producto(request, id_producto):
 @session_rol_permission(1)
 def panel_admin(request):
     """Vista para el panel de administración."""
-    return render(request, 'administrador/panel_admin.html')
+    breadcrumbs = [
+        ("Inicio Admin", None),
+    ]
+    contexto = {
+        "breadcrumbs": breadcrumbs,
+    }
+    return render(request, 'administrador/panel_admin.html', contexto)
 
-#--------------USUARIOS-----------------------
+#-----------------------------------------------------
+    # USUARIOS ADMINISTRADOR
+#-----------------------------------------------------
 @session_rol_permission(1)
 def usuarios(request):
     """Vista para mostrar la lista de usuarios."""
     q = Usuario.objects.all()
-    contexto = { "data": q }
+    breadcrumbs = [
+        ("Inicio Admin", reverse("panel_admin")),
+        ("Lista de usuarios", None),
+    ]
+    contexto = { "data": q,
+                "breadcrumbs": breadcrumbs,
+    }
     return render(request, "administrador/usuarios/listar_usuarios.html", contexto)
 
 @session_rol_permission(1)
@@ -930,17 +980,94 @@ def eliminar_usuario(request, id_usuario):
 
     return redirect("usuarios")
 
-# -----------------------------------------------------
-# -----------------------------------------------------
 
-#-------------PRODUCTOS------------------------
+@session_rol_permission(1)
+def solicitudes_vendedor(request):
+    solicitudes = SolicitudVendedor.objects.filter(estado='pendiente')
+    return render(request, "administrador/usuarios/solicitudes/solicitudes_vendedor.html", {"solicitudes": solicitudes})
+
+@session_rol_permission(1)
+def aprobar_solicitud_vendedor(request, id_solicitud):
+    solicitud = SolicitudVendedor.objects.get(pk=id_solicitud)
+    solicitud.estado = 'aprobado'
+    solicitud.usuario.rol = 3  # Cambia a vendedor
+    solicitud.usuario.save()
+    solicitud.save()
+    messages.success(request, "Solicitud aprobada y usuario actualizado a vendedor.")
+    return redirect("solicitudes_vendedor")
+
+@session_rol_permission(1)
+def rechazar_solicitud_vendedor(request, id_solicitud):
+    solicitud = SolicitudVendedor.objects.get(pk=id_solicitud)
+    solicitud.estado = 'rechazado'
+    solicitud.save()
+    messages.info(request, "Solicitud rechazada.")
+    return redirect("solicitudes_vendedor")
+
+
+#-----------------------------------------------------
+    # FIN USUARIOS ADMINISTRADOR
+#-----------------------------------------------------
+
+#-----------------------------------------------------
+    # PRODUCTOS ADMINISTRADOR
+#-----------------------------------------------------
 @session_rol_permission(1)
 def productos_admnin(request):
     """Vista para mostrar la lista de productos."""
     q = Producto.objects.all()
-    contexto = { "data": q }
+    breadcrumbs = [
+        ("Inicio Admin", reverse("panel_admin")),
+        ("lista de productos", reverse("productos_admnin")),
+        
+    ]
+    contexto = { "data": q,
+                'breadcrumbs': breadcrumbs,
+    }
     return render(request, "administrador/productos/listar_productos.html", contexto)
 
+#-----------------------------------------------------
+    # FIN PRODUCTOS ADMINISTRADOR
+#-----------------------------------------------------
+
+@session_rol_permission(1)
+def aprobar_solicitud_vendedor(request, id_solicitud):
+    solicitud = SolicitudVendedor.objects.get(pk=id_solicitud)
+    solicitud.estado = 'aprobado'
+    solicitud.usuario.rol = 3  # Cambia a vendedor
+    solicitud.usuario.save()
+    solicitud.save()
+    # Crear notificación
+    Notificacion.objects.create(
+        usuario=solicitud.usuario,
+        mensaje="¡Tu solicitud para ser vendedor ha sido aprobada!"
+    )
+    messages.success(request, "Solicitud aprobada y usuario actualizado a vendedor.")
+    return redirect("solicitudes_vendedor")
+
+@session_rol_permission(1)
+def rechazar_solicitud_vendedor(request, id_solicitud):
+    solicitud = SolicitudVendedor.objects.get(pk=id_solicitud)
+    solicitud.estado = 'rechazado'
+    solicitud.save()
+    # Crear notificación
+    Notificacion.objects.create(
+        usuario=solicitud.usuario,
+        mensaje="Tu solicitud para ser vendedor fue rechazada. Puedes volver a intentarlo."
+    )
+    messages.info(request, "Solicitud rechazada.")
+    return redirect("solicitudes_vendedor")
+
+def notificaciones_usuario(request):
+    if request.session.get("pista") and request.session["pista"]["rol"] == 2:
+        usuario_id = request.session["pista"]["id"]
+        usuario = Usuario.objects.get(pk=usuario_id)
+        notificaciones = Notificacion.objects.filter(usuario=usuario).order_by('-fecha')[:10]
+        return {"notificaciones_usuario": notificaciones}
+    return {"notificaciones_usuario": []}
+# -----------------------------------------------------
+    # FIN ADMINISTRADOR
+# -----------------------------------------------------
 
 # ---------------------------------------------
     ## Carrito de compras
@@ -1109,12 +1236,13 @@ def pagar_carrito(request):
     return redirect('index')
 
 def combinar_carritos(request):
-    """Combina el carrito de sesión con el carrito del usuario autenticado."""
-    if request.user.is_authenticated:
+    usuario_id = request.session.get("pista", {}).get("id")
+    if usuario_id:
         session_carrito_id = request.session.get('carrito_id')
         if session_carrito_id:
             session_carrito = Carrito.objects.filter(id=session_carrito_id).first()
-            user_carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+            usuario = Usuario.objects.get(pk=usuario_id)
+            user_carrito, _ = Carrito.objects.get_or_create(usuario=usuario)
             if session_carrito:
                 for elemento in session_carrito.elementos.all():
                     elemento.carrito = user_carrito
@@ -1143,5 +1271,5 @@ def buscar_productos(request):
         'query': query,
         'mostrar_boton_agregar': False,  # Opcional: Ocultar el botón de agregar
     }
-    return render(request, 'productos/resultados_busqueda.html', contexto)
+    return render(request, 'productos/listar_productos.html', contexto)
 
