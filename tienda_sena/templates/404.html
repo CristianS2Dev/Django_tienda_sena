@@ -1,0 +1,20 @@
+{% extends 'bases/base.html' %}
+{% load static humanize custom_filters breadcrumbs %}
+
+{% block titulo %}Acceso denegado{% endblock %}
+
+
+{% block main %}
+
+    {% block titulo %}Acceso denegado{% endblock %}
+    <div class="error-container">
+        <div class="lottie-animation"></div>
+        <div class="error-content">
+            <h1>404</h1>
+            <p>Ops, La pagina que buscas no existe.</p>
+            <a href="#" class="btn btn-primary">Voltar</a>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.6/lottie.min.js"></script>
+
+{% endblock %}

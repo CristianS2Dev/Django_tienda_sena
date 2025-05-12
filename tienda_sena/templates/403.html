@@ -1,0 +1,13 @@
+{% extends 'bases/base.html' %}
+{% load static humanize custom_filters breadcrumbs %}
+{% block main %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1 class="mt-5">403 - Acceso Prohibido</h1>
+            <p class="lead">Lo sentimos, no tienes permiso para acceder a esta página.</p>
+            <a href="{% url 'index' %}" class="btn btn-primary">Volver al inicio</a>
+        </div>
+    </div>
+{% endblock %}

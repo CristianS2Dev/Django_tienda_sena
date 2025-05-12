@@ -1,6 +1,11 @@
 {% extends "bases/base.html" %}
 {% block main %}
 <div class="container">
+    <div id="notificaciones">
+            {% if messages %}
+            {% for message in messages %} 
+            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+        </div>
     <h2>Solicitudes para ser Vendedor</h2>
     <table class="table">
         <thead>

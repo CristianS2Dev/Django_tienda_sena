@@ -16,6 +16,17 @@
 
 ### CHANGELOG
 
+## [v1.26.29-alpha.1] - 12-05-2025
+
+### Added
+
+- Se agregan páginas de error personalizadas para los códigos 403, 404 y 500.
+    - Se crea el template `403.html` para acceso prohibido, con mensaje amigable y enlace a la página principal.
+    - Se crea el template `404.html` para errores de página no encontrada, incluye animación Lottie y botón para regresar.
+    - Se crea el template `500.html` para errores internos del servidor, con mensaje claro y enlace a la página principal.
+
+---
+
 ## [v1.26.28-alpha.2] - 26-04-2025
 
 ### Added

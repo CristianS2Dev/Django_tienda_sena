@@ -48,7 +48,7 @@ def login(request):
                     "nombre": q.nombre_apellido
                 }
                 combinar_carritos(request)
-                messages.success(request, "Bienvenido!!")
+                messages.success(request, "Bienvenido " + q.nombre_apellido + "!")
                 return redirect("index")
             else:
                 raise Usuario.DoesNotExist
@@ -173,6 +173,9 @@ def registrarse(request):
 
 def perfil_usuario(request):
     """Vista para mostrar el perfil del usuario autenticado."""
+    if not request.session.get("pista"):
+        messages.error(request, "Debes iniciar sesión para acceder a tu perfil.")
+        return redirect("login")
     q = Usuario.objects.get(pk=request.session["pista"]["id"])
     solicitud_pendiente = SolicitudVendedor.objects.filter(usuario=q).order_by('-fecha_solicitud').first()
 
@@ -181,19 +184,20 @@ def perfil_usuario(request):
         ("Mi cuenta", None),
     ]
 
-    if request.session.get("pista"):
-        return render(request, "usuarios/perfil_usuario.html", {
-            "dato": q,
-            "direccion_principal": Direccion.objects.filter(usuario=q, principal=True).first(),
-            "solicitud_pendiente": solicitud_pendiente,
-            "breadcrumbs": breadcrumbs,
-        })
-    else:
-        messages.error(request, "Debes iniciar sesión para acceder a tu perfil.")
-        return redirect("login")
     
+    return render(request, "usuarios/perfil_usuario.html", {
+        "dato": q,
+        "direccion_principal": Direccion.objects.filter(usuario=q, principal=True).first(),
+        "solicitud_pendiente": solicitud_pendiente,
+        "breadcrumbs": breadcrumbs,
+        })
+    
+@session_rol_permission(1)    
 def perfil_usuario_id(request, id_usuario):
     """Vista para mostrar el perfil de un usuario específico."""
+    if not request.session.get("pista"):
+        messages.error(request, "Debes iniciar sesión para acceder a tu perfil.")
+        return redirect("login")
     q = Usuario.objects.get(pk=id_usuario)
     breadcrumbs = [
         ("Inicio Admin", reverse("panel_admin")),
@@ -213,6 +217,7 @@ def actualizar_perfil(request):
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
+        documento = request.POST.get("documento")
         contacto = request.POST.get("contacto")
         imagen_perfil = request.FILES.get("imagen_perfil")
         try:
@@ -223,6 +228,7 @@ def actualizar_perfil(request):
                 
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
+            usuario.documento = documento
             
             usuario.save()
             messages.success(request, "Perfil actualizado correctamente!")
