@@ -17,7 +17,6 @@ class Usuario(models.Model):
     )
     rol = models.IntegerField(choices=ROLES, default=2)
     imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)  # Campo para la foto de perfil
-    certificado = models.ImageField(upload_to='certificado/', null=True, blank=True)
     
     def save(self, *args, **kwargs):
         # Encriptar la contraseña si no está encriptada
@@ -28,6 +27,14 @@ class Usuario(models.Model):
     def __str__(self):
         return f"{self.nombre_apellido} - {self.rol}"
     
+
+class SolicitudVendedor(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    certificado = models.ImageField(upload_to='certificado/', null=True, blank=True)
+    estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')], default='pendiente')
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+    observacion = models.TextField(blank=True, null=True)
+
 
 class Direccion(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='direcciones')
@@ -147,3 +154,8 @@ class OrdenItem(models.Model):
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
 
+class Notificacion(models.Model):
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    mensaje = models.CharField(max_length=255)
+    leida = models.BooleanField(default=False)
+    fecha = models.DateTimeField(auto_now_add=True)

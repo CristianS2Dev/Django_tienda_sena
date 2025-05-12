@@ -1,4 +1,4 @@
-{% load static humanize custom_filters %}
+{% load static humanize custom_filters breadcrumbs %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,22 +18,17 @@
   <header class="text-white">
     <nav class="nav_styles navbar navbar-expand-lg position-relative">
       <div class="container-fluid">
-    
-        <!-- Logo -->
         <a class="navbar-brand" href="{% url 'index' %}">
           <img src="{% static 'assets/canvas.png' %}" alt="Logo" width="60" height="48" class="d-inline-block align-text-top">
         </a>
-    
-        <!-- Botón para colapsar en móviles -->
+        <form class="d-flex my-2 my-lg-0 search-form" role="search" method="get" action="{% url 'buscar_productos' %}">
+          <input class="form-control me-2" type="search" name="q" placeholder="Buscar productos..." aria-label="Buscar">
+        </form>
         <button class="navbar-toggler bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-    
-        <!-- Caja colapsable -->
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          
-          <!-- Menú izquierdo -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link active fw-medium text-white" href="{% url 'index' %}">Inicio</a>
@@ -62,9 +57,19 @@
               <a class="nav-link active fw-medium text-white" href="{% url 'sobre_nosotros' %}">Sobre Nosotros</a>
             </li>
           </ul>
-    
-          <!-- Íconos de usuario -->
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            {% if request.session.pista and request.session.pista.rol == 1 %}
+              <li class="nav-item">
+                <a class="nav-link fw-medium text-white position-relative" href="{% url 'solicitudes_vendedor' %}">
+                  <i class="fas fa-user-check"></i> Solicitudes Vendedor
+                  {% if pendientes_solicitudes_vendedor > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {{ pendientes_solicitudes_vendedor }}
+                    </span>
+                  {% endif %}
+                </a>
+              </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link contact-button fw-medium text-white" href="{% url 'carrito' %}">
                 <i class="fas fa-shopping-cart"></i>
@@ -85,17 +90,38 @@
                 <a class="nav-link contact-button fw-medium text-white" href="{% url 'login' %}">Inicie Sesión</a>
               {% endif %}
             </li>
+            {% if request.session.pista %}
+            <li class="nav-item dropdown">
+              <a class="nav-link fw-medium text-white position-relative" href="#" id="notificacionesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell"></i>
+                {% if notificaciones_usuario and notificaciones_usuario|length > 0 %}
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ notificaciones_usuario|length }}
+                  </span>
+                {% endif %}
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacionesDropdown" style="min-width: 300px;">
+                {% if notificaciones_usuario and notificaciones_usuario|length > 0 %}
+                  {% for noti in notificaciones_usuario %}
+                    <li>
+                      <span class="dropdown-item{% if not noti.leida %} fw-bold{% endif %}">
+                        {{ noti.mensaje }}
+                        <small class="text-muted d-block">{{ noti.fecha|date:"d/m/Y H:i" }}</small>
+                      </span>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                  {% endfor %}
+                {% else %}
+                  <li><span class="dropdown-item text-muted">Sin notificaciones</span></li>
+                {% endif %}
+              </ul>
+            </li>
+            {% endif %}
           </ul>
         </div>
-    
-        <!-- Buscador centrado visualmente con posición absoluta -->
-        <form class="position-absolute top-50 start-50 translate-middle d-flex" role="search" method="get" action="{% url 'buscar_productos' %}" >
-        <input class="form-control" type="search" name="q" placeholder="Buscar productos..." aria-label="Search" style="min-width: 300px;">
-        </form>
-    
+
       </div>
     </nav>
-        
   </header>
   
     <main>
@@ -119,6 +145,7 @@
               <p><a href="#" class="text-white text-decoration-none">Afíliate con nosotros</a></p>
               <p><a href="#" class="text-white text-decoration-none">Calificaciones</a></p>
               <p><a href="#" class="text-white text-decoration-none">Ayuda</a></p>
+
               {% if request.session.pista.rol == 1 %}
                 <p><a href="{% url 'panel_admin' %}" class="text-white text-decoration-none">Admin</a></p>             
                 {% endif %}

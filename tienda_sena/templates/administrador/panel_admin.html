@@ -1,14 +1,22 @@
 {% extends 'bases/base.html' %}
-
-
+{% load static breadcrumbs %}
 {% block title %}Mi Perfil{% endblock %}
 
-
-
 {% block main %}
-<div class="d-flex flex-wrap content">
+<div class="d-flex" style="min-height: 100vh;">
     {% include 'bases/_sidebar_usuario.html' %}
-    <div class="container mt-5">
+    <div class="container flex-grow-1" style="padding: 20px; padding-top: 40px;">
+        <div id="notificaciones">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags }}{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% render_breadcrumbs breadcrumbs %}
         <h1 class="text-init text-center">Administrador</h1>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 justify-content-center">
             <!-- Tarjeta 1 -->

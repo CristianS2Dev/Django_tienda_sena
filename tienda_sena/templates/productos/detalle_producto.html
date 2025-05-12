@@ -1,5 +1,5 @@
 {% extends 'bases/base.html' %}
-{% load static humanize custom_filters %}
+{% load static humanize custom_filters breadcrumbs %}
 
 
 {% block titulo %}Detalle del Producto{% endblock %}
@@ -14,9 +14,8 @@
 <div class="container py-5">
     <div class="row">
         <div class="col-md-6 mb-4">
-            <a href="{% url 'lista_productos' %}" class="btn">
-                <i class="bi bi-arrow-left"></i> Volver a la Tienda
-            </a>
+            {% render_breadcrumbs breadcrumbs %}
+
             <div class="">
                 {% if producto.imagenes.all|length > 0 %}
                 <img id="mainImage" src="{{ producto.imagenes.all.0.imagen.url }}" class="card-img-top img-fluid mb-3"

@@ -16,6 +16,24 @@
 
 ### CHANGELOG
 
+## [v1.26.28-alpha.2] - 26-04-2025
+
+### Added
+
+- Se crea el modelo `SolicitudVendedor` para gestionar solicitudes de certificación de vendedores.
+- Se agregan vistas y templates para que los usuarios puedan solicitar certificación y los administradores puedan gestionarlas.
+- Se agregan breadcrumbs para mejorar la navegación en las nuevas vistas.
+
+### Removed
+
+- Se elimina el campo `certificado` del modelo `Usuario`.
+
+### Changed
+
+- Se actualizan las migraciones para reflejar los cambios en los modelos.
+
+---
+
 ## [v1.26.27-alpha.1] - 25-04-2025
 
 ### Added
