@@ -1,42 +1,75 @@
 {% extends 'bases/base.html' %}
-{% load static %}
+{% load static breadcrumbs %}
 
 {% block main %}
-<div class="d-flex flex-wrap content">
+<div class="d-flex" style="min-height: 100vh;">
+    <!-- Botón de menú hamburguesa para móviles -->
+    <button class="btn btn-dark d-md-none position-fixed m-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
     {% include 'bases/_sidebar_usuario.html' %}
-    <div class="container mt-5">
+
+    <div class="flex-grow-1 p-4" style="margin-top: 40px;">
         <div id="notificaciones">
             {% if messages %}
-                {% for message in messages %} 
-                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
-        </div>
-        <h1>Usuarios</h1>
-        <a href="{% url 'agregar_usuario' %}" class="btn btn-success mb-3">Agregar</a>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Rol</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for x in data %}
-                    <tr>
-                        <td>{{ x.id }}</td>
-                        <td>{{ x.nombre_apellido }}</td>
-                        <td>{{ x.get_rol_display }}</td>
-                        <td>
-                            <a href="{% url 'perfil_usuario_id' x.id %}" class="btn btn-warning">Detalles</a>
-                            <a href="{% url 'editar_usuario' x.id %}" class="btn btn-info">Editar</a>
-                            <a href="{% url 'eliminar_usuario' x.id %}" class="btn btn-secondary">Eliminar</a>
-                        </td>
-                    </tr>
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags }}{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endfor %}
-            </tbody>
-        </table>
+            {% endif %}
+        </div>
+        {% render_breadcrumbs breadcrumbs %}
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 mb-0">Usuarios</h1>
+                    <a href="{% url 'agregar_usuario' %}" class="btn btn-success">
+                        <i class="fas fa-user-plus"></i> Agregar Usuario
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Rol</th>
+                                <th scope="col" class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for x in data %}
+                                <tr>
+                                    <td>{{ x.id }}</td>
+                                    <td>{{ x.nombre_apellido }}</td>
+                                    <td>{{ x.get_rol_display }}</td>
+                                    <td class="text-center">
+                                        <a href="{% url 'perfil_usuario_id' x.id %}" class="btn btn-sm btn-warning me-1" title="Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'editar_usuario' x.id %}" class="btn btn-sm btn-info me-1" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'eliminar_usuario' x.id %}" class="btn btn-sm btn-danger" title="Eliminar">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
     </div>    
 </div>
+
+{% endblock %}
 <!-- <div class="modal fade" id="userModal3" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true"> -->
     <!-- <div class="modal-dialog"> -->
         <!-- <div class="modal-content"> -->
@@ -63,4 +96,3 @@
         <!-- </div> -->
     <!-- </div> -->
 <!-- </div> -->
-{% endblock %}

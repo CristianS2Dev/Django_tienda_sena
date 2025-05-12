@@ -118,10 +118,13 @@
 
 /* BUSCADPR */
 
+/* Buscador estilizado */
 .navbar .form-control {
   border-radius: 20px;
   border: 2px solid #32a8ff;
   transition: all 0.3s ease;
+  width: 100%;  /* Hace que ocupe el 100% del contenedor disponible */
+  max-width: 350px;  /* Ajusta el tamaño máximo del buscador */
 }
 
 .navbar .form-control:focus {
@@ -129,24 +132,33 @@
   box-shadow: 0 0 10px rgba(50, 168, 255, 0.5);
 }
 
-.suggestions {
-  position: absolute;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 1000;
+@media (max-width: 991px) {
+  .navbar .form-control {
+    max-width: 250px;  /* Menor tamaño máximo en pantallas más pequeñas */
+    font-size: 14px;
+  }
+  
+  .navbar form {
+    display: flex;
+    justify-content: center;  /* Centra el formulario */
+    padding: 0;
+  }
 }
 
-.suggestion-item {
-  padding: 10px;
-  cursor: pointer;
+@media (max-width: 767px) {
+  .navbar .form-control {
+    max-width: 200px;  /* Aún más pequeño en pantallas muy pequeñas */
+  }
+
+  .navbar .navbar-toggler {
+    right: 10px;  /* Ajusta la posición del botón hamburguesa */
+  }
 }
 
-.suggestion-item:hover {
-  background-color: #f0f0f0;
-}
+
+
+
+/* fin de BUSCADPR */
 
 /* Colores seleccionados */
 .color-label.active {

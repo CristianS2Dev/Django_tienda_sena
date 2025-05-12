@@ -1,0 +1,12 @@
+{% extends "bases/base.html" %}
+{% block main %}
+<div class="container">
+    <h2>Solicitar ser Vendedor</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="certificado_sena">Certificado SENA:</label>
+        <input type="file" id="certificado_sena" name="certificado_sena" required>
+        <button type="submit" class="btn btn-success mt-3">Enviar Solicitud</button>
+    </form>
+</div>
+{% endblock %}
