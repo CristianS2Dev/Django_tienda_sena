@@ -9,6 +9,15 @@ class UsuarioAdmin(admin.ModelAdmin):
     ordering = ('-id',)
     list_per_page = 10
 
+
+@admin.register(SolicitudVendedor)
+class SolicitudVendedorAdmin(admin.ModelAdmin):
+    list_display = ('id', 'usuario', 'estado', 'fecha_solicitud')
+    search_fields = ('usuario__nombre_apellido',)
+    list_filter = ('estado',)
+    ordering = ('-fecha_solicitud',)
+    list_per_page = 10
+
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'stock', 'categoria', 'color', 'en_oferta', 'precio_original', 'descuento', 'vendedor')
@@ -45,3 +54,12 @@ class OrdenItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'orden', 'producto', 'cantidad', 'precio_unitario')
     search_fields = ('orden__usuario__nombre_apellido', 'producto__nombre')
     ordering = ('-id',)
+
+@admin.register(Notificacion)
+class NotificacionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'usuario', 'mensaje', 'leida', 'fecha')
+    search_fields = ('usuario__nombre_apellido', 'mensaje')
+    ordering = ('-fecha',)
+    list_per_page = 10
+
+

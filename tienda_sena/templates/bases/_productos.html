@@ -1,4 +1,4 @@
-{% load static humanize custom_filters %}
+{% load static humanize custom_filters breadcrumbs %}
 <div class="container p-3">
     {% if mostrar_boton_agregar %}
         {% if request.session.pista.rol == 3 or request.session.pista.rol == 1 %}

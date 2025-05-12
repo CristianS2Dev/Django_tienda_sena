@@ -14,6 +14,12 @@ urlpatterns = [
 
     #Perfil Administrador
         path('panel_admin/', views.panel_admin, name='panel_admin'),
+        path('administrador/solicitudes_vendedor/', views.solicitudes_vendedor, name='solicitudes_vendedor'),
+        path('administrador/solicitudes_vendedor/aprobar/<int:id_solicitud>/', views.aprobar_solicitud_vendedor, name='aprobar_solicitud_vendedor'),
+        path('administrador/solicitudes_vendedor/rechazar/<int:id_solicitud>/', views.rechazar_solicitud_vendedor, name='rechazar_solicitud_vendedor'),
+
+
+
 
         #Crud Usuarios
         path('usuarios', views.usuarios, name='usuarios'),
@@ -54,8 +60,11 @@ urlpatterns = [
             path('productos/vendedor/<int:id_vendedor>/', views.productos_vendedor, name='productos_vendedor'),
         # Usuario
             path("actualizar_perfil/", views.actualizar_perfil, name="actualizar_perfil"),
+            path('solicitar_vendedor/', views.solicitar_vendedor, name='solicitar_vendedor'),
+
             
 
+    
 ]
 
 if settings.DEBUG:

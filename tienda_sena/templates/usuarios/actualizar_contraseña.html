@@ -1,5 +1,5 @@
 {% extends 'bases/base.html' %}
-{% load static %}
+{% load static breadcrumbs %}
 
 {% block main %}
 <div id="notificaciones">
@@ -7,26 +7,43 @@
         {% for message in messages %} 
             <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
 </div>
-<div class="container">
-
-    <div class="m-5">
-        <h2 class="text-tittle text-center">Actualizar Contraseña</h2>
-    </div>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <label for="contraseña">Contraseña actual:</label>
-        <input type="password" id="password" name="password"  class="form-control" required><br>
-        
-        <label for="contraseña">Nueva contraseña:</label>
-        <input type="password" id="new_password" name="new_password"  class="form-control" required><br>
-
-        <label for="contraseña">Confirmar contraseña:</label>
-        <input type="password" id="confirm_new_password" name="confirm_new_password"  class="form-control" required><br>
-
-        <div class="d-grid gap-2 col-3 mx-auto mb-5">
-            <button  class="btn btn-success btn-lg" type="submit">Actualizar</button>
-            <a class="btn btn-danger btn-lg" href="{% url 'perfil_usuario' %}" > Cancelar</a>
+<div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+  
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h2 class="card-title text-center mb-4">Actualizar Contraseña</h2>
+  
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+  
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña actual" required>
+                <label for="password">Contraseña Actual</label>
+              </div>
+  
+              <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Nueva contraseña" required>
+                <label for="new_password">Nueva Contraseña</label>
+              </div>
+  
+              <div class="form-floating mb-4">
+                <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password" placeholder="Confirmar nueva contraseña" required>
+                <label for="confirm_new_password">Confirmar Nueva Contraseña</label>
+              </div>
+  
+              <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-success btn-lg" type="submit">Actualizar</button>
+                <a class="btn btn-danger btn-lg" href="{% url 'perfil_usuario' %}">Cancelar</a>
+              </div>
+            </form>
+  
+          </div>
         </div>
-    </form>
-</div>
+  
+      </div>
+    </div>
+  </div>
+  
 {% endblock %}

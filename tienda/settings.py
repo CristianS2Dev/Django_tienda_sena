@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-#m%3g59g3rohe6v5v^$!h-n13(&jlh&p2)v^)$yaw(c_-=w-6@
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ["https://6b33-179-1-217-165.ngrok-free.app"]
+CSRF_TRUSTED_ORIGINS = ["https://16b7-2800-e2-1380-b38-d85a-53c7-f12e-4f98.ngrok-free.app"]
 
 # Application definition
 
@@ -68,6 +68,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'tienda_sena.context_processors.categorias',  
                 'tienda_sena.context_processors.colores',  
+                'tienda_sena.context_processors.notificaciones_usuario',
             ],
         },
     },
