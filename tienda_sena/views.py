@@ -538,7 +538,15 @@ def validar_direccion(direccion, ciudad, estado, codigo_postal, pais):
         #CRUD Listar productos usuario
 # -----------------------------------------------------
 
-def lista_productos(request, id_categoria=None):
+from django.http import JsonResponse
+
+def lista_productos(request):
+    productos = Producto.objects.all().values("id", "nombre", "descripcion", "precio_original", "stock", "categoria", "color")
+    return JsonResponse(list(productos), safe=False)
+
+
+
+def lista_productos2(request, id_categoria=None):
     """
     Vista para mostrar la lista de productos con filtros opcionales.
     Si se proporciona una categoría, filtra los productos por esa categoría.
@@ -660,9 +668,37 @@ def detalle_producto_admin(request, id_producto):
     }
     return render(request, 'administrador/productos/detalle_producto_admin.html', contexto)
 
+from django.views.decorators.csrf import csrf_exempt
+import json
 
+@csrf_exempt
 @session_rol_permission(1, 3)
 def agregar_producto(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        producto = Producto.objects.create(
+            nombre=data["nombre"],
+            descripcion=data["descripcion"],
+            precio_original=data["precio_original"],
+            stock=data["stock"],
+            categoria=data["categoria"],
+            color=data["color"],
+            vendedor_id=request.session["pista"]["id"]
+        )
+        return JsonResponse({
+            "id": producto.id,
+            "nombre": producto.nombre,
+            "descripcion": producto.descripcion,
+            "precio_original": float(producto.precio_original),
+            "stock": producto.stock,
+            "categoria": producto.categoria,
+            "color": producto.color
+        }, status=201)
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+@session_rol_permission(1, 3)
+def agregar_producto2(request):
     """Vista para agregar un nuevo producto."""
     if request.method == "POST":
         # Obtener datos del formulario
