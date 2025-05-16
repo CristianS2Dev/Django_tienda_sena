@@ -1,0 +1,377 @@
+14:31:36.719 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:31:49.091 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:32:14.262 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:34:19.656 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:37:40.524 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:43:01.066 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:43:59.869 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:44:00.203 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+14:45:55.266 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:45:55.522 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+14:49:44.621 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:49:44.894 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+14:52:16.473 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:52:16.742 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+14:52:45.706 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:52:45.975 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:03:48.497 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:03:49.031 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:03:54.438 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:03:54.882 [main]  DEBUG com.intuit.karate.Suite - [config] karate-config.js
+15:04:20.651 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:04:21.080 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:15:04.368 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:15:04.646 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:18:27.090 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:18:27.352 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:25:35.017 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:25:35.291 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:25:39.055 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:25:39.330 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:26:21.740 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:26:22.010 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:28:27.200 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:28:27.508 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:28:30.306 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:28:30.604 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:28:31.932 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:28:32.231 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:48:23.814 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:48:24.178 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:50:53.328 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:50:53.578 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:55:31.950 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:55:32.217 [main]  DEBUG com.intuit.karate.Suite - [config] karate-config.js
+15:55:32.242 [main]  INFO  com.intuit.karate.Suite - backed up existing 'target\karate-reports' dir to: target\karate-reports_1747169732239
+15:55:33.874 [main]  DEBUG com.intuit.karate - request:
+1 > GET https://jsonplaceholder.typicode.com/posts/1
+1 > Host: jsonplaceholder.typicode.com
+1 > Connection: Keep-Alive
+1 > User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.12)
+1 > Accept-Encoding: gzip,deflate
+
+
+15:55:34.394 [main]  DEBUG com.intuit.karate - response time in milliseconds: 516
+1 < 200
+1 < Date: Tue, 13 May 2025 20:55:36 GMT
+1 < Content-Type: application/json; charset=utf-8
+1 < Transfer-Encoding: chunked
+1 < Connection: keep-alive
+1 < Cf-Ray: 93f50ec2983a7446-MIA
+1 < Server: cloudflare
+1 < Report-To: {"group":"heroku-nel","max_age":3600,"endpoints":[{"url":"https://nel.heroku.com/reports?ts=1746486735&sid=e11707d5-02a7-43ef-b45e-2cf4d2036f7d&s=0u20fdCQGWwaRRB8jT8bFPOUxw7LrQtQ5orHWnjP7b4%3D"}]}
+1 < Reporting-Endpoints: heroku-nel=https://nel.heroku.com/reports?ts=1746486735&sid=e11707d5-02a7-43ef-b45e-2cf4d2036f7d&s=0u20fdCQGWwaRRB8jT8bFPOUxw7LrQtQ5orHWnjP7b4%3D
+1 < Nel: {"report_to":"heroku-nel","max_age":3600,"success_fraction":0.005,"failure_fraction":0.05,"response_headers":["Via"]}
+1 < X-Powered-By: Express
+1 < X-Ratelimit-Limit: 1000
+1 < X-Ratelimit-Remaining: 999
+1 < X-Ratelimit-Reset: 1746486788
+1 < Vary: Origin, Accept-Encoding
+1 < Access-Control-Allow-Credentials: true
+1 < Cache-Control: max-age=43200
+1 < Pragma: no-cache
+1 < Expires: -1
+1 < X-Content-Type-Options: nosniff
+1 < Etag: W/"124-yiKdLzqO5gfBrJFrcdJ8Yq0LGnU"
+1 < Via: 1.1 vegur
+1 < Age: 20594
+1 < Cf-Cache-Status: HIT
+1 < alt-svc: h3=":443"; ma=86400
+1 < server-timing: cfL4;desc="?proto=TCP&rtt=56608&min_rtt=55383&rtt_var=21644&sent=7&recv=7&lost=0&retrans=0&sent_bytes=3112&recv_bytes=792&delivery_rate=79085&cwnd=238&unsent_bytes=0&cid=5d051c6c92c238ab&ts=142&x=0"
+{
+  "userId": 1,
+  "id": 1,
+  "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+  "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+}
+
+15:55:35.114 [main]  INFO  com.intuit.karate.Suite - <<pass>> feature 1 of 1 (0 remaining) test.feature
+15:57:04.824 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:57:05.078 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:58:26.365 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:58:26.615 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+15:59:49.366 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:59:49.607 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:01:25.391 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:01:25.637 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:02:01.937 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:02:02.190 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:03:14.721 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:03:14.971 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:04:05.129 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:04:05.375 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:09:44.442 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:09:44.687 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:12:20.764 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:12:21.006 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:12:37.424 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:12:37.676 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:14:16.695 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:14:16.949 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:14:35.045 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:14:35.295 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:16:23.246 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:16:23.493 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:19:14.644 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:19:14.883 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+16:29:16.884 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+16:29:17.123 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+14:01:37.776 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:01:38.164 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: usuarios.feature - mismatched input '"' expecting <EOF>
+14:40:14.428 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:40:14.655 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+14:41:51.103 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:41:51.322 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+14:43:34.657 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:43:34.873 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+14:45:34.820 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:45:35.040 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+14:46:31.234 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:46:31.451 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:46:43.081 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:46:43.328 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:47:13.898 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:47:14.115 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:47:29.885 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:47:30.102 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:48:08.686 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:48:08.901 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:49:27.903 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:49:28.115 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:49:44.466 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:49:44.682 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:50:48.246 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:50:48.462 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:51:05.692 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:51:05.912 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:51:17.333 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:51:17.546 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:51:39.760 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:51:39.977 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input ''' expecting <EOF>
+14:53:26.310 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:53:26.524 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+14:54:53.930 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:54:54.150 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+14:55:39.686 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:55:39.941 [main]  DEBUG com.intuit.karate.Suite - [config] karate-config.js
+14:55:39.944 [main]  INFO  com.intuit.karate.Suite - backed up existing 'target\karate-reports' dir to: target\karate-reports_1747338939941
+14:55:40.875 [main]  INFO  com.intuit.karate - [print] Resultado: 3 
+14:55:41.318 [main]  INFO  com.intuit.karate.Suite - <<pass>> feature 1 of 1 (0 remaining) hello.feature
+14:59:29.584 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:59:29.809 [main]  DEBUG com.intuit.karate.Suite - [config] karate-config.js
+14:59:29.813 [main]  INFO  com.intuit.karate.Suite - backed up existing 'target\karate-reports' dir to: target\karate-reports_1747339169810
+14:59:30.616 [main]  INFO  com.intuit.karate - [print] Resultado: 3 
+14:59:31.022 [main]  INFO  com.intuit.karate.Suite - <<pass>> feature 1 of 1 (0 remaining) hello.feature
+14:59:42.844 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+14:59:43.057 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:00:26.263 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:00:26.476 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:00:40.592 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:00:40.808 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:01:54.173 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:01:54.386 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:02:36.326 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:02:36.553 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:03:24.449 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:04:09.180 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:04:09.391 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:04:34.300 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:04:34.513 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:06:06.198 [main]  INFO  com.intuit.karate - Karate version: 1.5.0
+15:06:06.410 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:11:38.989 [main]  INFO  com.intuit.karate - Karate version: 1.5.0
+15:11:39.200 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:12:42.003 [main]  INFO  com.intuit.karate - Karate version: 1.5.0
+15:12:42.224 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:13:01.964 [main]  INFO  com.intuit.karate - Karate version: 1.5.0
+15:13:02.176 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input '"' expecting <EOF>
+15:14:48.795 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:14:49.010 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input 'n' expecting <EOF>
+15:15:21.097 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:15:21.305 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input 'n' expecting <EOF>
+15:16:21.236 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:16:21.446 [main]  ERROR c.intuit.karate.core.FeatureParser - not a valid feature file: productos.feature - mismatched input 'n' expecting <EOF>
+15:16:46.447 [main]  INFO  com.intuit.karate - Karate version: 1.5.1
+15:16:46.671 [main]  DEBUG com.intuit.karate.Suite - [config] karate-config.js
+15:16:46.675 [main]  INFO  com.intuit.karate.Suite - backed up existing 'target\karate-reports' dir to: target\karate-reports_1747340206672
+15:16:47.433 [main]  DEBUG c.intuit.karate.core.ScenarioEngine - over-writing existing variable 'baseUrl' with new value: 'http://127.0.0.1:8000'
+15:16:47.733 [main]  DEBUG com.intuit.karate - request:
+1 > POST http://127.0.0.1:8000/login/
+1 > Content-Type: application/json; charset=UTF-8
+1 > Content-Length: 60
+1 > Host: 127.0.0.1:8000
+1 > Connection: Keep-Alive
+1 > User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.13)
+1 > Accept-Encoding: gzip,deflate
+{"correo":"vendedor@predeterminado.com","password":"123456"}
+
+15:16:47.777 [main]  DEBUG com.intuit.karate - response time in milliseconds: 42
+1 < 403
+1 < Date: Thu, 15 May 2025 20:16:47 GMT
+1 < Server: WSGIServer/0.2 CPython/3.12.6
+1 < Content-Type: text/html; charset=utf-8
+1 < X-Frame-Options: DENY
+1 < Content-Length: 2855
+1 < X-Content-Type-Options: nosniff
+1 < Referrer-Policy: same-origin
+1 < Cross-Origin-Opener-Policy: same-origin
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="robots" content="NONE,NOARCHIVE">
+  <title>403 Forbidden</title>
+  <style>
+    html * { padding:0; margin:0; }
+    body * { padding:10px 20px; }
+    body * * { padding:0; }
+    body { font-family: sans-serif; background:#eee; color:#000; }
+    body>div { border-bottom:1px solid #ddd; }
+    h1 { font-weight:normal; margin-bottom:.4em; }
+    h1 span { font-size:60%; color:#666; font-weight:normal; }
+    #info { background:#f6f6f6; }
+    #info ul { margin: 0.5em 4em; }
+    #info p, #summary p { padding-top:10px; }
+    #summary { background: #ffc; }
+    #explanation { background:#eee; border-bottom: 0px none; }
+  </style>
+</head>
+<body>
+<div id="summary">
+  <h1>Forbidden <span>(403)</span></h1>
+  <p>CSRF verification failed. Request aborted.</p>
+
+
+  <p>You are seeing this message because this site requires a CSRF cookie when submitting forms. This cookie is required for security reasons, to ensure that your browser is not being hijacked by third parties.</p>
+  <p>If you have configured your browser to disable cookies, please re-enable them, at least for this site, or for “same-origin” requests.</p>
+
+</div>
+
+<div id="info">
+  <h2>Help</h2>
+    
+    <p>Reason given for failure:</p>
+    <pre>
+    CSRF cookie not set.
+    </pre>
+    
+
+  <p>In general, this can occur when there is a genuine Cross Site Request Forgery, or when
+  <a
+  href="https://docs.djangoproject.com/en/5.1/ref/csrf/">Django’s
+  CSRF mechanism</a> has not been used correctly.  For POST forms, you need to
+  ensure:</p>
+
+  <ul>
+    <li>Your browser is accepting cookies.</li>
+
+    <li>The view function passes a <code>request</code> to the template’s <a
+    href="https://docs.djangoproject.com/en/5.1/topics/templates/#django.template.backends.base.Template.render"><code>render</code></a>
+    method.</li>
+
+    <li>In the template, there is a <code>{% csrf_token
+    %}</code> template tag inside each POST form that
+    targets an internal URL.</li>
+
+    <li>If you are not using <code>CsrfViewMiddleware</code>, then you must use
+    <code>csrf_protect</code> on any views that use the <code>csrf_token</code>
+    template tag, as well as those that accept the POST data.</li>
+
+    <li>The form has a valid CSRF token. After logging in in another browser
+    tab or hitting the back button after a login, you may need to reload the
+    page with the form, because the token is rotated after a login.</li>
+  </ul>
+
+  <p>You’re seeing the help section of this page because you have <code>DEBUG =
+  True</code> in your Django settings file. Change that to <code>False</code>,
+  and only the initial error message will be displayed.  </p>
+
+  <p>You can customize this page using the CSRF_FAILURE_VIEW setting.</p>
+</div>
+
+</body>
+</html>
+
+
+15:16:47.790 [main]  ERROR com.intuit.karate - productos.feature:8
+Then status 200
+status code was: 403, expected: 200, response time in milliseconds: 42, url: http://127.0.0.1:8000/login/, response: 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="robots" content="NONE,NOARCHIVE">
+  <title>403 Forbidden</title>
+  <style>
+    html * { padding:0; margin:0; }
+    body * { padding:10px 20px; }
+    body * * { padding:0; }
+    body { font-family: sans-serif; background:#eee; color:#000; }
+    body>div { border-bottom:1px solid #ddd; }
+    h1 { font-weight:normal; margin-bottom:.4em; }
+    h1 span { font-size:60%; color:#666; font-weight:normal; }
+    #info { background:#f6f6f6; }
+    #info ul { margin: 0.5em 4em; }
+    #info p, #summary p { padding-top:10px; }
+    #summary { background: #ffc; }
+    #explanation { background:#eee; border-bottom: 0px none; }
+  </style>
+</head>
+<body>
+<div id="summary">
+  <h1>Forbidden <span>(403)</span></h1>
+  <p>CSRF verification failed. Request aborted.</p>
+
+
+  <p>You are seeing this message because this site requires a CSRF cookie when submitting forms. This cookie is required for security reasons, to ensure that your browser is not being hijacked by third parties.</p>
+  <p>If you have configured your browser to disable cookies, please re-enable them, at least for this site, or for “same-origin” requests.</p>
+
+</div>
+
+<div id="info">
+  <h2>Help</h2>
+    
+    <p>Reason given for failure:</p>
+    <pre>
+    CSRF cookie not set.
+    </pre>
+    
+
+  <p>In general, this can occur when there is a genuine Cross Site Request Forgery, or when
+  <a
+  href="https://docs.djangoproject.com/en/5.1/ref/csrf/">Django’s
+  CSRF mechanism</a> has not been used correctly.  For POST forms, you need to
+  ensure:</p>
+
+  <ul>
+    <li>Your browser is accepting cookies.</li>
+
+    <li>The view function passes a <code>request</code> to the template’s <a
+    href="https://docs.djangoproject.com/en/5.1/topics/templates/#django.template.backends.base.Template.render"><code>render</code></a>
+    method.</li>
+
+    <li>In the template, there is a <code>{% csrf_token
+    %}</code> template tag inside each POST form that
+    targets an internal URL.</li>
+
+    <li>If you are not using <code>CsrfViewMiddleware</code>, then you must use
+    <code>csrf_protect</code> on any views that use the <code>csrf_token</code>
+    template tag, as well as those that accept the POST data.</li>
+
+    <li>The form has a valid CSRF token. After logging in in another browser
+    tab or hitting the back button after a login, you may need to reload the
+    page with the form, because the token is rotated after a login.</li>
+  </ul>
+
+  <p>You’re seeing the help section of this page because you have <code>DEBUG =
+  True</code> in your Django settings file. Change that to <code>False</code>,
+  and only the initial error message will be displayed.  </p>
+
+  <p>You can customize this page using the CSRF_FAILURE_VIEW setting.</p>
+</div>
+
+</body>
+</html>
+
+productos.feature:8
+15:16:48.260 [main]  INFO  com.intuit.karate.Suite - <<fail>> feature 1 of 1 (0 remaining) productos.feature

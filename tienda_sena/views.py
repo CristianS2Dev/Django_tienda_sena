@@ -538,7 +538,13 @@ def validar_direccion(direccion, ciudad, estado, codigo_postal, pais):
         #CRUD Listar productos usuario
 # -----------------------------------------------------
 
-def lista_productos(request, id_categoria=None):
+from django.http import JsonResponse
+
+def lista_productos(request):
+    productos = Producto.objects.all().values("id", "nombre", "descripcion", "precio_original", "stock", "categoria", "color")
+    return JsonResponse(list(productos), safe=False)
+
+def lista_productos2(request, id_categoria=None):
     """
     Vista para mostrar la lista de productos con filtros opcionales.
     Si se proporciona una categoría, filtra los productos por esa categoría.
@@ -661,8 +667,37 @@ def detalle_producto_admin(request, id_producto):
     return render(request, 'administrador/productos/detalle_producto_admin.html', contexto)
 
 
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
 @session_rol_permission(1, 3)
 def agregar_producto(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        producto = Producto.objects.create(
+            nombre=data["nombre"],
+            descripcion=data["descripcion"],
+            precio_original=data["precio_original"],
+            stock=data["stock"],
+            categoria=data["categoria"],
+            color=data["color"],
+            vendedor_id=request.session["pista"]["id"]
+        )
+        return JsonResponse({
+            "id": producto.id,
+            "nombre": producto.nombre,
+            "descripcion": producto.descripcion,
+            "precio_original": float(producto.precio_original),
+            "stock": producto.stock,
+            "categoria": producto.categoria,
+            "color": producto.color
+        }, status=201)
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+@session_rol_permission(1, 3)
+def agregar_producto2(request):
     """Vista para agregar un nuevo producto."""
     if request.method == "POST":
         # Obtener datos del formulario
@@ -1087,6 +1122,7 @@ def obtener_carrito(request):
                 rol=2,  # O el rol por defecto que desees
             )
         carrito, creado = Carrito.objects.get_or_create(usuario=usuario)
+        return carrito
     else:
         carrito_id = request.session.get('carrito_id')
         if carrito_id:
@@ -1103,34 +1139,40 @@ def obtener_carrito(request):
 def agregar_carrito(request, id_producto):
     """Agrega un producto al carrito."""
     try:
+        # Obtener o crear el carrito del usuario
         carrito = obtener_carrito(request)
-    except ValueError as e:
-        messages.error(request, str(e))
-        return redirect('login')  # Redirigir al login si no se puede obtener el carrito
+        if not carrito:
+            messages.error(request, "No se pudo obtener el carrito.")
+            return redirect('carrito')
 
-    producto = get_object_or_404(Producto, id=id_producto)
-    cantidad = int(request.POST.get('cantidad', 1))
+        producto = get_object_or_404(Producto, id=id_producto)
+        cantidad = int(request.POST.get('cantidad', 1))
 
-    # Validar cantidad
-    if cantidad <= 0:
-        messages.error(request, "La cantidad debe ser mayor a 0.")
+        # Validar cantidad
+        if cantidad <= 0:
+            messages.error(request, "La cantidad debe ser mayor a 0.")
+            return redirect('carrito')
+        if cantidad > producto.stock:
+            messages.error(request, "La cantidad excede el stock disponible.")
+            return redirect('carrito')
+
+        # Buscar o crear el elemento en el carrito
+        elemento, creado = ElementoCarrito.objects.get_or_create(
+            carrito=carrito, 
+            producto=producto
+        )
+        if not creado:
+            elemento.cantidad += cantidad  # Incrementar la cantidad si ya existe
+        else:
+            elemento.cantidad = cantidad  # Establecer la cantidad si es un nuevo elemento
+        elemento.save()
+
+        messages.success(request, f"{producto.nombre} agregado al carrito.")
         return redirect('carrito')
-    if cantidad > producto.stock:
-        messages.error(request, "La cantidad excede el stock disponible.")
+
+    except Exception as e:
+        messages.error(request, f"Error al agregar al carrito: {str(e)}")
         return redirect('carrito')
-    if not producto.stock or producto.stock <= 0:
-        messages.error(request, "Este producto ya no está disponible.")
-        return redirect('carrito')
-    
-    # Buscar o crear el elemento en el carrito
-    elemento, creado = ElementoCarrito.objects.get_or_create(carrito=carrito, producto=producto)
-    if not creado:
-        elemento.cantidad += cantidad  # Incrementar la cantidad si ya existe
-    else:
-        elemento.cantidad = cantidad  # Establecer la cantidad si es un nuevo elemento
-    elemento.save()
-    messages.success(request, f"{producto.nombre} agregado al carrito.")
-    return redirect('carrito')
 
 def carrito(request):
     """Muestra el carrito del usuario."""

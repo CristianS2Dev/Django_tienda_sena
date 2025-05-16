@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="stylesheet" href="res/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="res/karate-report.css" type="text/css"/>
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <script type="text/javascript" src="res/jquery.min.js"></script>
+    <script type="text/javascript" src="res/jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="res/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="res/bootstrap.min.js"></script>
+    <script type="text/javascript" src="res/karate-report.js"></script>
+    <script type="text/javascript" src="res/Resemble.js"></script>
+    <script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+posthog.init('phc_M6fKk3dSX9HjglkqPSybauGas45NINb7EgsPGU8N9g1',{
+  api_host:'https://app.posthog.com',
+  persistence:'localStorage',
+  autocapture:false,
+  capture_pageview:false,
+  api_transport:'sendBeacon',
+  loaded: function(posthog) { 
+    posthog.capture("report_feature",{distinct_id:"ead0640d-144d-45d7-b739-b239687a3937",karate_version:"1.5.1",karate_meta:null});
+  }
+});
+</script>
+
+    <title>productos</title>
+  </head>
+  <body>
+    <div id="root-container">
+      <div id="leftnav">
+        
+        <div>
+  <div class="nav-logo">
+    <a href="https://karatelabs.io">
+      <img src="karate-labs-logo-ring.svg" alt="Karate Labs"/>
+    </a>
+    <div class="nav-count">
+      <div id="nav-pass" class="bg-success">0</div>
+      <div id="nav-fail" class="bg-danger">1</div>
+    </div>
+  </div>
+  <div id="nav-env">
+    <div></div>
+  </div>
+  <div id="nav-type">
+    <div>Scenarios</div>
+  </div>
+  <div id="nav-date">
+    <div>2025-05-15 03:16:47 p. m.</div>
+  </div>
+</div>
+
+        <div class="nav-container">
+          <div class="nav-item failed">
+            <a href="#[1:11]"><span>[1:11]</span> <span>Obtener lista de productos</span></a>
+          </div>
+        </div>
+      </div>
+      <div id="content">
+        <div class="page-heading alert alert-primary">
+          <a href="karate-summary.html">Summary</a><span class="feature-label">|</span>
+          <a href="karate-tags.html">Tags</a><span class="feature-label">|</span>
+          <span class="feature-label">Feature:</span>
+          <span class="feature-path">productos.feature</span><span class="feature-label">|</span>
+          <span class="feature-name">Pruebas de Productos</span>
+          <span class="feature-description"></span>
+        </div>
+        <div class="scenario">
+          <div class="scenario-heading" id="[1:11]">
+            <div class="heading-container">
+              <div class="scenario-tags">
+                
+              </div>
+              <div class="scenario-keyword">
+                Scenario: <span>[1:11]</span>
+                <span class="scenario-name">Obtener lista de productos</span>
+                <span></span>
+              </div>
+            </div>
+            <div class="scenario-time failed">
+              <span>ms:</span>&nbsp;<span>352</span>
+            </div>
+          </div>
+          <div class="step-row">
+            <div class="step-container" id="[1:11]bg">
+              <div class="step-ref bg-step">&gt;&gt;</div>
+              <div class="step-cell passed">Background:</div>
+            </div>
+            <div class="time-cell passed"></div>
+          </div>
+          <div data-parent="[1:11]bg"><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.4">
+      <div class="step-ref bg-step">4</div>
+      
+      <div class="step-cell passed">
+        <span>*</span>&nbsp;<span>def baseUrl = &#39;http://127.0.0.1:8000&#39;</span>
+      </div>
+    </div>
+    <div class="time-cell passed">2</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div data-parent="[1:11]bg"><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.5">
+      <div class="step-ref bg-step">5</div>
+      
+      <div class="step-cell passed">
+        <span>Given</span>&nbsp;<span>url baseUrl + &#39;/login/&#39;</span>
+      </div>
+    </div>
+    <div class="time-cell passed">8</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div data-parent="[1:11]bg"><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.6">
+      <div class="step-ref bg-step">6</div>
+      
+      <div class="step-cell passed">
+        <span>And</span>&nbsp;<span>request { correo: &#39;vendedor@predeterminado.com&#39;, password: &#39;123456&#39; }</span>
+      </div>
+    </div>
+    <div class="time-cell passed">23</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div data-parent="[1:11]bg"><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.7">
+      <div class="step-ref bg-step">7</div>
+      
+      <div class="step-cell passed">
+        <span>When</span>&nbsp;<span>method post</span>
+      </div>
+    </div>
+    <div class="time-cell passed">312</div>
+  </div>
+
+   
+  
+  
+
+  
+
+  <div class="preformatted" data-parent="0.7">15:16:47.733 request:
+1 &gt; POST http://127.0.0.1:8000/login/
+1 &gt; Content-Type: application/json; charset=UTF-8
+1 &gt; Content-Length: 60
+1 &gt; Host: 127.0.0.1:8000
+1 &gt; Connection: Keep-Alive
+1 &gt; User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.13)
+1 &gt; Accept-Encoding: gzip,deflate
+{&quot;correo&quot;:&quot;vendedor@predeterminado.com&quot;,&quot;password&quot;:&quot;123456&quot;}
+
+15:16:47.778 response time in milliseconds: 42
+1 &lt; 403
+1 &lt; Date: Thu, 15 May 2025 20:16:47 GMT
+1 &lt; Server: WSGIServer/0.2 CPython/3.12.6
+1 &lt; Content-Type: text/html; charset=utf-8
+1 &lt; X-Frame-Options: DENY
+1 &lt; Content-Length: 2855
+1 &lt; X-Content-Type-Options: nosniff
+1 &lt; Referrer-Policy: same-origin
+1 &lt; Cross-Origin-Opener-Policy: same-origin
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;
+  &lt;meta name=&quot;robots&quot; content=&quot;NONE,NOARCHIVE&quot;&gt;
+  &lt;title&gt;403 Forbidden&lt;/title&gt;
+  &lt;style&gt;
+    html * { padding:0; margin:0; }
+    body * { padding:10px 20px; }
+    body * * { padding:0; }
+    body { font-family: sans-serif; background:#eee; color:#000; }
+    body&gt;div { border-bottom:1px solid #ddd; }
+    h1 { font-weight:normal; margin-bottom:.4em; }
+    h1 span { font-size:60%; color:#666; font-weight:normal; }
+    #info { background:#f6f6f6; }
+    #info ul { margin: 0.5em 4em; }
+    #info p, #summary p { padding-top:10px; }
+    #summary { background: #ffc; }
+    #explanation { background:#eee; border-bottom: 0px none; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;summary&quot;&gt;
+  &lt;h1&gt;Forbidden &lt;span&gt;(403)&lt;/span&gt;&lt;/h1&gt;
+  &lt;p&gt;CSRF verification failed. Request aborted.&lt;/p&gt;
+
+
+  &lt;p&gt;You are seeing this message because this site requires a CSRF cookie when submitting forms. This cookie is required for security reasons, to ensure that your browser is not being hijacked by third parties.&lt;/p&gt;
+  &lt;p&gt;If you have configured your browser to disable cookies, please re-enable them, at least for this site, or for “same-origin” requests.&lt;/p&gt;
+
+&lt;/div&gt;
+
+&lt;div id=&quot;info&quot;&gt;
+  &lt;h2&gt;Help&lt;/h2&gt;
+    
+    &lt;p&gt;Reason given for failure:&lt;/p&gt;
+    &lt;pre&gt;
+    CSRF cookie not set.
+    &lt;/pre&gt;
+    
+
+  &lt;p&gt;In general, this can occur when there is a genuine Cross Site Request Forgery, or when
+  &lt;a
+  href=&quot;https://docs.djangoproject.com/en/5.1/ref/csrf/&quot;&gt;Django’s
+  CSRF mechanism&lt;/a&gt; has not been used correctly.  For POST forms, you need to
+  ensure:&lt;/p&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;Your browser is accepting cookies.&lt;/li&gt;
+
+    &lt;li&gt;The view function passes a &lt;code&gt;request&lt;/code&gt; to the template’s &lt;a
+    href=&quot;https://docs.djangoproject.com/en/5.1/topics/templates/#django.template.backends.base.Template.render&quot;&gt;&lt;code&gt;render&lt;/code&gt;&lt;/a&gt;
+    method.&lt;/li&gt;
+
+    &lt;li&gt;In the template, there is a &lt;code&gt;{% csrf_token
+    %}&lt;/code&gt; template tag inside each POST form that
+    targets an internal URL.&lt;/li&gt;
+
+    &lt;li&gt;If you are not using &lt;code&gt;CsrfViewMiddleware&lt;/code&gt;, then you must use
+    &lt;code&gt;csrf_protect&lt;/code&gt; on any views that use the &lt;code&gt;csrf_token&lt;/code&gt;
+    template tag, as well as those that accept the POST data.&lt;/li&gt;
+
+    &lt;li&gt;The form has a valid CSRF token. After logging in in another browser
+    tab or hitting the back button after a login, you may need to reload the
+    page with the form, because the token is rotated after a login.&lt;/li&gt;
+  &lt;/ul&gt;
+
+  &lt;p&gt;You’re seeing the help section of this page because you have &lt;code&gt;DEBUG =
+  True&lt;/code&gt; in your Django settings file. Change that to &lt;code&gt;False&lt;/code&gt;,
+  and only the initial error message will be displayed.  &lt;/p&gt;
+
+  &lt;p&gt;You can customize this page using the CSRF_FAILURE_VIEW setting.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+
+
+</div>   
+
+  
+
+</div>
+</div>
+          <div data-parent="[1:11]bg"><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.8">
+      <div class="step-ref bg-step">8</div>
+      
+      <div class="step-cell failed">
+        <span>Then</span>&nbsp;<span>status 200</span>
+      </div>
+    </div>
+    <div class="time-cell failed">6</div>
+  </div>
+
+   
+  
+  
+
+  
+
+  <div class="preformatted" data-parent="0.8">15:16:47.792 productos.feature:8
+Then status 200
+status code was: 403, expected: 200, response time in milliseconds: 42, url: http://127.0.0.1:8000/login/, response: 
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;
+  &lt;meta name=&quot;robots&quot; content=&quot;NONE,NOARCHIVE&quot;&gt;
+  &lt;title&gt;403 Forbidden&lt;/title&gt;
+  &lt;style&gt;
+    html * { padding:0; margin:0; }
+    body * { padding:10px 20px; }
+    body * * { padding:0; }
+    body { font-family: sans-serif; background:#eee; color:#000; }
+    body&gt;div { border-bottom:1px solid #ddd; }
+    h1 { font-weight:normal; margin-bottom:.4em; }
+    h1 span { font-size:60%; color:#666; font-weight:normal; }
+    #info { background:#f6f6f6; }
+    #info ul { margin: 0.5em 4em; }
+    #info p, #summary p { padding-top:10px; }
+    #summary { background: #ffc; }
+    #explanation { background:#eee; border-bottom: 0px none; }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div id=&quot;summary&quot;&gt;
+  &lt;h1&gt;Forbidden &lt;span&gt;(403)&lt;/span&gt;&lt;/h1&gt;
+  &lt;p&gt;CSRF verification failed. Request aborted.&lt;/p&gt;
+
+
+  &lt;p&gt;You are seeing this message because this site requires a CSRF cookie when submitting forms. This cookie is required for security reasons, to ensure that your browser is not being hijacked by third parties.&lt;/p&gt;
+  &lt;p&gt;If you have configured your browser to disable cookies, please re-enable them, at least for this site, or for “same-origin” requests.&lt;/p&gt;
+
+&lt;/div&gt;
+
+&lt;div id=&quot;info&quot;&gt;
+  &lt;h2&gt;Help&lt;/h2&gt;
+    
+    &lt;p&gt;Reason given for failure:&lt;/p&gt;
+    &lt;pre&gt;
+    CSRF cookie not set.
+    &lt;/pre&gt;
+    
+
+  &lt;p&gt;In general, this can occur when there is a genuine Cross Site Request Forgery, or when
+  &lt;a
+  href=&quot;https://docs.djangoproject.com/en/5.1/ref/csrf/&quot;&gt;Django’s
+  CSRF mechanism&lt;/a&gt; has not been used correctly.  For POST forms, you need to
+  ensure:&lt;/p&gt;
+
+  &lt;ul&gt;
+    &lt;li&gt;Your browser is accepting cookies.&lt;/li&gt;
+
+    &lt;li&gt;The view function passes a &lt;code&gt;request&lt;/code&gt; to the template’s &lt;a
+    href=&quot;https://docs.djangoproject.com/en/5.1/topics/templates/#django.template.backends.base.Template.render&quot;&gt;&lt;code&gt;render&lt;/code&gt;&lt;/a&gt;
+    method.&lt;/li&gt;
+
+    &lt;li&gt;In the template, there is a &lt;code&gt;{% csrf_token
+    %}&lt;/code&gt; template tag inside each POST form that
+    targets an internal URL.&lt;/li&gt;
+
+    &lt;li&gt;If you are not using &lt;code&gt;CsrfViewMiddleware&lt;/code&gt;, then you must use
+    &lt;code&gt;csrf_protect&lt;/code&gt; on any views that use the &lt;code&gt;csrf_token&lt;/code&gt;
+    template tag, as well as those that accept the POST data.&lt;/li&gt;
+
+    &lt;li&gt;The form has a valid CSRF token. After logging in in another browser
+    tab or hitting the back button after a login, you may need to reload the
+    page with the form, because the token is rotated after a login.&lt;/li&gt;
+  &lt;/ul&gt;
+
+  &lt;p&gt;You’re seeing the help section of this page because you have &lt;code&gt;DEBUG =
+  True&lt;/code&gt; in your Django settings file. Change that to &lt;code&gt;False&lt;/code&gt;,
+  and only the initial error message will be displayed.  &lt;/p&gt;
+
+  &lt;p&gt;You can customize this page using the CSRF_FAILURE_VIEW setting.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+
+productos.feature:8
+</div>   
+
+  
+
+</div>
+</div>
+          <div data-parent="[1:11]bg"><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.9">
+      <div class="step-ref bg-step">9</div>
+      
+      <div class="step-cell skipped">
+        <span>*</span>&nbsp;<span>def sessionid = responseCookies[&#39;sessionid&#39;].value</span>
+      </div>
+    </div>
+    <div class="time-cell skipped">0</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.12">
+      <div class="step-ref skipped">12</div>
+      
+      <div class="step-cell skipped">
+        <span>Given</span>&nbsp;<span>url baseUrl + &#39;/lista_productos&#39;</span>
+      </div>
+    </div>
+    <div class="time-cell skipped">0</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.13">
+      <div class="step-ref skipped">13</div>
+      
+      <div class="step-cell skipped">
+        <span>And</span>&nbsp;<span>header Cookie = &#39;sessionid=&#39; + sessionid</span>
+      </div>
+    </div>
+    <div class="time-cell skipped">0</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.14">
+      <div class="step-ref skipped">14</div>
+      
+      <div class="step-cell skipped">
+        <span>When</span>&nbsp;<span>method get</span>
+      </div>
+    </div>
+    <div class="time-cell skipped">0</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.15">
+      <div class="step-ref skipped">15</div>
+      
+      <div class="step-cell skipped">
+        <span>Then</span>&nbsp;<span>status 200</span>
+      </div>
+    </div>
+    <div class="time-cell skipped">0</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+          <div><div>
+  
+
+  
+
+  <div class="step-row">
+    <div class="step-container" id="0.16">
+      <div class="step-ref skipped">16</div>
+      
+      <div class="step-cell skipped">
+        <span>And</span>&nbsp;<span>match response[0] contains { nombre: &#39;#string&#39;, stock: &#39;#number&#39; }</span>
+      </div>
+    </div>
+    <div class="time-cell skipped">0</div>
+  </div>
+
+   
+  
+  
+
+  
+
+     
+
+  
+
+</div>
+</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
