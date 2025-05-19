@@ -5,6 +5,8 @@ from decimal import Decimal
 from .models import *
 from .utils import *
 import re
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from .templatetags.custom_filters import *
 from django.contrib.auth.hashers import check_password
@@ -14,7 +16,8 @@ from django.contrib import messages
 from django.db import IntegrityError
 from django.db import transaction
 from django.urls import reverse
-
+from django.core.mail import send_mail
+import random
 
 
 # Create your views here.
@@ -48,7 +51,7 @@ def login(request):
                     "nombre": q.nombre_apellido
                 }
                 combinar_carritos(request)
-                messages.success(request, "Bienvenido!!")
+                messages.success(request, "Bienvenido " + q.nombre_apellido + "!")
                 return redirect("index")
             else:
                 raise Usuario.DoesNotExist
@@ -114,6 +117,51 @@ def validar_contraseña(password):
     
     return True, "Contraseña válida."
 
+def olvidar_contraseña(request):
+
+    if request.method == "POST":
+        correo = request.POST.get("correo")
+        try:
+            usuario = Usuario.objects.get(correo=correo)
+
+            # Aquí puedes implementar el envío de un correo electrónico para restablecer la contraseña
+            messages.success(request, "Se ha enviado un enlace para restablecer tu contraseña a tu correo.")
+            return redirect("login")
+        except Usuario.DoesNotExist:
+            messages.error(request, "El correo no está registrado.")
+            return redirect("olvidar_contraseña")
+    else:
+        return render(request, "olvidar_contraseña.html")
+
+@csrf_exempt  # Solo para pruebas, en producción usa el token CSRF correctamente
+def ajax_enviar_codigo(request):
+    if request.method == "POST":
+        import json
+        data = json.loads(request.body)
+        correo = data.get("correo")
+        if not correo:
+            return JsonResponse({"ok": False, "msg": "Correo requerido."})
+        try:
+            usuario = Usuario.objects.get(correo=correo)
+            # Generar un código aleatorio de 6 dígitos
+            codigo = random.randint(100000, 999999)
+
+            # Guardar el código en la base de datos asociado al usuario
+            usuario.codigo_verificacion = codigo
+            usuario.save()
+
+            # Enviar el correo con el código
+            send_mail(
+                'Código de verificación',
+                f'Tu código de verificación es: {codigo}',
+                'tiendasenaccc@gmail.com',  
+                [correo],
+                fail_silently=False,
+            )
+            return JsonResponse({"ok": True, "msg": "Código enviado al correo."})
+        except Usuario.DoesNotExist:
+            return JsonResponse({"ok": False, "msg": "El correo no está registrado."})
+    return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
 
 def registrarse(request):
     """Vista para el registro de nuevos usuarios."""
@@ -650,6 +698,7 @@ def lista_productos(request, id_categoria=None):
 
     # Paginación
     from django.core.paginator import Paginator
+
     paginator = Paginator(productos, 9)  # 9 productos por página
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

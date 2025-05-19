@@ -10,6 +10,8 @@ urlpatterns = [
         path('login/', views.login, name='login'),
         path('logout', views.logout, name="logout"),
         path('registrarse/', views.registrarse, name='registrarse'),
+        path('olvidar_contraseña/', views.olvidar_contraseña, name='olvidar_contraseña'),
+        path('ajax/enviar-codigo/', views.ajax_enviar_codigo, name='ajax_enviar_codigo'),
         path('sobre_nosotros', views.sobre_nosotros, name='sobre_nosotros'),
 
     #Perfil Administrador
