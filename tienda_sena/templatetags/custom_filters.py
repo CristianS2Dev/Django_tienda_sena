@@ -13,13 +13,12 @@ def replace_comma(value):
 def group_by(value, arg):
     """
     Agrupa una lista en sublistas de tamaño 'arg'.
-    Ej: {% for grupo in marcas|group_by:4 %}
+    Ej: {% for grupo en marcas|group_by:4 %}
     """
     arg = int(arg)
     return [value[i:i + arg] for i in range(0, len(value), arg)]
 
-
 @register.filter
-def group_by(value, n):
-    """ Agrupa una lista en sublistas de n elementos """
-    return [value[i:i+n] for i in range(0, len(value), n)]
+def total_vendedor(items_vendidos, orden_id):
+    """ Calcula el total vendido por un vendedor en una orden específica. """
+    return sum(item.cantidad * item.precio_unitario for item in items_vendidos if item.orden.id == orden_id)

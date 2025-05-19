@@ -56,12 +56,14 @@ urlpatterns = [
         path('editar_direccion/<int:id_direccion>/', views.editar_direccion, name='editar_direccion'),
         path('eliminar_direccion/<int:id>/', views.eliminar_direccion, name='eliminar_direccion'),
 
-        # Vendedor
+        # ...existing code...
+            # Vendedor
             path('productos/vendedor/<int:id_vendedor>/', views.productos_vendedor, name='productos_vendedor'),
-        # Usuario
+            path('ordenes_vendedor/', views.ordenes_vendedor, name='ordenes_vendedor'),
+            # Usuario
             path("actualizar_perfil/", views.actualizar_perfil, name="actualizar_perfil"),
             path('solicitar_vendedor/', views.solicitar_vendedor, name='solicitar_vendedor'),
-
+        # ...existing code...
             
 
     

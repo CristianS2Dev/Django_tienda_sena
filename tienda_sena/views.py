@@ -27,7 +27,7 @@ def index(request):
         pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
-                 "pendientes_solicitudes_vendedor": pendientes,
+                "pendientes_solicitudes_vendedor": pendientes,
     }
     return render(request, 'index.html', contexto)
 
@@ -155,7 +155,13 @@ def registrarse(request):
             )
             usuario.save()
             messages.success(request, "Usuario registrado correctamente!")
-            return redirect("login")
+            request.session["pista"] = {
+                "id": usuario.id,
+                "rol": usuario.rol,
+                "nombre": usuario.nombre_apellido
+            }
+
+            return redirect("index")
         except CorreoInvalidoError:
             messages.error(request, 'Error, el correo no es valido')
             return render(request, "registrarse.html", campos)
@@ -261,6 +267,12 @@ def actualizar_contraseña(request):
                 messages.error(request, "Las nuevas contraseñas no coinciden.")
                 return redirect("actualizar_contraseña")
             
+            # Verificar que la contraseña nueva no sea igual a la anterior
+            
+            if new_password == password:
+                messages.error(request, "La nueva contraseña no puede ser igual a la anterior!")
+                return redirect("actualizar_contraseña")
+            
             # Validar la nueva contraseña
             es_valida, mensaje = validar_contraseña(new_password)
             if not es_valida:
@@ -298,6 +310,18 @@ def solicitar_vendedor(request):
         return redirect("perfil_usuario")
     return render(request, "usuarios/solicitar_vendedor.html")
 
+
+def ordenes_vendedor(request):
+    """Vista para mostrar las órdenes de los productos vendidos por el vendedor autenticado."""
+    usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
+    # Buscar los items vendidos por este vendedor
+    items_vendidos = OrdenItem.objects.filter(producto__vendedor=usuario).select_related('orden', 'producto')
+    # Obtener las órdenes únicas
+    ordenes = Orden.objects.filter(id__in=items_vendidos.values_list('orden_id', flat=True)).distinct().order_by('-creado_en')
+    return render(request, "usuarios/ordenes_vendedor.html", {
+        "ordenes": ordenes,
+        "items_vendidos": items_vendidos,
+    })
 
 # -----------------------------------------------------
     #DIRECCION

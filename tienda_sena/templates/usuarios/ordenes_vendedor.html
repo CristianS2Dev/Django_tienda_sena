@@ -1,0 +1,115 @@
+{% extends 'bases/base.html' %}
+{% load static breadcrumbs custom_filters humanize %}
+
+{% block title %}Mis Ordenes{% endblock %}
+{% block main %}
+<style>
+    .badge-pagado {
+        background-color: #a3f7bf;
+        color: #065f46;
+    }
+
+    .badge-pendiente {
+        background-color: #e0e0e0;
+        color: #6c757d;
+    }
+
+    .badge-listo {
+        background-color: #fca311;
+        color: white;
+    }
+
+    .badge-enviado {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .badge-recibido {
+        background-color: #3b82f6;
+        color: white;
+    }
+</style>
+
+<div class="container py-5">
+<h1 class="py-3">Ordenes</h1>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex">
+            <button class="btn btn-outline-secondary me-2">Filtrar</button>
+            <input type="search" class="form-control" placeholder="Buscar...">
+        </div>
+        <div>
+            <button class="btn btn-outline-primary me-1">
+                ✎
+            </button>
+            <button class="btn btn-outline-danger">
+                🗑
+            </button>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th scope="col"><input type="checkbox"></th>
+                    <th scope="col">Orden</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Estado de pago</th>
+                    <th scope="col">Tus productos</th>
+                    <th scope="col">Total de tus productos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orden in ordenes %}
+                <tr>
+                    <td><input type="checkbox"></td>
+                    <td><strong>#{{ orden.id }}</strong></td>
+                    <td>{{ orden.creado_en|date:"M d, H:i A" }}</td>
+                    <td>{{ orden.usuario.nombre_apellido }}</td>
+                    <td>
+                        {% if orden.estado_pago == "pagado" %}
+                            <span class="badge badge-pagado">Pagado</span>
+                        {% elif orden.estado_pago == "pendiente" %}
+                            <span class="badge badge-pendiente">Pendiente</span>
+                        {% elif orden.estado_pago == "rechazado" %}
+                            <span class="badge bg-danger">Rechazado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <ul>
+                        {% for item in items_vendidos %}
+                            {% if item.orden.id == orden.id %}
+                                <li>{{ item.producto.nombre }} x{{ item.cantidad }}</li>
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        ${{ items_vendidos|total_vendedor:orden.id|intcomma|replace_comma }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">No hay órdenes para mostrar.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <span>274 Resultados</span>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item"><a class="page-link" href="#">←</a></li>
+                <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                <li class="page-item"><a class="page-link" href="#">→</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+{% endblock %}
