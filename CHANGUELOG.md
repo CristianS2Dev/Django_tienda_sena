@@ -16,6 +16,15 @@
 
 ### CHANGELOG
 
+## [v1.28.29-alpha.1] - 19-05-2025
+
+### Added
+
+- Añadir modelos y vistas para la gestión de usuarios, productos y órdenes, incluyendo mejoras en la interfaz y nuevas funcionalidades.
+
+---
+
+
 ## [v1.26.28-alpha.2] - 26-04-2025
 
 ### Added

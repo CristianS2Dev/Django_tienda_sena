@@ -1,74 +1,69 @@
 {% extends 'bases/base.html' %}
 {% load static humanize custom_filters breadcrumbs %}
 
-
 {% block titulo %}Carrito de Compras{% endblock %}
 
 {% block main %}
 <div id="notificaciones">
     {% if messages %}
-        {% for message in messages %} 
-<div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags }}{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
 </div>
+
 <style>
     .cart-wrapper {
         background-color: #f8f9fa;
         min-height: 100vh;
         padding: 40px 0;
     }
-
     .product-card {
         background: white;
         border-radius: 12px;
         transition: transform 0.2s;
     }
-
     .product-card:hover {
         transform: translateY(-2px);
     }
-
     .quantity-input {
         width: 60px;
         text-align: center;
         border: 1px solid #dee2e6;
         border-radius: 6px;
     }
-
     .product-image {
         width: 100px;
         height: 100px;
         object-fit: cover;
         border-radius: 8px;
     }
-
     .summary-card {
         background: white;
         border-radius: 12px;
         position: sticky;
         top: 20px;
     }
-
     .checkout-btn {
         background: linear-gradient(135deg, #6366f1, #4f46e5);
         border: none;
         transition: transform 0.2s;
     }
-
     .checkout-btn:hover {
         transform: translateY(-2px);
         background: linear-gradient(135deg, #4f46e5, #4338ca);
     }
-
     .remove-btn {
         color: #dc2626;
         cursor: pointer;
         transition: all 0.2s;
     }
-
     .remove-btn:hover {
         color: #991b1b;
     }
-
     .quantity-btn {
         width: 28px;
         height: 28px;
@@ -81,24 +76,17 @@
         border: none;
         transition: all 0.2s;
     }
-
     .quantity-btn:hover {
         background: #e5e7eb;
     }
-
-    .discount-badge {
-        background: #dcfce7;
-        color: #166534;
-        font-size: 0.875rem;
-        padding: 4px 8px;
-        border-radius: 6px;
-    }
 </style>
+
 <div class="cart-wrapper">
     <div class="container">
         {% if elementos|length == 0 %}
-        <div class="alert alert-info">Tu carrito está vacío.</div>
-{% endif %}
+            <div class="alert alert-info">Tu carrito está vacío.</div>
+        {% endif %}
+
         <div class="row g-4">
             <!-- Cart Items Section -->
             <div class="col-lg-8">
@@ -110,10 +98,9 @@
                     <span class="text-muted">{{ elementos|length }} items</span>
                 </div>
 
-                <!-- Product Cards -->
                 <div class="d-flex flex-column gap-3">
                     {% for elemento in elementos %}
-                                                <div class="d-flex flex-column gap-3"><div class="product-card p-3 shadow-sm" id="product-card-{{ elemento.id }}">
+                        <div class="product-card p-3 shadow-sm" id="product-card-{{ elemento.id }}">
                             <div class="row align-items-center">
                                 <div class="col-md-2">
                                     {% if elemento.producto.imagenes.exists %}
@@ -129,7 +116,7 @@
                                 <div class="col-md-3">
                                     <div class="d-flex align-items-center gap-2">
                                         <button class="quantity-btn" onclick="updateQuantity({{ elemento.id }}, -1)">-</button>
-                                        <input type="number" class="quantity-input" id="quantity-{{ elemento.id }}" value="{{ elemento.cantidad }}" min="1" max="{{ elemento.producto.stock }}">
+                                        <input type="number" class="quantity-input" id="quantity-{{ elemento.id }}" value="{{ elemento.cantidad }}" min="1" max="{{ elemento.producto.stock }}" readonly>
                                         <button class="quantity-btn" onclick="updateQuantity({{ elemento.id }}, 1)">+</button>
                                     </div>
                                 </div>
@@ -174,21 +161,18 @@
 </div>
 
 <script>
-       function updateQuantity(elementId, change) {
+    function updateQuantity(elementId, change) {
         const input = document.getElementById(`quantity-${elementId}`);
         let newQuantity = parseInt(input.value) + change;
-    
-        // Validar que la nueva cantidad no exceda el stock máximo
+
         if (newQuantity > parseInt(input.max)) {
             alert('La cantidad excede el stock disponible.');
             return;
         }
-    
-        // Validar que la nueva cantidad sea al menos 1
+
         if (newQuantity >= 1) {
             input.value = newQuantity;
-    
-            // Enviar solicitud AJAX al servidor
+
             fetch(`/carrito/actualizar/${elementId}/`, {
                 method: 'POST',
                 headers: {
@@ -201,13 +185,11 @@
             .then(data => {
                 if (data.subtotal !== undefined) {
                     if (data.subtotal === 0) {
-                        // Eliminar el elemento del DOM si la cantidad es 0
                         document.getElementById(`product-card-${elementId}`).remove();
                     } else {
                         document.getElementById(`subtotal-${elementId}`).innerText = `$${data.subtotal.toFixed(2).replace('.', ',')}`;
                     }
                     document.getElementById('total').innerText = `$${data.total.toFixed(2).replace('.', ',')}`;
-                    // Actualizar el contador de items si lo tienes
                 } else if (data.error) {
                     alert(data.error);
                 }

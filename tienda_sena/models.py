@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password
 
 # Create your models here.
 class Usuario(models.Model):
+    """Modelo para los usuarios de la tienda."""
     nombre_apellido = models.CharField(max_length=150)
     documento = models.CharField(max_length=20, default="000000")
     contacto = models.IntegerField(default=0)
@@ -16,11 +17,11 @@ class Usuario(models.Model):
         (3, "Vendedor"),
     )
     rol = models.IntegerField(choices=ROLES, default=2)
-    imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)  # Campo para la foto de perfil
+    imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)
     
     def save(self, *args, **kwargs):
-        # Encriptar la contraseña si no está encriptada
-        if not self.password.startswith('pbkdf2_'):  # Evitar encriptar una contraseña ya encriptada
+        """Sobrescribe el método save para encriptar la contraseña antes de guardar."""
+        if not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
         super().save(*args, **kwargs)
 
@@ -29,6 +30,7 @@ class Usuario(models.Model):
     
 
 class SolicitudVendedor(models.Model):
+    """Modelo para las solicitudes de los vendedores."""
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     certificado = models.ImageField(upload_to='certificado/', null=True, blank=True)
     estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')], default='pendiente')
@@ -37,6 +39,7 @@ class SolicitudVendedor(models.Model):
 
 
 class Direccion(models.Model):
+    """Modelo para las direcciones de los usuarios."""
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='direcciones')
     direccion = models.CharField(max_length=255)
     ciudad = models.CharField(max_length=100)
@@ -46,6 +49,7 @@ class Direccion(models.Model):
     principal = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        """Sobrescribe el método save para asegurarse de que solo haya una dirección principal por usuario."""
         if self.principal:
             Direccion.objects.filter(usuario=self.usuario, principal=True).exclude(id=self.id).update(principal=False)
         super().save(*args, **kwargs)
@@ -56,6 +60,7 @@ class Direccion(models.Model):
 
     
 class Producto(models.Model):
+    """Modelo para los productos."""
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=254)
     stock = models.IntegerField()
@@ -85,6 +90,7 @@ class Producto(models.Model):
     descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def clean(self):
+        """Validaciones personalizadas para el modelo Producto."""
         if self.stock < 0:
             raise ValidationError("El stock no puede ser negativo.")
         if self.precio_original is not None and self.precio_original < 0:
@@ -109,6 +115,7 @@ class Producto(models.Model):
         return f"{self.nombre} - ({self.stock} unidades)"
     
 class ImagenProducto(models.Model):
+    """Modelo para las imágenes de los productos."""
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes')
     imagen = models.ImageField(upload_to='productos/')
 
@@ -117,6 +124,7 @@ class ImagenProducto(models.Model):
 
 
 class Carrito(models.Model):
+    """Modelo para el carrito de compras."""
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, null=True, blank=True, related_name='carritos')
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
@@ -129,6 +137,7 @@ class Carrito(models.Model):
         return f"Carrito de {self.usuario.nombre_apellido if self.usuario else 'Invitado'}"
 
 class ElementoCarrito(models.Model):
+    """Modelo para los elementos del carrito."""
     carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='elementos')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField(default=1)
@@ -142,12 +151,20 @@ class ElementoCarrito(models.Model):
     
 
 class Orden(models.Model):
+    """Modelo para las órdenes de compra."""
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
     direccion = models.ForeignKey('Direccion', on_delete=models.SET_NULL, null=True, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    ESTADO_PAGO = (
+        ('pendiente', 'Pendiente'),
+        ('pagado', 'Pagado'),
+        ('rechazado', 'Rechazado'),
+    )
+    estado_pago = models.CharField(max_length=10, choices=ESTADO_PAGO, default='pendiente')
 
 class OrdenItem(models.Model):
+    """Modelo para los elementos de una orden."""
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='items')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
@@ -155,7 +172,11 @@ class OrdenItem(models.Model):
 
 
 class Notificacion(models.Model):
+    """Modelo para las notificaciones de los usuarios."""
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     mensaje = models.CharField(max_length=255)
     leida = models.BooleanField(default=False)
     fecha = models.DateTimeField(auto_now_add=True)
+    
+
+        
