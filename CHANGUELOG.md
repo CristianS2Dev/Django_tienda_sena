@@ -16,6 +16,13 @@
 
 ### CHANGELOG
 
+## [v1.27.28-alpha.2] - 19/05/2025
+
+### Added
+
+- Se agrega la vista de recuperar contraseña
+- Se integra para la vista el enviar correo para recuperar contraseña
+
 ## [v1.26.28-alpha.2] - 26-04-2025
 
 ### Added
