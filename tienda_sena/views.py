@@ -1309,3 +1309,16 @@ def buscar_productos(request):
     }
     return render(request, 'productos/listar_productos.html', contexto)
 
+
+
+
+#------------------------ TEST -------------------------
+
+
+from django.http import JsonResponse
+
+
+def usuarios_json(request):
+    """Devuelve la lista de usuarios en formato JSON."""
+    usuarios = Usuario.objects.all().values('id', 'nombre_apellido', 'rol')
+    return JsonResponse(list(usuarios), safe=False)

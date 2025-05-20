@@ -23,6 +23,7 @@ urlpatterns = [
 
         #Crud Usuarios
         path('usuarios', views.usuarios, name='usuarios'),
+        path('usuarios/json/', views.usuarios_json, name='usuarios_json'),
         path('agregar_usuario', views.agregar_usuario, name="agregar_usuario"),
         path("editar_usuario/<int:id_usuario>/", views.editar_usuario, name="editar_usuario"),
         path("eliminar_usuario/<int:id_usuario>/", views.eliminar_usuario, name="eliminar_usuario"),
@@ -61,7 +62,7 @@ urlpatterns = [
         # Usuario
             path("actualizar_perfil/", views.actualizar_perfil, name="actualizar_perfil"),
             path('solicitar_vendedor/', views.solicitar_vendedor, name='solicitar_vendedor'),
-
+            
             
 
     
