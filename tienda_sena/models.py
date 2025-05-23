@@ -4,8 +4,22 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 
 # Create your models here.
+
 class Usuario(models.Model):
-    """Modelo para los usuarios de la tienda."""
+    """
+    Modelo para los usuarios de la tienda.
+
+    :model:`tienda_sena.Usuario`
+
+    Campos:
+        nombre_apellido (CharField): Nombre completo del usuario.
+        documento (CharField): Documento de identidad.
+        contacto (IntegerField): Número de contacto.
+        correo (CharField): Correo electrónico único.
+        password (CharField): Contraseña encriptada.
+        rol (IntegerField): Rol del usuario (Administrador, Cliente, Vendedor).
+        imagen_perfil (ImageField): Imagen de perfil del usuario.
+    """
     nombre_apellido = models.CharField(max_length=150)
     documento = models.CharField(max_length=20, default="000000")
     contacto = models.IntegerField(default=0)
@@ -30,7 +44,18 @@ class Usuario(models.Model):
     
 
 class SolicitudVendedor(models.Model):
-    """Modelo para las solicitudes de los vendedores."""
+    """
+    Modelo para las solicitudes de los vendedores.
+
+    :model:`tienda_sena.SolicitudVendedor`
+
+    Campos:
+        usuario (ForeignKey): Usuario que solicita ser vendedor.
+        certificado (ImageField): Certificado adjunto.
+        estado (CharField): Estado de la solicitud (pendiente, aprobado, rechazado).
+        fecha_solicitud (DateTimeField): Fecha de la solicitud.
+        observacion (TextField): Observaciones adicionales.
+    """
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     certificado = models.ImageField(upload_to='certificado/', null=True, blank=True)
     estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('aprobado', 'Aprobado'), ('rechazado', 'Rechazado')], default='pendiente')
@@ -39,7 +64,20 @@ class SolicitudVendedor(models.Model):
 
 
 class Direccion(models.Model):
-    """Modelo para las direcciones de los usuarios."""
+    """
+    Modelo para las direcciones de los usuarios.
+
+    :model:`tienda_sena.Direccion`
+
+    Campos:
+        usuario (ForeignKey): Usuario propietario de la dirección.
+        direccion (CharField): Dirección física.
+        ciudad (CharField): Ciudad.
+        estado (CharField): Estado o departamento.
+        codigo_postal (CharField): Código postal.
+        pais (CharField): País.
+        principal (BooleanField): Si es la dirección principal del usuario.
+    """
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='direcciones')
     direccion = models.CharField(max_length=255)
     ciudad = models.CharField(max_length=100)
@@ -58,9 +96,23 @@ class Direccion(models.Model):
         return f"{self.direccion}, {self.ciudad}, {self.estado}, {self.pais}"
     
 
-    
 class Producto(models.Model):
-    """Modelo para los productos."""
+    """
+    Modelo para los productos.
+
+    :model:`tienda_sena.Producto`
+
+    Campos:
+        nombre (CharField): Nombre del producto.
+        descripcion (CharField): Descripción breve.
+        stock (IntegerField): Cantidad disponible.
+        vendedor (ForeignKey): Usuario vendedor.
+        categoria (IntegerField): Categoría del producto.
+        color (IntegerField): Color principal.
+        en_oferta (BooleanField): Si el producto está en oferta.
+        precio_original (DecimalField): Precio original.
+        descuento (DecimalField): Porcentaje de descuento.
+    """
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=254)
     stock = models.IntegerField()
@@ -90,7 +142,14 @@ class Producto(models.Model):
     descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def clean(self):
-        """Validaciones personalizadas para el modelo Producto."""
+        """
+        Validaciones personalizadas para el modelo Producto.
+
+        - El stock no puede ser negativo.
+        - El precio original no puede ser negativo.
+        - El descuento debe estar entre 0 y 100.
+        - El precio final no puede ser negativo.
+        """
         if self.stock < 0:
             raise ValidationError("El stock no puede ser negativo.")
         if self.precio_original is not None and self.precio_original < 0:
@@ -106,7 +165,12 @@ class Producto(models.Model):
 
     @property
     def precio(self):
-        """Calcula el precio final basado en el descuento."""
+        """
+        Calcula el precio final basado en el descuento.
+
+        Returns:
+            Decimal: Precio final del producto.
+        """
         if self.en_oferta and self.descuento > 0:
             return round(self.precio_original - (self.precio_original * self.descuento / Decimal(100)), 2)
         return self.precio_original
@@ -114,8 +178,17 @@ class Producto(models.Model):
     def __str__(self):
         return f"{self.nombre} - ({self.stock} unidades)"
     
+
 class ImagenProducto(models.Model):
-    """Modelo para las imágenes de los productos."""
+    """
+    Modelo para las imágenes de los productos.
+
+    :model:`tienda_sena.ImagenProducto`
+
+    Campos:
+        producto (ForeignKey): Producto al que pertenece la imagen.
+        imagen (ImageField): Archivo de imagen.
+    """
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes')
     imagen = models.ImageField(upload_to='productos/')
 
@@ -124,26 +197,55 @@ class ImagenProducto(models.Model):
 
 
 class Carrito(models.Model):
-    """Modelo para el carrito de compras."""
+    """
+    Modelo para el carrito de compras.
+
+    :model:`tienda_sena.Carrito`
+
+    Campos:
+        usuario (ForeignKey): Usuario propietario del carrito.
+        creado_en (DateTimeField): Fecha de creación.
+        actualizado_en (DateTimeField): Fecha de última actualización.
+    """
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, null=True, blank=True, related_name='carritos')
     creado_en = models.DateTimeField(auto_now_add=True)
     actualizado_en = models.DateTimeField(auto_now=True)
 
     def total(self):
-        """Calcula el total del carrito sumando los subtotales de los elementos."""
-        return sum(item.subtotal() for item in self.elementos.all()) # suma de los subtotales de cada elemento
+        """
+        Calcula el total del carrito sumando los subtotales de los elementos.
+
+        Returns:
+            Decimal: Total del carrito.
+        """
+        return sum(item.subtotal() for item in self.elementos.all())
 
     def __str__(self):
         return f"Carrito de {self.usuario.nombre_apellido if self.usuario else 'Invitado'}"
 
+
 class ElementoCarrito(models.Model):
-    """Modelo para los elementos del carrito."""
+    """
+    Modelo para los elementos del carrito.
+
+    :model:`tienda_sena.ElementoCarrito`
+
+    Campos:
+        carrito (ForeignKey): Carrito al que pertenece el elemento.
+        producto (ForeignKey): Producto seleccionado.
+        cantidad (PositiveIntegerField): Cantidad del producto.
+    """
     carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='elementos')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField(default=1)
 
     def subtotal(self):
-        """Calcula el subtotal del elemento (precio del producto * cantidad)."""
+        """
+        Calcula el subtotal del elemento (precio del producto * cantidad).
+
+        Returns:
+            Decimal: Subtotal del elemento.
+        """
         return self.cantidad * self.producto.precio
 
     def __str__(self):
@@ -151,7 +253,18 @@ class ElementoCarrito(models.Model):
     
 
 class Orden(models.Model):
-    """Modelo para las órdenes de compra."""
+    """
+    Modelo para las órdenes de compra.
+
+    :model:`tienda_sena.Orden`
+
+    Campos:
+        usuario (ForeignKey): Usuario que realiza la orden.
+        direccion (ForeignKey): Dirección de envío.
+        creado_en (DateTimeField): Fecha de creación.
+        total (DecimalField): Total de la orden.
+        estado_pago (CharField): Estado del pago (pendiente, pagado, rechazado).
+    """
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
     direccion = models.ForeignKey('Direccion', on_delete=models.SET_NULL, null=True, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
@@ -163,8 +276,19 @@ class Orden(models.Model):
     )
     estado_pago = models.CharField(max_length=10, choices=ESTADO_PAGO, default='pendiente')
 
+
 class OrdenItem(models.Model):
-    """Modelo para los elementos de una orden."""
+    """
+    Modelo para los elementos de una orden.
+
+    :model:`tienda_sena.OrdenItem`
+
+    Campos:
+        orden (ForeignKey): Orden a la que pertenece el elemento.
+        producto (ForeignKey): Producto comprado.
+        cantidad (PositiveIntegerField): Cantidad comprada.
+        precio_unitario (DecimalField): Precio unitario del producto.
+    """
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='items')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
@@ -172,11 +296,18 @@ class OrdenItem(models.Model):
 
 
 class Notificacion(models.Model):
-    """Modelo para las notificaciones de los usuarios."""
+    """
+    Modelo para las notificaciones de los usuarios.
+
+    :model:`tienda_sena.Notificacion`
+
+    Campos:
+        usuario (ForeignKey): Usuario destinatario.
+        mensaje (CharField): Mensaje de la notificación.
+        leida (BooleanField): Si la notificación ha sido leída.
+        fecha (DateTimeField): Fecha de creación.
+    """
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     mensaje = models.CharField(max_length=255)
     leida = models.BooleanField(default=False)
     fecha = models.DateTimeField(auto_now_add=True)
-    
-
-        
