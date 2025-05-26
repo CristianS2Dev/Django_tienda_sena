@@ -310,4 +310,3 @@ class Notificacion(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     mensaje = models.CharField(max_length=255)
     leida = models.BooleanField(default=False)
-    fecha = models.DateTimeField(auto_now_add=True)
