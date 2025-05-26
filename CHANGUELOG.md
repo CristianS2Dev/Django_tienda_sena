@@ -16,12 +16,17 @@
 
 ### CHANGELOG
 
-## [v1.27.28-alpha.2] - 19/05/2025
+---
 
-### Added
+## [v1.29.29-alpha.1] - 19-05-2025
 
-- Se agrega la vista de recuperar contraseña
-- Se integra para la vista el enviar correo para recuperar contraseña
+
+### Changed
+
+- Se actualizan los docstrings de los modelos para mayor claridad.
+- Se mejora la configuración de Django y las URLs para incluir la documentación de admin.
+
+---
 
 ## [v1.28.29-alpha.1] - 19-05-2025
 
@@ -31,6 +36,15 @@
 
 ---
 
+
+## [v1.27.28-alpha.2] - 19/05/2025
+
+### Added
+
+- Se agrega la vista de recuperar contraseña
+- Se integra para la vista el enviar correo para recuperar contraseña
+
+---
 
 ## [v1.26.28-alpha.2] - 26-04-2025
 

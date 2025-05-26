@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tienda_sena',
     'django.contrib.humanize', # para formatear números en los templates
+    'django.contrib.admindocs'
 
 ]
 
