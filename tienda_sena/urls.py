@@ -67,7 +67,8 @@ urlpatterns = [
             path('solicitar_vendedor/', views.solicitar_vendedor, name='solicitar_vendedor'),
         # ...existing code...
             
-
+    #TESTING
+        path('usuarios/json/', views.usuarios_json, name='usuarios_json'),
     
 ]
 

@@ -1,18 +1,13 @@
-import requests
+from django.test import TestCase, Client
+from tienda_sena.models import Usuario
 
-def test_usuarios_json():
-    url = "http://localhost:8000/usuarios/json/"
-    response = requests.get(url)
-    print("Status code:", response.status_code)
-    print("Response text:", response.text)  # <-- Agregado para depuración
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    if data:
-        assert 'id' in data[0]
-        assert 'nombre_apellido' in data[0]
-        assert 'rol' in data[0]
+class UsuariosJsonTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        Usuario.objects.create(nombre_apellido="Juanito", correo="juanito@gmail.com", password="1234", rol=2)
 
-if __name__ == "__main__":
-    test_usuarios_json()
-    print("Prueba exitosa")
+    def test_usuarios_json(self):
+        response = self.client.get('/usuarios/json/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json(), list)
+        self.assertGreaterEqual(len(response.json()), 1)

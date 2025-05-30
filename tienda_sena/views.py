@@ -1346,3 +1346,17 @@ def buscar_productos(request):
     }
     return render(request, 'productos/listar_productos.html', contexto)
 
+
+
+# ---------------------------------------------
+    # TEST
+# ---------------------------------------------
+
+
+# views.py
+def usuarios_json(request):
+    usuarios = list(Usuario.objects.values())
+    return JsonResponse(usuarios, safe=False)
+
+
+
