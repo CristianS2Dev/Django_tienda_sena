@@ -1,65 +1,50 @@
-from django.test import TestCase
-import factory
-from factory.django import DjangoModelFactory
-from decimal import Decimal
-from tienda_sena.models import Usuario, Producto, Direccion, Orden, OrdenItem
+from django.test import TestCase, Client
+from django.urls import reverse
+from django.contrib.messages import get_messages
 
-# Factories
-class UsuarioFactory(DjangoModelFactory):
-    class Meta:
-        model = Usuario
+from tienda_sena.models import Usuario
 
-    nombre_apellido = factory.Faker("name")
-    documento = factory.Faker("numerify", text="########")
-    contacto = factory.Faker("random_int", min=3000000000, max=3999999999)
-    correo = factory.Faker("email")
-    password = factory.LazyFunction(lambda: "P12345678*")
-    rol = 2
+class IniciarSesionTest(TestCase):
+    def test_sesion_correcta_usuario_rol_2(self):
+        response = self.client.post(reverse("login"), {
+            "correo": "ronaldoo@gmail.com",
+            "password": "Ronaldo1234*"
+        })
+        self.assertRedirects(response, reverse("index"))  # Ajusta si tu vista redirige a index
 
-class ProductoFactory(DjangoModelFactory):
-    class Meta:
-        model = Producto
+    def test_sesion_correcta_usuario_rol_1(self):
+        response = self.client.post(reverse("login"), {
+            "correo": "georgina@hotmail.com",
+            "password": "Georgina1234*"
+        })
+        self.assertRedirects(response, reverse("index"))  # Ajusta si tu vista redirige a index
 
-    nombre = factory.Faker("word")
-    descripcion = factory.Faker("sentence")
-    stock = factory.Faker("random_int", min=1, max=100)
-    vendedor = factory.SubFactory(UsuarioFactory)
-    categoria = 2
-    color = 3
-    en_oferta = True
-    precio_original = Decimal("100.00")
-    descuento = Decimal("10.00")
+    def test_usuario_no_existe(self):
+        response = self.client.post(reverse("login"), {
+            "correo": "noexiste@example.com",
+            "password": "algo"
+        })
+        self.assertRedirects(response, reverse("login"))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn("Usuario o contraseña incorrectos...", [m.message for m in messages])
 
-class DireccionFactory(DjangoModelFactory):
-    class Meta:
-        model = Direccion
+    def test_contraseña_incorrecta(self):
+        response = self.client.post(reverse("login"), {
+            "correo": "ronaldoo@gmail.com",
+            "password": "incorrecta"
+        })
+        self.assertRedirects(response, reverse("login"))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn("Usuario o contraseña incorrectos...", [m.message for m in messages])
 
-    usuario = factory.SubFactory(UsuarioFactory)
-    direccion = factory.Faker("street_address")
-    ciudad = factory.Faker("city")
-    estado = factory.Faker("state")
-    codigo_postal = factory.Faker("postcode")
-    pais = "Colombia"
-    principal = False
+    def test_get_con_sesion(self):
+        session = self.client.session
+        session["usuario_id"] = self.usuario_normal.id
+        session.save()
+        response = self.client.get(reverse("login"))
+        self.assertEqual(response.status_code, 200)  # O ajusta según el comportamiento real
 
-class OrdenFactory(DjangoModelFactory):
-    class Meta:
-        model = Orden
-
-    usuario = factory.SubFactory(UsuarioFactory)
-    direccion = factory.SubFactory(DireccionFactory)
-    total = Decimal("150.00")
-
-class OrdenItemFactory(DjangoModelFactory):
-    class Meta:
-        model = OrdenItem
-
-    orden = factory.SubFactory(OrdenFactory)
-    producto = factory.SubFactory(ProductoFactory)
-    cantidad = 2
-    precio_unitario = Decimal("90.00")
-
-class UsuarioModelTest(TestCase):
-    def test_usuario_str(self):
-        usuario = UsuarioFactory(nombre_apellido="Juan Perez", rol=2)
-        self.assertIn("Juan Perez", str(usuario))
+    def test_get_sin_sesion(self):
+        response = self.client.get(reverse("login"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "login.html")

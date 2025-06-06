@@ -67,6 +67,9 @@ urlpatterns = [
             path('solicitar_vendedor/', views.solicitar_vendedor, name='solicitar_vendedor'),
         # ...existing code...
             
+        path("correos1/", views.correos1, name="correos1"),
+        path("correos2/", views.correos2, name="correos2"),
+        path("correos3/", views.correos3, name="correos3"),
 
     
 ]
