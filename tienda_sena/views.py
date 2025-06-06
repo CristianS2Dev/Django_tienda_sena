@@ -20,6 +20,8 @@ from django.core.mail import send_mail
 import random
 
 
+
+
 # Create your views here.
 def index(request):
     """Vista principal de la tienda."""
@@ -1346,3 +1348,79 @@ def buscar_productos(request):
     }
     return render(request, 'productos/listar_productos.html', contexto)
 
+
+# ---------------------------------------------
+# Envío de correos electrónicos
+# ---------------------------------------------
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponse
+
+def correos1(request):
+    try:
+        send_mail(
+            "Tienda SENA - Pruebas",
+            "Mensaje de prueba....... <strong>desde</strong> Django",
+            settings.EMAIL_HOST_USER,       # correo de la aplicación settings.py
+            ["j.juancamilojurado@gmail.com"],    # correo destino
+            fail_silently=False,
+        )
+        return HttpResponse(f"Correo enviado!!")
+    except Exception as e:
+        return HttpResponse(f"Error: {e}")
+    
+
+
+
+def correos2(request):
+    try:
+        html_message = """
+            Hola mundo <strong style='color:red;'>Django</strong> desde mi app...
+            <br>
+            Bienvenido!!
+        """
+        send_mail(
+            "Spa SENA - Pruebas con HTML",
+            "",     # mensaje anterior vacío
+            settings.EMAIL_HOST_USER,         # correo de la aplicación settings.py
+            ["j.juancamilojurado@gmail.com"],    # correo destino
+            fail_silently=False,
+            html_message=html_message
+        )
+
+        return HttpResponse("Correo enviado!!")
+    except Exception as e:
+        return HttpResponse(f"Error: {e}")
+    
+
+
+
+def correos3(request):
+    import os
+    # envío de correo con .zip adjunto
+    
+    subject = "Tienda SENA - Backup"
+    body = "Archivo adjunto de la aplicación - Ejemplo"
+    to_emails = ['j.juancamilojurado@gmail.com']
+    archivo_adjunto = '/home/tarde/Documentos/Django_tienda_sena/db.sqlite3.zip' 
+
+    # Ejemplo de un archivo adjunto (podrías leerlo de un archivo real)
+    file_path = archivo_adjunto
+    if os.path.exists(archivo_adjunto):
+        with open(file_path, 'rb') as f:
+            file_content = f.read()
+        attachments = [('db.sqlite3.zip', file_content, 'application/zip')]
+    else:
+        attachments = None
+
+    if send_email_with_attachment(subject, body, to_emails, attachments, settings.EMAIL_HOST_USER):
+        print("Correo electrónico enviado con éxito.")
+        return HttpResponse("Correo electrónico enviado con éxito.")
+    else:
+        print("Error al enviar el correo electrónico.")
+        return HttpResponse("Error al enviar el correo electrónico.")
+
+# ---------------------------------------------
+# FIN Envío de correos electrónicos
+# ---------------------------------------------
