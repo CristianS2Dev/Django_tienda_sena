@@ -311,3 +311,29 @@ class Notificacion(models.Model):
     mensaje = models.CharField(max_length=255)
     leida = models.BooleanField(default=False)
     fecha = models.DateTimeField(auto_now_add=True)
+
+
+class CalificacionProducto(models.Model):
+    """
+    Modelo para guardar calificaciones y comentarios de productos comprados por usuarios.
+
+    Campos:
+        usuario (ForeignKey): Usuario que califica.
+        producto (ForeignKey): Producto calificado.
+        orden_item (ForeignKey): Relación con el ítem de la orden (opcional, para validar compra).
+        calificacion (IntegerField): Valor de la calificación (1 a 5).
+        comentario (TextField): Comentario del usuario.
+        fecha (DateTimeField): Fecha de la calificación.
+    """
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    orden_item = models.ForeignKey('OrdenItem', on_delete=models.CASCADE, null=True, blank=True)
+    calificacion = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    comentario = models.TextField(blank=True)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('usuario', 'producto', 'orden_item')  # Un usuario solo puede calificar una vez por compra
+
+    def __str__(self):
+        return f"{self.usuario.nombre_apellido} - {self.producto.nombre} ({self.calificacion} estrellas)"
