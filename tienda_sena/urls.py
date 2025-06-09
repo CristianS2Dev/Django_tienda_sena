@@ -33,7 +33,7 @@ urlpatterns = [
             #Crud Productos
             path('productos_admnin', views.productos_admnin, name='productos_admnin'),
             path('producto/admin/<int:id_producto>/', views.detalle_producto_admin, name='detalle_producto_admin'),
-
+            path('historial_compras_usuario/', views.historial_compras_usuario, name='historial_compras_usuario'),
             path('buscar/', views.buscar_productos, name='buscar_productos'),
 
             # vistas de carrito
