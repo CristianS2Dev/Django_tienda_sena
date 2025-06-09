@@ -18,6 +18,16 @@
 
 ---
 
+## [v1.30.29-alpha.1] - 09-05-2025
+
+
+### Changed
+
+- Se crea el modelo de Calificaciones
+- Se crea la vista de Calificaciones
+
+---
+
 ## [v1.29.29-alpha.1] - 19-05-2025
 
 

@@ -715,6 +715,8 @@ def lista_productos(request, id_categoria=None):
     return render(request, 'productos/listar_productos.html', contexto)
 
 
+
+
 def productos_vendedor(request, id_vendedor):
     """Vista para mostrar los productos de un vendedor específico."""
     productos = Producto.objects.filter(vendedor_id=id_vendedor)
@@ -914,6 +916,34 @@ def eliminar_producto(request, id_producto):
     except Exception as e:
         messages.error(request, f"Error {e}")
     return redirect("lista_productos")
+
+def historial_compras_usuario(request,):
+    """Vista para mostrar el historial de compras del usuario autenticado."""
+    if not request.session.get("pista"):
+        messages.error(request, "Debes iniciar sesión para ver tu historial de compras.")
+        return redirect("login")
+
+    usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
+    ordenes = Orden.objects.filter(usuario=usuario).order_by('-creado_en')
+    producto = Producto.objects.all()
+    breadcrumbs = [
+        ("Inicio", reverse("index")),
+        ("Mi cuenta", reverse("perfil_usuario")),
+        ("Historial de Compras", None),
+    ]
+
+
+    contexto = {
+        'usuario': usuario,
+        'ordenes': ordenes,
+        'breadcrumbs': breadcrumbs,
+        'producto': producto,
+    }
+
+    return render(request, 'usuarios/historial_compras_usuario.html', contexto )
+
+
+
 
 
 # -----------------------------------------------------
