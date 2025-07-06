@@ -16,20 +16,107 @@
 
 ### CHANGELOG
 ---
+## [v1.34.32-alpha.1] - 06-07-2025
+
+### Added
+- **Autenticación Social con Django Allauth**:
+  - Integración completa de django-allauth para autenticación con Google
+  - Botón de "Continuar con Google" en la página de login con diseño mejorado
+  - Configuración automática de OAuth2 para Google
+  - Archivo `signals.py` para manejar el login de usuarios y creación de cuentas sociales
+  - Script de configuración automatizada `setup_google_auth.bat` para instalación fácil
+  - Archivos `.env` y `.env.example` para configuración de credenciales OAuth2
+- **Mejoras en la Página de Inicio**:
+  - Categorías dinámicas en `index.html` que muestran productos reales
+  - Enlaces directos a productos por categoría desde la página principal
+  - Contador de productos por categoría actualizado dinámicamente
+
+### Changed
+- **Configuración de Django**:
+  - Actualizado `settings.py` con configuraciones completas de allauth
+  - Agregados backends de autenticación para múltiples métodos de login
+  - Configurado SITE_ID y middleware requeridos por allauth
+  - Actualizada configuración de templates para incluir context processors de allauth
+- **URLs y Enrutamiento**:
+  - Modificado `urls.py` para incluir rutas de allauth (`/accounts/`)
+  - Integradas URLs de autenticación social en el sistema de enrutamiento
+- **Templates y UI**:
+  - Mejorado `login.html` con botón de Google y estilos actualizados
+  - Añadidos iconos de Bootstrap para mejor experiencia visual
+  - Integradas las etiquetas de socialaccount en los templates
+
+### Fixed
+- **Flujo de Autenticación Mejorado**:
+  - Corregido el flujo de login para soportar múltiples métodos de autenticación
+  - Mejorado el manejo de errores en el proceso de login social
+  - Optimizada la experiencia de usuario en el proceso de registro/login
+
+### Security
+- **OAuth2 y Seguridad**:
+  - Implementada autenticación OAuth2 con Google siguiendo mejores prácticas
+  - Configuración segura de variables de entorno para credenciales
+  - Validaciones adicionales para cuentas de redes sociales
+
+### Performance
+- **Carga Dinámica de Contenido**:
+  - Optimizada la carga de categorías en la página principal
+  - Mejorado el rendimiento de consultas para mostrar productos por categoría
+
+### Note
+- **Configuración Requerida**: Se debe configurar `GOOGLE_OAUTH2_CLIENT_ID` y `GOOGLE_OAUTH2_CLIENT_SECRET` en el archivo `.env`
+- **Script de Instalación**: Usar `setup_google_auth.bat` para configuración automática del entorno
+- **Dependencias**: Se requiere instalar django-allauth según `requirements.txt`
+
+---
 ## [v1.33.31-alpha.1] - 06-07-2025
 
 ### Added
-
-- Se introduce el campo 'activo' al modelo Usuario para rastrear el estado de activación de los usuarios
-- Se implementa sistema de filtrado para usuarios activos y deshabilitados en el panel de administración
-- Se mejora la interfaz de usuario con sistema de reseñas y calificaciones en la página de detalle del producto
-- Se actualiza JavaScript para la funcionalidad de calificación por estrellas
-- Se añade migración para el nuevo campo 'activo' en la base de datos
+- **Autenticación Social con Google OAuth2**:
+  - Integración completa de django-allauth para autenticación social
+  - Botón de "Continuar con Google" en la página de login
+  - Configuración automática de cuentas de usuario desde Google
+  - Manejo de señales para usuarios de redes sociales
+- **Campo de Estado de Usuario**:
+  - Nuevo campo `activo` en el modelo Usuario para control de cuentas
+  - Migración 0020 para agregar el campo activo
+- **Mejoras en la Página de Inicio**:
+  - Categorías dinámicas que muestran cantidad real de productos
+  - Enlaces directos a productos por categoría
+  - Interfaz mejorada para explorar categorías
+- **Configuración de Entorno**:
+  - Archivos .env y .env.example para variables de entorno
+  - Script automatizado de configuración (setup_google_auth.bat)
+  - Configuración de zona horaria a América/Bogotá
 
 ### Changed
+- **Configuración de Django**:
+  - Actualizada configuración de INSTALLED_APPS para incluir allauth
+  - Configurados authentication backends para múltiples métodos de login
+  - Mejorada configuración de templates y middleware
+  - Actualizada configuración de idioma a español
+- **URLs y Routing**:
+  - Agregadas rutas de allauth para autenticación social
+  - Configurado manejo de archivos media en desarrollo
+- **Templates y UI**:
+  - Mejorado diseño del login con botón de Google
+  - Actualizados estilos CSS y JavaScript
+  - Mejoras en responsive design y usabilidad
 
-- Se mejora la gestión de usuarios con la funcionalidad de activación/desactivación
-- Se actualiza el panel de administración para incluir filtros por estado de usuario
+### Fixed
+- **Merge Conflicts Resueltos**:
+  - Combinados cambios de autenticación social con mejoras de UI
+  - Resueltos conflictos en base de datos manteniendo datos locales
+  - Solucionados conflictos de dependencias en migraciones
+
+### Security
+- **Autenticación Mejorada**:
+  - Implementado OAuth2 con Google para mayor seguridad
+  - Configuración PKCE habilitada para mayor protección
+  - Validaciones adicionales para cuentas de redes sociales
+
+### Note
+- **Configuración Requerida**: Es necesario configurar las credenciales de Google OAuth2 en el archivo .env
+- **Migraciones**: Se requiere ejecutar `python manage.py migrate` para aplicar la nueva migración de usuario activo
 
 ---
 
