@@ -270,6 +270,7 @@ def actualizar_perfil(request):
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
+        documento = request.POST.get("documento")
         contacto = request.POST.get("contacto")
         imagen_perfil = request.FILES.get("imagen_perfil")
         try:
@@ -288,7 +289,7 @@ def actualizar_perfil(request):
                 
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
-            
+            usuario.documento = documento
             usuario.save()
             messages.success(request, "Perfil actualizado correctamente!")
         except ValidationError as ve:
