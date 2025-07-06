@@ -269,6 +269,7 @@ def actualizar_perfil(request):
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])  # Obtener el usuario autenticado
     if request.method == "POST":
         nombre_apellido = request.POST.get("nombre")
+        documento = request.POST.get("documento")
         contacto = request.POST.get("contacto")
         imagen_perfil = request.FILES.get("imagen_perfil")
         try:
@@ -279,7 +280,7 @@ def actualizar_perfil(request):
                 
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
-            
+            usuario.documento = documento
             usuario.save()
             messages.success(request, "Perfil actualizado correctamente!")
         except ValidationError as ve:
@@ -755,12 +756,21 @@ def agregar_producto(request):
         imagenes = request.FILES.getlist("imagenes")
 
         try:
-            if precio_original < 0:
+            # Convertir a números para validación
+            precio_original_num = float(precio_original) if precio_original else 0
+            descuento_num = float(descuento) if descuento else 0
+            stock_num = int(stock) if stock else 0
+
+            # Validaciones
+            if precio_original_num < 0:
                 messages.error(request, "El precio original no puede ser negativo.")
-            if descuento < 0 or descuento > 100:
-                 messages.error(request,"El descuento debe estar entre 0 y 100.")
-            if stock < 0:
-                 messages.error(request,"El stock no puede ser negativo.")
+                return redirect("agregar_producto")
+            if descuento_num < 0 or descuento_num > 100:
+                messages.error(request, "El descuento debe estar entre 0 y 100.")
+                return redirect("agregar_producto")
+            if stock_num < 0:
+                messages.error(request, "El stock no puede ser negativo.")
+                return redirect("agregar_producto")
 
             if len(imagenes) > 5:
                 messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")

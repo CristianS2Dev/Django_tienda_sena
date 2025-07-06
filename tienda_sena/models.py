@@ -32,6 +32,7 @@ class Usuario(models.Model):
     )
     rol = models.IntegerField(choices=ROLES, default=2)
     imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)
+    codigo_verificacion = models.IntegerField(null=True, blank=True)
     
     def save(self, *args, **kwargs):
         """Sobrescribe el método save para encriptar la contraseña antes de guardar."""
