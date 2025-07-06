@@ -1,6 +1,7 @@
 from django.conf.urls.static import static
 from django.urls import path
 from . import views 
+from . import views_imagenes
 from django.conf import settings
 
 
@@ -70,6 +71,13 @@ urlpatterns = [
         path("correos1/", views.correos1, name="correos1"),
         path("correos2/", views.correos2, name="correos2"),
         path("correos3/", views.correos3, name="correos3"),
+
+        # Gestión avanzada de imágenes
+        path('productos/<int:id_producto>/imagenes/', views_imagenes.gestionar_imagenes_producto, name='gestionar_imagenes_producto'),
+        path('productos/imagen/<int:id_imagen>/principal/', views_imagenes.establecer_imagen_principal, name='establecer_imagen_principal'),
+        path('productos/imagen/<int:id_imagen>/eliminar/', views_imagenes.eliminar_imagen_producto, name='eliminar_imagen_producto'),
+        path('productos/imagenes/reordenar/', views_imagenes.reordenar_imagenes, name='reordenar_imagenes'),
+        path('admin/estadisticas-imagenes/', views_imagenes.estadisticas_imagenes, name='estadisticas_imagenes'),
 
     
 ]
