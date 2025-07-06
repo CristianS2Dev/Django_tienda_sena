@@ -181,49 +181,44 @@
             <div class="d-flex flex-column ">
                 <h5><a href="#">Instagram</a></h5>
                 <h5><a href="#">Facebook</a></h5>
-                <h5><a href="#">Linkedin</a></h5>
-                
-                
+                <h5><a href="#">Linkedin</a></h5>      
             </div>
         </div>
     </div>
-
 </section>
 <section>
     <div class="section mg-2 mt-5 mb-5 sect6 "> 
         <div class="text-center">
             <h1>Explora Nuestras Categorias</h1>
-            <h3><a class="text-decoration-none pt-3" href="#">VER TODOS LOS SERVICIOS</a></h3>
+            <h3><a class="text-decoration-none pt-3" href="{% url 'lista_productos' %}">VER TODOS LOS PRODUCTOS</a></h3>
         </div>
         <div class="card-group container gap-4">
+            {% for categoria in categorias_index %}
             <div class="card">
-                <img src="{% static 'assets/innovacion.jpg' %}" class="card-img-top" alt="...">
+                {% if categoria.nombre == "Moda" %}
+                    <img src="{% static 'assets/moda.jpg' %}" class="card-img-top" alt="...">
+                {% elif categoria.nombre == "Tecnologia" %}
+                    <img src="{% static 'assets/tecnologia.jpg' %}" class="card-img-top" alt="...">
+                {% elif categoria.nombre == "Artesania" %}
+                    <img src="{% static 'assets/arte_diseño.jpg' %}" class="card-img-top" alt="...">
+                {% elif categoria.nombre == "Accesorios" %}
+                    <img src="{% static 'assets/innovacion.jpg' %}" class="card-img-top" alt="...">
+                {% elif categoria.nombre == "Servicios" %}
+                    <img src="{% static 'assets/innovacion.jpg' %}" class="card-img-top" alt="...">
+                {% else %}
+                    <img src="{% static 'assets/innovacion.jpg' %}" class="card-img-top" alt="...">
+                {% endif %}
                 <div class="card-body">
-                  <h5 class="card-title">Innovación</h5>
-                  <p class="card-text">50 Proyectos</p>
+                  <h5 class="card-title">{{ categoria.nombre }}</h5>
+                  <p class="card-text">{{ categoria.count }} Producto{{ categoria.count|pluralize }}</p>
+                  <a href="{% url 'productos_por_categoria' categoria.id %}" class="btn btn-primary">Ver Productos</a>
                 </div>
             </div>
-            <div class="card">
-                <img src="{% static 'assets/arte_diseño.jpg' %}" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Arte y Diseño</h5>
-                  <p class="card-text">30 Proyectos</p>
-                </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No hay categorías con productos disponibles.</p>
             </div>
-            <div class="card">
-                <img src="{% static 'assets/tecnologia.jpg' %}" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Tecnologia</h5>
-                  <p class="card-text">50 Proyectos</p>
-                </div>
-            </div>
-            <div class="card">
-                <img src="{% static 'assets/moda.jpg' %}" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Moda</h5>
-                  <p class="card-text">100 Proyectos</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
         
   

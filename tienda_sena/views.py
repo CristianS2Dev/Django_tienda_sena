@@ -31,9 +31,23 @@ def index(request):
     if request.session.get("pista",{}).get("rol") == 1:
         # Si el usuario es administrador, contar las solicitudes pendientes
         pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
+    
+    # Obtener categorías disponibles y contar productos por categoría
+    categorias_con_productos = []
+    for categoria_id, categoria_nombre in Producto.CATEGORIAS:
+        if categoria_id != 0:  # Excluir la categoría vacía
+            count = Producto.objects.filter(categoria=categoria_id).count()
+            if count > 0:  # Solo incluir categorías que tienen productos
+                categorias_con_productos.append({
+                    'id': categoria_id,
+                    'nombre': categoria_nombre,
+                    'count': count
+                })
+    
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
                 "pendientes_solicitudes_vendedor": pendientes,
+                'categorias_index': categorias_con_productos,
     }
     return render(request, 'index.html', contexto)
 
@@ -82,7 +96,7 @@ def logout(request):
         del request.session["pista"]
         return redirect("index")
     except:
-        messages.error(request, "Ocurrio un error")
+        messages.error(request, "Ocurrió un error")
         return redirect("index")
 
 def sobre_nosotros(request):

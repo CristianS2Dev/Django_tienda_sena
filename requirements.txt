@@ -15,6 +15,9 @@ mysql-connector-python>=8.0.0  # MySQL
 # Para emails
 django-email-verification>=0.3.0  # Para verificación de emails
 
+# Para autenticación social (Google, Facebook, etc.)
+django-allauth>=0.57.0
+
 # Utilidades adicionales
 python-decouple>=3.6  # Para variables de entorno
 django-crispy-forms>=2.0  # Para formularios mejorados
