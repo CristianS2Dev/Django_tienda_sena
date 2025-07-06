@@ -16,6 +16,23 @@
 
 ### CHANGELOG
 ---
+## [v1.33.31-alpha.1] - 06-07-2025
+
+### Added
+
+- Se introduce el campo 'activo' al modelo Usuario para rastrear el estado de activación de los usuarios
+- Se implementa sistema de filtrado para usuarios activos y deshabilitados en el panel de administración
+- Se mejora la interfaz de usuario con sistema de reseñas y calificaciones en la página de detalle del producto
+- Se actualiza JavaScript para la funcionalidad de calificación por estrellas
+- Se añade migración para el nuevo campo 'activo' en la base de datos
+
+### Changed
+
+- Se mejora la gestión de usuarios con la funcionalidad de activación/desactivación
+- Se actualiza el panel de administración para incluir filtros por estado de usuario
+
+---
+
 ## [v1.32.30-alpha.1] - 06-07-2025
 
 ### Added
