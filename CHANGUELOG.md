@@ -16,6 +16,56 @@
 
 ### CHANGELOG
 ---
+## [v1.32.30-alpha.1] - 06-07-2025
+
+### Added
+- Se agregan botones de "Agregar Productos" en múltiples ubicaciones para mejorar la experiencia del usuario:
+  - Botón en la lista de productos (`listar_productos.html`) 
+  - Botón en el template base de productos (`_productos.html`)
+  - Botón condicional según el rol del usuario (vendedores y administradores)
+- Se implementa la funcionalidad `mostrar_boton_agregar` en las vistas para controlar la visibilidad de botones
+- Se mejora la gestión de imágenes de productos con nuevas funcionalidades:
+  - Vista `gestionar_imagenes_producto` para administración avanzada de imágenes
+  - Función para establecer imagen principal
+  - Función para eliminar imágenes individuales
+- Se agrega optimización automática de imágenes (conversión a WebP, redimensionamiento, generación de miniaturas)
+- Se implementan validaciones mejoradas para el formulario de productos:
+  - Validación de cantidad máxima de imágenes (5 por producto)
+  - Validación de formato y tamaño de archivos
+  - Validación de precios y descuentos
+- Se añade sistema de breadcrumbs para mejor navegación
+- Se mejora la interfaz del carrito de compras con botones de cantidad y eliminación
+
+### Changed
+
+- Se refactoriza la estructura de templates para mejor organización del código
+- Se mejora el diseño responsive de las tarjetas de productos
+- Se actualiza el panel de administrador con nuevas estadísticas y métricas
+- Se optimiza la carga de imágenes con lazy loading y formatos WebP
+- Se mejora la experiencia de usuario en el proceso de agregar/editar productos
+
+### Fixed
+
+- Se corrigen errores en la validación de formularios de productos
+- Se arreglan problemas de redirección después de agregar/editar productos
+- Se solucionan errores de sintaxis en templates
+- Se corrigen problemas de permisos de usuario para diferentes roles
+- Se arreglan errores en la actualización de perfil de usuario
+- Se solucionan problemas de responsive design en dispositivos móviles
+- Se corrigen errores en la gestión del carrito de compras
+- Se arreglan problemas de optimización de imágenes que causaban errores de memoria
+
+### Security
+
+- Se mejoran las validaciones de entrada para prevenir inyección de código
+- Se añaden decoradores de autenticación y autorización más robustos
+- Se implementa validación de tipos de archivo para imágenes
+
+### Performance
+
+- Se optimiza automáticamente el tamaño de imágenes subidas (conversión a WebP)
+- Se implementa compresión de imágenes para reducir el uso de ancho de banda
+- Se mejora la carga de productos con paginación optimizada
 
 ---
 

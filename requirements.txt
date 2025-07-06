@@ -1,0 +1,21 @@
+# Dependencias principales de Django
+Django>=4.2,<5.0
+Pillow>=10.0.0
+
+# Para procesamiento de imágenes mejorado
+Pillow-SIMD>=10.0.0  # Versión optimizada de Pillow (opcional)
+
+# Para el servidor de desarrollo
+whitenoise>=6.0.0  # Para servir archivos estáticos en producción
+
+# Para bases de datos (opcional)
+psycopg2-binary>=2.9.0  # PostgreSQL
+mysql-connector-python>=8.0.0  # MySQL
+
+# Para emails
+django-email-verification>=0.3.0  # Para verificación de emails
+
+# Utilidades adicionales
+python-decouple>=3.6  # Para variables de entorno
+django-crispy-forms>=2.0  # Para formularios mejorados
+django-humanize>=0.1.2  # Para formateo humano de números
