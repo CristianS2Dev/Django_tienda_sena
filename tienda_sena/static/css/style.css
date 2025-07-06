@@ -155,9 +155,6 @@
   }
 }
 
-
-
-
 /* fin de BUSCADPR */
 
 /* Colores seleccionados */
@@ -170,4 +167,133 @@
   background-color: #007bff; /* Azul */
   color: white;
   border-color: #007bff;
+}
+
+/* Estilos para las reseñas */
+.rating-stars {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.star-rating {
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #dee2e6;
+}
+
+.star-rating:hover {
+    transform: scale(1.1);
+}
+
+.star-rating.fas {
+    color: #ffc107 !important;
+}
+
+.star-rating.far {
+    color: #dee2e6 !important;
+}
+
+.comment-section {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.comment-box {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.comment-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+}
+
+.comment-input {
+    border-radius: 12px;
+    padding: 15px 20px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s;
+    background: #f8f9fa;
+}
+
+.comment-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+    background: white;
+}
+
+.btn-comment {
+    border-radius: 20px;
+    padding: 8px 25px;
+    background: #0d6efd;
+    border: none;
+    transition: all 0.3s;
+}
+
+.btn-comment:hover {
+    background: #0b5ed7;
+    transform: translateY(-1px);
+}
+
+.comment-actions {
+    font-size: 0.9rem;
+    display: flex;
+    gap: 15px;
+}
+
+.comment-actions a {
+    color: #6c757d;
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.comment-actions a:hover {
+    color: #0d6efd;
+}
+
+.comment-time {
+    color: #adb5bd;
+    font-size: 0.85rem;
+}
+
+.reply-section {
+    margin-left: 60px;
+    border-left: 2px solid #e9ecef;
+    padding-left: 20px;
+}
+
+/* Responsive para reseñas */
+@media (max-width: 768px) {
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .comment-box {
+        padding: 15px;
+    }
+    
+    .star-rating {
+        font-size: 1rem;
+    }
 }
