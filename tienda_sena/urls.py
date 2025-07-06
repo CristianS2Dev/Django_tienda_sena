@@ -29,6 +29,7 @@ urlpatterns = [
         path('agregar_usuario', views.agregar_usuario, name="agregar_usuario"),
         path("editar_usuario/<int:id_usuario>/", views.editar_usuario, name="editar_usuario"),
         path("eliminar_usuario/<int:id_usuario>/", views.eliminar_usuario, name="eliminar_usuario"),
+        path("rehabilitar_usuario/<int:id_usuario>/", views.rehabilitar_usuario, name="rehabilitar_usuario"),
         path('perfil_usuario_id/<int:id_usuario>/', views.perfil_usuario_id, name='perfil_usuario_id'),
         path('actualizar_contraseña', views.actualizar_contraseña, name="actualizar_contraseña"),
             #Crud Productos

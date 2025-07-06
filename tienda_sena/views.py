@@ -46,6 +46,12 @@ def login(request):
         password = request.POST.get("password")
         try:
             q = Usuario.objects.get(correo=correo)
+            
+            # Verificar si el usuario está deshabilitado
+            if not q.activo:
+                messages.error(request, "Tu cuenta ha sido deshabilitada. Contacta al administrador.")
+                return redirect("login")
+            
             if check_password(password, q.password):  # Verificar la contraseña
                 # Autenticación: Creamos la variable de sesión
                 request.session["pista"] = {
@@ -1121,13 +1127,24 @@ def panel_admin(request):
 @session_rol_permission(1)
 def usuarios(request):
     """Vista para mostrar la lista de usuarios."""
-    q = Usuario.objects.all()
+    # Obtener parámetro de filtro
+    filtro = request.GET.get('filtro', 'todos')
+    
+    if filtro == 'activos':
+        q = Usuario.objects.filter(activo=True)
+    elif filtro == 'deshabilitados':
+        q = Usuario.objects.filter(activo=False)
+    else:
+        q = Usuario.objects.all()
+    
     breadcrumbs = [
         ("Inicio Admin", reverse("panel_admin")),
         ("Lista de usuarios", None),
     ]
-    contexto = { "data": q,
-                "breadcrumbs": breadcrumbs,
+    contexto = { 
+        "data": q,
+        "breadcrumbs": breadcrumbs,
+        "filtro_actual": filtro,
     }
     return render(request, "administrador/usuarios/listar_usuarios.html", contexto)
 
@@ -1219,22 +1236,46 @@ def editar_usuario(request, id_usuario):
 
 @session_rol_permission(1)
 def eliminar_usuario(request, id_usuario):
-    """Vista para eliminar un usuario."""
+    """Vista para deshabilitar un usuario."""
     try:
-        # respuesta = request.POST.get('confirmar_eliminar_usuario')        
-        q = Usuario.objects.get(pk=id_usuario)  
-        if q.rol != 1:# and respuesta == 'acepto'
-            q.delete()
-            messages.success(request, 'Usuario eliminado Correctamente...')
+        usuario = Usuario.objects.get(pk=id_usuario)  
+        if usuario.rol != 1:  # No se puede deshabilitar un administrador
+            if usuario.activo:
+                usuario.activo = False
+                usuario.save()
+                messages.success(request, f'Usuario {usuario.nombre_apellido} deshabilitado correctamente.')
+            else:
+                messages.warning(request, f'El usuario {usuario.nombre_apellido} ya está deshabilitado.')
         else:
-            messages.error(request,"No puedes eliminar un administrador" )
+            messages.error(request, "No puedes deshabilitar un administrador")
     except Usuario.DoesNotExist:
-        messages.warning(request, "Error: El usuaro no existe")
+        messages.warning(request, "Error: El usuario no existe")
     except Exception as e:
         messages.error(request, f"Error {e}")
 
     return redirect("usuarios")
 
+
+@session_rol_permission(1)
+def rehabilitar_usuario(request, id_usuario):
+    """Vista para rehabilitar (reactivar) un usuario."""
+    try:
+        usuario = Usuario.objects.get(pk=id_usuario)  
+        if usuario.rol != 1:  # No aplica para administradores
+            if not usuario.activo:
+                usuario.activo = True
+                usuario.save()
+                messages.success(request, f'Usuario {usuario.nombre_apellido} rehabilitado correctamente.')
+            else:
+                messages.warning(request, f'El usuario {usuario.nombre_apellido} ya está activo.')
+        else:
+            messages.error(request, "Los administradores no pueden ser rehabilitados")
+    except Usuario.DoesNotExist:
+        messages.warning(request, "Error: El usuario no existe")
+    except Exception as e:
+        messages.error(request, f"Error {e}")
+
+    return redirect("usuarios")
 
 @session_rol_permission(1)
 def solicitudes_vendedor(request):

@@ -19,6 +19,7 @@ class Usuario(models.Model):
         password (CharField): Contraseña encriptada.
         rol (IntegerField): Rol del usuario (Administrador, Cliente, Vendedor).
         imagen_perfil (ImageField): Imagen de perfil del usuario.
+        activo (BooleanField): Indica si el usuario está activo o deshabilitado.
     """
     nombre_apellido = models.CharField(max_length=150)
     documento = models.CharField(max_length=20, default="000000")
@@ -31,6 +32,7 @@ class Usuario(models.Model):
         (3, "Vendedor"),
     )
     rol = models.IntegerField(choices=ROLES, default=2)
+    activo = models.BooleanField(default=True, help_text="Indica si el usuario está activo")
     imagen_perfil = models.ImageField(upload_to='usuarios/perfiles/', null=True, blank=True, help_text="Imagen de perfil optimizada")
     imagen_perfil_original = models.ImageField(upload_to='usuarios/originales/', null=True, blank=True, help_text="Imagen de perfil original")
     codigo_verificacion = models.IntegerField(null=True, blank=True)
