@@ -15,6 +15,20 @@
 ---
 
 ### CHANGELOG
+---
+
+---
+
+## [v1.31.30-alpha.1] - 06-07-2025
+
+### Added
+
+- Se agregan botones para agregar productos
+
+### Fixed
+
+- Se arreglan errores de productos
+- Se arreglan errores de actualizar perfil
 
 ---
 
