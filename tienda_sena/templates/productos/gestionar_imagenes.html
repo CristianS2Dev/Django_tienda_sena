@@ -1,0 +1,322 @@
+{% extends 'bases/base.html' %}
+{% load static humanize custom_filters breadcrumbs %}
+
+{% block titulo %}Gestionar Imágenes - {{ producto.nombre }}{% endblock %}
+
+{% block main %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-images"></i> 
+                Gestionar Imágenes: {{ producto.nombre }}
+            </h2>
+            
+            <!-- Información del producto -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            {% if producto.imagenes.all %}
+                                <img src="{{ producto.imagenes.all.0.imagen.url }}" 
+                                     class="img-fluid rounded" alt="{{ producto.nombre }}">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="height: 100px;">
+                                    <i class="bi bi-image text-muted fs-1"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-10">
+                            <h5>{{ producto.nombre }}</h5>
+                            <p class="text-muted mb-2">{{ producto.descripcion|truncatewords:20 }}</p>
+                            <p class="mb-1">
+                                <strong>Total de imágenes:</strong> {{ imagenes|length }}
+                                {% if imagenes|length == 0 %}
+                                    <span class="badge bg-warning">Sin imágenes</span>
+                                {% elif imagenes|length < 3 %}
+                                    <span class="badge bg-info">Pocas imágenes</span>
+                                {% else %}
+                                    <span class="badge bg-success">Bien</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de imágenes -->
+            {% if imagenes %}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-grid-3x3-gap"></i> 
+                        Imágenes del Producto
+                    </h5>
+                    <small class="text-muted">Arrastra para reordenar</small>
+                </div>
+                <div class="card-body">
+                    <div id="imagenes-container" class="row g-3">
+                        {% for imagen in imagenes %}
+                        <div class="col-lg-3 col-md-4 col-sm-6" data-imagen-id="{{ imagen.id }}">
+                            <div class="card imagen-card h-100">
+                                <div class="position-relative">
+                                    <!-- Imagen -->
+                                    <img src="{{ imagen.imagen.url }}" 
+                                         class="card-img-top" 
+                                         style="height: 200px; object-fit: cover;" 
+                                         alt="Imagen {{ forloop.counter }}">
+                                    
+                                    <!-- Badge principal -->
+                                    {% if imagen.es_principal %}
+                                    <span class="position-absolute top-0 start-0 badge bg-primary m-2">
+                                        <i class="bi bi-star-fill"></i> Principal
+                                    </span>
+                                    {% endif %}
+                                    
+                                    <!-- Orden -->
+                                    <span class="position-absolute top-0 end-0 badge bg-dark m-2">
+                                        #{{ imagen.orden|add:1 }}
+                                    </span>
+                                    
+                                    <!-- Handle para arrastrar -->
+                                    <div class="position-absolute bottom-0 end-0 bg-primary text-white p-2 m-2 rounded cursor-move drag-handle">
+                                        <i class="bi bi-arrows-move"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-body p-2">
+                                    <!-- Información de la imagen -->
+                                    <div class="row g-1 mb-2">
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Optimizada:</small>
+                                            <small>{{ imagen.imagen.size|filesizeformat }}</small>
+                                        </div>
+                                        {% if imagen.imagen_original %}
+                                        <div class="col-6">
+                                            <small class="text-muted d-block">Original:</small>
+                                            <small>{{ imagen.imagen_original.size|filesizeformat }}</small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Acciones -->
+                                    <div class="btn-group w-100" role="group">
+                                        {% if not imagen.es_principal %}
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-primary btn-principal" 
+                                                data-imagen-id="{{ imagen.id }}"
+                                                title="Establecer como principal">
+                                            <i class="bi bi-star"></i>
+                                        </button>
+                                        {% endif %}
+                                        
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-info" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modal-imagen-{{ imagen.id }}"
+                                                title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        
+                                        {% if imagenes|length > 1 %}
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger btn-eliminar" 
+                                                data-imagen-id="{{ imagen.id }}"
+                                                title="Eliminar imagen">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal para detalles de imagen -->
+                        <div class="modal fade" id="modal-imagen-{{ imagen.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Detalles de Imagen #{{ forloop.counter }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <img src="{{ imagen.imagen.url }}" class="img-fluid rounded" alt="Imagen">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Información:</h6>
+                                                <ul class="list-unstyled">
+                                                    <li><strong>Orden:</strong> {{ imagen.orden|add:1 }}</li>
+                                                    <li><strong>Principal:</strong> 
+                                                        {% if imagen.es_principal %}
+                                                            <span class="badge bg-success">Sí</span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">No</span>
+                                                        {% endif %}
+                                                    </li>
+                                                    <li><strong>Tamaño optimizado:</strong> {{ imagen.imagen.size|filesizeformat }}</li>
+                                                    {% if imagen.imagen_original %}
+                                                    <li><strong>Tamaño original:</strong> {{ imagen.imagen_original.size|filesizeformat }}</li>
+                                                    <li><strong>Ahorro:</strong> 
+                                                        {% with ahorro=imagen.imagen_original.size|sub:imagen.imagen.size %}
+                                                        {% with porcentaje=ahorro|mul:100|div:imagen.imagen_original.size %}
+                                                        {{ porcentaje|floatformat:1 }}% ({{ ahorro|filesizeformat }})
+                                                        {% endwith %}
+                                                        {% endwith %}
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                                
+                                                {% if imagen.miniatura %}
+                                                <h6 class="mt-3">Miniatura:</h6>
+                                                <img src="{{ imagen.miniatura.url }}" class="img-thumbnail" style="max-width: 150px;" alt="Miniatura">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-images text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Sin imágenes</h4>
+                    <p class="text-muted">Este producto no tiene imágenes. Agrega algunas para mejorar su presentación.</p>
+                    <a href="{% url 'editar_producto' producto.id %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Agregar Imágenes
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Botones de acción -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <a href="{% url 'editar_producto' producto.id %}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Agregar Más Imágenes
+                    </a>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver a Productos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.imagen-card {
+    transition: transform 0.2s;
+    cursor: default;
+}
+
+.imagen-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.drag-handle {
+    cursor: move;
+}
+
+#imagenes-container .sortable-ghost {
+    opacity: 0.5;
+}
+
+#imagenes-container .sortable-chosen {
+    transform: rotate(5deg);
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar sortable para reordenar imágenes
+    const container = document.getElementById('imagenes-container');
+    if (container) {
+        new Sortable(container, {
+            animation: 200,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function(evt) {
+                // Obtener nuevo orden
+                const orden = Array.from(container.children).map(item => 
+                    item.getAttribute('data-imagen-id')
+                );
+                
+                // Enviar al servidor
+                fetch('{% url "reordenar_imagenes" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({orden: orden})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Error al reordenar: ' + data.error);
+                        location.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    // Establecer imagen principal
+    document.querySelectorAll('.btn-principal').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const imagenId = this.getAttribute('data-imagen-id');
+            
+            fetch(`/productos/imagen/${imagenId}/principal/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            });
+        });
+    });
+
+    // Eliminar imagen
+    document.querySelectorAll('.btn-eliminar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
+                const imagenId = this.getAttribute('data-imagen-id');
+                
+                fetch(`/productos/imagen/${imagenId}/eliminar/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

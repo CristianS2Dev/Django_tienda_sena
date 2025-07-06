@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from decimal import Decimal
 from .models import *
 from .utils import *
+from .image_utils import optimizar_imagen, crear_miniatura, validar_imagen_mejorada, obtener_info_imagen
 import re
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -14,7 +15,7 @@ from .utils import session_rol_permission
 from django.db.models import F
 from django.contrib import messages
 from django.db import IntegrityError
-from django.db import transaction
+from django.db import models, transaction
 from django.urls import reverse
 from django.core.mail import send_mail
 import random
@@ -273,9 +274,17 @@ def actualizar_perfil(request):
         imagen_perfil = request.FILES.get("imagen_perfil")
         try:
             if imagen_perfil:
-                validar_archivo(imagen_perfil)
-                validar_tamano_archivo(imagen_perfil)
-                usuario.imagen_perfil = imagen_perfil 
+                # Procesar imagen de perfil
+                resultado = procesar_imagen_perfil(imagen_perfil)
+                if not resultado['success']:
+                    messages.error(request, f"Error al procesar imagen: {resultado['error']}")
+                    return redirect("actualizar_perfil")
+                
+                # Guardar imagen original y optimizada
+                usuario.imagen_perfil_original = imagen_perfil
+                usuario.imagen_perfil = resultado['imagen_optimizada']
+                
+                messages.info(request, "Imagen de perfil optimizada correctamente.")
                 
             usuario.nombre_apellido = nombre_apellido
             usuario.contacto = contacto
@@ -574,26 +583,105 @@ def eliminar_direccion(request, id):
 # -----------------------------------------------------
 
 def validar_archivo(imagen):
-    """Valida el tipo de archivo permitido."""
-    formatos_permitidos = ["image/jpeg", "image/png", "image/webp"]
-    if imagen.content_type not in formatos_permitidos:
-        raise ValidationError(f"Formato no permitido: {imagen.content_type}. Solo se aceptan JPEG, PNG o WEBP.")
+    """Valida el tipo de archivo permitido usando la nueva validación mejorada."""
+    validar_imagen_mejorada(imagen, max_size_mb=5)
 
 def validar_tamano_archivo(imagen, max_size_mb=5):
-    """Valida el tamaño del archivo subido."""
-    if imagen.size > max_size_mb * 1024 * 1024:
-        raise ValidationError(f"El archivo excede el tamaño máximo permitido de {max_size_mb} MB.")
+    """Función mantenida por compatibilidad - ahora usa validar_imagen_mejorada."""
+    validar_imagen_mejorada(imagen, max_size_mb=max_size_mb)
+
+
+def procesar_imagen_producto(imagen):
+    """
+    Procesa una imagen de producto creando versión optimizada y miniatura.
+    
+    Args:
+        imagen: Archivo de imagen subido
+    
+    Returns:
+        dict: Contiene imagen optimizada, miniatura e información
+    """
+    try:
+        # Validar imagen
+        validar_imagen_mejorada(imagen, max_size_mb=10)
+        
+        # Obtener información
+        info = obtener_info_imagen(imagen)
+        
+        # Crear imagen optimizada
+        imagen_optimizada = optimizar_imagen(
+            imagen, 
+            formato='WebP', 
+            calidad=85, 
+            max_ancho=800, 
+            max_alto=800
+        )
+        
+        # Crear miniatura
+        miniatura = crear_miniatura(imagen, tamaño=(300, 300))
+        
+        return {
+            'imagen_optimizada': imagen_optimizada,
+            'miniatura': miniatura,
+            'info': info,
+            'success': True
+        }
+        
+    except ValidationError as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': f"Error inesperado al procesar imagen: {str(e)}"
+        }
+
+
+def procesar_imagen_perfil(imagen):
+    """
+    Procesa una imagen de perfil del usuario.
+    
+    Args:
+        imagen: Archivo de imagen subido
+    
+    Returns:
+        dict: Contiene imagen optimizada e información
+    """
+    try:
+        # Validar imagen
+        validar_imagen_mejorada(imagen, max_size_mb=5)
+        
+        # Crear imagen optimizada para perfil (cuadrada)
+        imagen_optimizada = optimizar_imagen(
+            imagen, 
+            formato='WebP', 
+            calidad=85, 
+            max_ancho=300, 
+            max_alto=300
+        )
+        
+        return {
+            'imagen_optimizada': imagen_optimizada,
+            'success': True
+        }
+        
+    except ValidationError as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': f"Error inesperado al procesar imagen: {str(e)}"
+        }
 
 
 def validar_imagen(imagen, max_size_mb=5):
-    """Valida el tipo, tamaño y seguridad del archivo."""
-    try:
-        validar_archivo(imagen)
-        validar_tamano_archivo(imagen, max_size_mb)
-    except ValidationError as ve:
-        raise ValidationError(f"Error de validación: {ve}")
-    except Exception as e:
-        raise Exception(f"Error al escanear archivo: {e}")
+    """Función mantenida por compatibilidad - ahora usa validar_imagen_mejorada."""
+    validar_imagen_mejorada(imagen, max_size_mb=max_size_mb)
 
 
 def validar_direccion(direccion, ciudad, estado, codigo_postal, pais):
@@ -755,51 +843,82 @@ def agregar_producto(request):
         imagenes = request.FILES.getlist("imagenes")
 
         try:
-            if precio_original < 0:
+            # Convertir valores a tipos apropiados para validación
+            precio_original_decimal = Decimal(precio_original) if precio_original else Decimal('0')
+            descuento_decimal = Decimal(descuento) if descuento else Decimal('0')
+            stock_int = int(stock) if stock else 0
+            
+            if precio_original_decimal < 0:
                 messages.error(request, "El precio original no puede ser negativo.")
-            if descuento < 0 or descuento > 100:
-                 messages.error(request,"El descuento debe estar entre 0 y 100.")
-            if stock < 0:
-                 messages.error(request,"El stock no puede ser negativo.")
+                return redirect("agregar_producto")
+            if descuento_decimal < 0 or descuento_decimal > 100:
+                messages.error(request,"El descuento debe estar entre 0 y 100.")
+                return redirect("agregar_producto")
+            if stock_int < 0:
+                messages.error(request,"El stock no puede ser negativo.")
+                return redirect("agregar_producto")
 
+            # Validar cantidad de imágenes
+            if len(imagenes) == 0:
+                messages.error(request, "Debes subir al menos una imagen para el producto.")
+                return redirect("agregar_producto")
+            
             if len(imagenes) > 5:
                 messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")
                 return redirect("agregar_producto")
 
-            # Validar y procesar imágenes
-            for imagen in imagenes:
-                try:
-                    validar_archivo(imagen)
-                    validar_tamano_archivo(imagen)
-                except ValidationError as ve:
-                    messages.error(request, f"Error de validación: {ve}")
+            # Procesar y validar imágenes
+            imagenes_procesadas = []
+            for i, imagen in enumerate(imagenes):
+                resultado = procesar_imagen_producto(imagen)
+                if not resultado['success']:
+                    messages.error(request, f"Error en imagen {i+1}: {resultado['error']}")
                     return redirect("agregar_producto")
-                except Exception as e:
-                    messages.error(request, f"Error al escanear archivo: {e}")
-                    return redirect("agregar_producto")
+                imagenes_procesadas.append(resultado)
 
             # Crear el producto
             producto = Producto(
                 nombre=nombre,
                 descripcion=descripcion,
-                precio_original=Decimal(precio_original),
-                descuento=Decimal(descuento),
+                precio_original=precio_original_decimal,
+                descuento=descuento_decimal,
                 en_oferta=en_oferta,
-                stock=stock,
+                stock=stock_int,
                 vendedor_id=vendedor,
-                categoria=int(categoria),
-                color=color,
+                categoria=int(categoria) if categoria else 0,
+                color=int(color) if color else 0,
             )
             producto.full_clean()
             producto.save()
 
-            # Guardar imágenes
-            for imagen in imagenes:
-                ImagenProducto.objects.create(producto=producto, imagen=imagen)
-            messages.success(request, "Producto guardado correctamente!")
+            # Guardar imágenes procesadas
+            for i, resultado in enumerate(imagenes_procesadas):
+                imagen_producto = ImagenProducto(
+                    producto=producto,
+                    imagen_original=imagenes[i],
+                    imagen=resultado['imagen_optimizada'],
+                    miniatura=resultado['miniatura'],
+                    es_principal=(i == 0),  # Primera imagen es principal
+                    orden=i
+                )
+                imagen_producto.save()
+                
+            messages.success(request, f"Producto guardado correctamente con {len(imagenes_procesadas)} imágenes optimizadas!")
+            
+            # Mostrar información de optimización
+            total_original = sum(img.size for img in imagenes) / (1024*1024)
+            total_optimizado = sum(r['imagen_optimizada'].size for r in imagenes_procesadas) / (1024*1024)
+            ahorro = ((total_original - total_optimizado) / total_original * 100) if total_original > 0 else 0
+            
+            messages.info(request, f"Optimización: {total_original:.2f}MB → {total_optimizado:.2f}MB (Ahorro: {ahorro:.1f}%)")
+            return redirect("lista_productos")
+            
+        except ValueError as e:
+            messages.error(request, f"Error en los datos ingresados: {e}")
+            return redirect("agregar_producto")
         except Exception as e:
             messages.error(request, f"Error: {e}")
-        return redirect("lista_productos")
+            return redirect("agregar_producto")
     else:
         user = request.session.get("pista")
         roles = dict(Usuario.ROLES).get(user["rol"], "Desconocido")
@@ -831,33 +950,60 @@ def editar_producto(request, id_producto):
         try:
             # Obtener el producto a editar
             producto = Producto.objects.get(pk=id_producto)
+            
+            # Convertir valores a tipos apropiados
+            precio_original_decimal = Decimal(precio_original) if precio_original else Decimal(0)
+            descuento_decimal = Decimal(descuento) if descuento else Decimal(0)
+            stock_int = int(stock) if stock else 0
+            categoria_int = int(categoria) if categoria else 0
+            color_int = int(color) if color else 0
+            
             # Actualizar los campos del producto
             producto.nombre = nombre
             producto.descripcion = descripcion
-            producto.precio_original = Decimal(precio_original) if precio_original else Decimal(0)
-            producto.descuento = Decimal(descuento) if descuento else Decimal(0)
+            producto.precio_original = precio_original_decimal
+            producto.descuento = descuento_decimal
             producto.en_oferta = en_oferta
-            producto.stock = stock
+            producto.stock = stock_int
             producto.vendedor_id = vendedor
-            producto.categoria = categoria
-            producto.color = color
+            producto.categoria = categoria_int
+            producto.color = color_int
 
-            for imagen in imagenes:
-                try:
-                    validar_archivo(imagen)
-                    validar_tamano_archivo(imagen)
-                except ValidationError as ve:
-                    messages.error(request, f"Error de validación: {ve}")
+            # Procesar nuevas imágenes si las hay
+            if imagenes:
+                if len(imagenes) > 5:
+                    messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")
                     return redirect("editar_producto", id_producto=id_producto)
-                except Exception as e:
-                    messages.error(request, f"Error al escanear archivo: {e}")
-                    return redirect("editar_producto", id_producto=id_producto)
+
+                # Procesar y validar nuevas imágenes
+                imagenes_procesadas = []
+                for i, imagen in enumerate(imagenes):
+                    resultado = procesar_imagen_producto(imagen)
+                    if not resultado['success']:
+                        messages.error(request, f"Error en imagen {i+1}: {resultado['error']}")
+                        return redirect("editar_producto", id_producto=id_producto)
+                    imagenes_procesadas.append(resultado)
+
+                # Obtener el próximo número de orden
+                ultimo_orden = ImagenProducto.objects.filter(producto=producto).aggregate(
+                    max_orden=models.Max('orden'))['max_orden'] or 0
+
+                # Guardar las nuevas imágenes procesadas
+                for i, resultado in enumerate(imagenes_procesadas):
+                    imagen_producto = ImagenProducto(
+                        producto=producto,
+                        imagen_original=imagenes[i],
+                        imagen=resultado['imagen_optimizada'],
+                        miniatura=resultado['miniatura'],
+                        es_principal=False,  # Las nuevas no son principales por defecto
+                        orden=ultimo_orden + i + 1
+                    )
+                    imagen_producto.save()
+                
+                messages.info(request, f"Se agregaron {len(imagenes_procesadas)} imágenes optimizadas.")
 
             producto.full_clean()
             producto.save()
-            # Guardar las nuevas imágenes asociadas al producto
-            for imagen in imagenes:
-                ImagenProducto.objects.create(producto=producto, imagen=imagen)
 
             messages.success(request, "Producto actualizado correctamente!")
             if rol == 1:
@@ -867,10 +1013,13 @@ def editar_producto(request, id_producto):
             
         except Producto.DoesNotExist:
             messages.error(request, "Producto no encontrado")
-            return redirect("lista_productos")  # <-- Añade este return
+            return redirect("lista_productos")
+        except ValueError as e:
+            messages.error(request, f"Error en los datos ingresados: {e}")
+            return redirect("editar_producto", id_producto=id_producto)
         except Exception as e:
             messages.error(request, f"Error: {e}")
-            return redirect("editar_producto", id_producto=id_producto)  # <-- Añade este return
+            return redirect("editar_producto", id_producto=id_producto)
     else:
         producto = Producto.objects.get(pk=id_producto)
         return render(request, "productos/agregar_productos.html", {"dato": producto})

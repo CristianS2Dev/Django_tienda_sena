@@ -60,8 +60,18 @@
                         </select>
                     </div>
                     <div class="form-group mb-3">
-                        <label for="imagenes" class="form-label">Imágenes (máximo 5)</label>
-                        <input class="form-control border p-3" type="file" id="imagenes" name="imagenes"  multiple accept=".jpeg,.jpg,.png,.gif,.webp">
+                        <label for="imagenes" class="form-label">
+                            Imágenes del Producto
+                            <small class="text-muted">(Máximo 5 imágenes, formatos: JPG, PNG, WebP, GIF - Máximo 10MB cada una)</small>
+                        </label>
+                        <input class="form-control border p-3" type="file" id="imagenes" name="imagenes" multiple 
+                               accept=".jpeg,.jpg,.png,.gif,.webp,image/jpeg,image/png,image/webp,image/gif">
+                        <div class="form-text">
+                            <small>💡 <strong>Consejo:</strong> Las imágenes se optimizarán automáticamente para web (formato WebP) reduciendo el tamaño sin perder calidad.</small>
+                        </div>
+                        <div class="form-text">
+                            <small>📐 <strong>Recomendado:</strong> Imágenes cuadradas de al menos 800x800px para mejor visualización.</small>
+                        </div>
                     </div>
                     <div class="form-group mb-2">
                         <label for="vendedor">Vendedor</label>
@@ -73,12 +83,22 @@
                         <input type="text" class="form-control" value="{{ roles }}" readonly>
                         {% endif %}
                     </div>
-                    <div class="d-flex justify-content-end">
-                        {% if dato %}
-                        <button type="submit" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#successModal">Actualizar</button>
-                        {% else %}
-                        <button type="submit" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#successModal">Guardar</button>
-                        {% endif %}
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            {% if dato %}
+                            <a href="{% url 'gestionar_imagenes_producto' dato.id %}" class="btn btn-outline-primary">
+                                <i class="bi bi-images"></i> Gestionar Imágenes
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% if dato %}
+                            <button type="submit" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#successModal">Actualizar</button>
+                            {% else %}
+                            <button type="submit" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#successModal">Guardar</button>
+                            {% endif %}
+                        </div>
+                    </div>
                     </div>
                 </form>
             </div>

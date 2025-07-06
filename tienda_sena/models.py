@@ -31,7 +31,9 @@ class Usuario(models.Model):
         (3, "Vendedor"),
     )
     rol = models.IntegerField(choices=ROLES, default=2)
-    imagen_perfil = models.ImageField(upload_to='usuarios/', null=True, blank=True)
+    imagen_perfil = models.ImageField(upload_to='usuarios/perfiles/', null=True, blank=True, help_text="Imagen de perfil optimizada")
+    imagen_perfil_original = models.ImageField(upload_to='usuarios/originales/', null=True, blank=True, help_text="Imagen de perfil original")
+    
     
     def save(self, *args, **kwargs):
         """Sobrescribe el método save para encriptar la contraseña antes de guardar."""
@@ -187,13 +189,38 @@ class ImagenProducto(models.Model):
 
     Campos:
         producto (ForeignKey): Producto al que pertenece la imagen.
-        imagen (ImageField): Archivo de imagen.
+        imagen (ImageField): Archivo de imagen optimizada.
+        imagen_original (ImageField): Imagen original sin procesar.
+        miniatura (ImageField): Miniatura de la imagen.
+        es_principal (BooleanField): Si es la imagen principal del producto.
+        orden (IntegerField): Orden de visualización de la imagen.
     """
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes')
-    imagen = models.ImageField(upload_to='productos/')
+    imagen = models.ImageField(upload_to='productos/optimizadas/', help_text="Imagen optimizada en WebP")
+    imagen_original = models.ImageField(upload_to='productos/originales/', null=True, blank=True, help_text="Imagen original")
+    miniatura = models.ImageField(upload_to='productos/miniaturas/', null=True, blank=True, help_text="Miniatura 300x300")
+    es_principal = models.BooleanField(default=False, help_text="Imagen principal del producto")
+    orden = models.PositiveIntegerField(default=0, help_text="Orden de visualización")
+    
+    class Meta:
+        ordering = ['orden', 'id']
+    
+    def save(self, *args, **kwargs):
+        # Si es la primera imagen del producto, hacerla principal
+        if not self.producto.imagenes.exists():
+            self.es_principal = True
+        
+        # Si se marca como principal, desmarcar las demás
+        if self.es_principal:
+            ImagenProducto.objects.filter(
+                producto=self.producto, 
+                es_principal=True
+            ).exclude(id=self.id).update(es_principal=False)
+        
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Imagen de {self.producto.nombre}"
+        return f"Imagen de {self.producto.nombre} {'(Principal)' if self.es_principal else ''}"
 
 
 class Carrito(models.Model):
