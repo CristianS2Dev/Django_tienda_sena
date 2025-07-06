@@ -1,0 +1,234 @@
+{% extends 'bases/base.html' %}
+{% load static humanize %}
+
+{% block titulo %}Estadísticas de Imágenes{% endblock %}
+
+{% block main %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-bar-chart"></i> 
+                Estadísticas de Optimización de Imágenes
+            </h2>
+
+            <!-- Resumen general -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-box-seam text-primary fs-1"></i>
+                            <h3 class="mt-2">{{ stats.total_productos }}</h3>
+                            <p class="text-muted mb-0">Total Productos</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-images text-success fs-1"></i>
+                            <h3 class="mt-2">{{ stats.productos_con_imagenes }}</h3>
+                            <p class="text-muted mb-0">Con Imágenes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-collection text-info fs-1"></i>
+                            <h3 class="mt-2">{{ stats.total_imagenes }}</h3>
+                            <p class="text-muted mb-0">Total Imágenes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card text-center h-100">
+                        <div class="card-body">
+                            <i class="bi bi-star-fill text-warning fs-1"></i>
+                            <h3 class="mt-2">{{ stats.imagenes_principales }}</h3>
+                            <p class="text-muted mb-0">Principales</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimización -->
+            {% if stats.tamaño_optimizado_mb and stats.tamaño_original_mb %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-speedometer2"></i> 
+                                Optimización de Imágenes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h4 class="text-danger">{{ stats.tamaño_original_mb }} MB</h4>
+                                        <p class="text-muted">Tamaño Original</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="progress mb-2" style="height: 30px;">
+                                            <div class="progress-bar bg-success" 
+                                                 style="width: {{ stats.ahorro_porcentaje }}%"
+                                                 aria-valuenow="{{ stats.ahorro_porcentaje }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ stats.ahorro_porcentaje }}% ahorro
+                                            </div>
+                                        </div>
+                                        <p class="text-muted">Optimización Lograda</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <h4 class="text-success">{{ stats.tamaño_optimizado_mb }} MB</h4>
+                                        <p class="text-muted">Tamaño Optimizado</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i>
+                                        <strong>Beneficios de la optimización:</strong>
+                                        <ul class="mb-0 mt-2">
+                                            <li>Reducción de {{ stats.ahorro_porcentaje }}% en el tamaño total</li>
+                                            <li>Carga más rápida de la página ({{ stats.tamaño_original_mb|sub:stats.tamaño_optimizado_mb|floatformat:2 }} MB menos por página)</li>
+                                            <li>Mejor experiencia de usuario</li>
+                                            <li>Menor consumo de ancho de banda</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recomendaciones -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightbulb"></i> 
+                                Recomendaciones
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% with productos_sin_imagenes=stats.total_productos|sub:stats.productos_con_imagenes %}
+                            {% if productos_sin_imagenes > 0 %}
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>{{ productos_sin_imagenes }} productos sin imágenes</strong><br>
+                                Los productos sin imágenes tienen menor conversión.
+                            </div>
+                            {% endif %}
+                            {% endwith %}
+                            
+                            <h6>💡 Consejos para optimización:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                    Usar formato WebP (automático)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                    Mantener máximo 5 imágenes por producto
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                    Subir imágenes de al menos 800x800px
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                    Establecer imagen principal atractiva
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-gear"></i> 
+                                Configuración Actual
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>🔧 Configuración de optimización:</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Formato:</strong> WebP automático</li>
+                                <li><strong>Calidad:</strong> 85% (productos), 85% (perfiles)</li>
+                                <li><strong>Tamaño máximo:</strong> 800x800px (productos), 300x300px (perfiles)</li>
+                                <li><strong>Peso máximo:</strong> 10MB (productos), 5MB (perfiles)</li>
+                                <li><strong>Miniaturas:</strong> 300x300px automáticas</li>
+                            </ul>
+                            
+                            <h6 class="mt-3">📁 Estructura de archivos:</h6>
+                            <ul class="list-unstyled">
+                                <li><code>media/productos/optimizadas/</code></li>
+                                <li><code>media/productos/originales/</code></li>
+                                <li><code>media/productos/miniaturas/</code></li>
+                                <li><code>media/usuarios/perfiles/</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <a href="{% url 'panel_admin' %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Volver al Panel
+                    </a>
+                    <button class="btn btn-primary" onclick="location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i> Actualizar Datos
+                    </button>
+                </div>
+            </div>
+
+            {% if stats.error_calculo %}
+            <div class="alert alert-warning mt-3">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Nota:</strong> Error al calcular algunos tamaños: {{ stats.error_calculo }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.progress {
+    border-radius: 15px;
+}
+
+.progress-bar {
+    border-radius: 15px;
+    line-height: 30px;
+    font-weight: bold;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

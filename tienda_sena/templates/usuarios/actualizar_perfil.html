@@ -32,9 +32,14 @@
               </div>
       
               <div class="col-md-6">
-                <div class="form-floating">
-                  <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil">
-                  <label for="imagen_perfil">Imagen de Perfil</label>
+                <label for="imagen_perfil" class="form-label">
+                    Imagen de Perfil
+                    <small class="text-muted">(JPG, PNG, WebP - Máximo 5MB)</small>
+                </label>
+                <input type="file" class="form-control" id="imagen_perfil" name="imagen_perfil" 
+                       accept=".jpeg,.jpg,.png,.webp,image/jpeg,image/png,image/webp">
+                <div class="form-text">
+                    <small>💡 La imagen se optimizará automáticamente a 300x300px en formato WebP.</small>
                 </div>
               </div>
       
