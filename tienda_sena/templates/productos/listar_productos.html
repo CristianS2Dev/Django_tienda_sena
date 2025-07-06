@@ -5,6 +5,10 @@
 
 {% block main %}
 <div class="container-fluid py-5">
+    <div id="notificaciones">
+  {% if messages %}
+      {% for message in messages %} 
+<div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
     <div class="row">
         <!-- Sidebar de filtros -->
         <div class="col-md-3">
@@ -48,6 +52,12 @@
 
         <!-- Grid de productos -->
         <div class="col-md-9">
+            {% if request.session.pista.rol == 2 %}
+                <a class="btn btn-warning" href="{% url 'actualizar_perfil' %}">Quiero Vender</a>
+            {% else %}    
+                <a class="btn btn-success" href="{% url 'agregar_producto' %}">agregar productos</a>
+            {% endif %}
+            
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold">
                     {% if request.GET.nombre %}
@@ -74,6 +84,7 @@
                         No hay productos disponibles que coincidan con los filtros aplicados.
                     </div>
                 {% endif %}
+                <a class="btn btn-success" href="{% url 'agregar_producto' %}">agregar productos</a>
             </div>
             <!-- Paginación -->
             <div class="d-flex justify-content-center mt-4">
