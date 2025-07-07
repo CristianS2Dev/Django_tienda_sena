@@ -6,11 +6,12 @@ from .models import *
 from .utils import *
 from .image_utils import optimizar_imagen, crear_miniatura, validar_imagen_mejorada, obtener_info_imagen
 import re
+import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 from .templatetags.custom_filters import *
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 from .utils import session_rol_permission
 from django.db.models import F
 from django.contrib import messages
@@ -184,6 +185,63 @@ def ajax_enviar_codigo(request):
             return JsonResponse({"ok": True, "msg": "Código enviado al correo."})
         except Usuario.DoesNotExist:
             return JsonResponse({"ok": False, "msg": "El correo no está registrado."})
+    return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
+
+@csrf_exempt
+def ajax_validar_codigo(request):
+    """Valida el código de verificación enviado por el usuario."""
+    if request.method == "POST":
+        data = json.loads(request.body)
+        correo = data.get("correo")
+        codigo = data.get("codigo")
+        
+        if not correo or not codigo:
+            return JsonResponse({"ok": False, "msg": "Correo y código requeridos."})
+        
+        try:
+            usuario = Usuario.objects.get(correo=correo)
+            if usuario.codigo_verificacion == int(codigo):
+                return JsonResponse({"ok": True, "msg": "Código válido."})
+            else:
+                return JsonResponse({"ok": False, "msg": "Código incorrecto."})
+        except Usuario.DoesNotExist:
+            return JsonResponse({"ok": False, "msg": "Usuario no encontrado."})
+        except ValueError:
+            return JsonResponse({"ok": False, "msg": "Código inválido."})
+    return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
+
+@csrf_exempt
+def ajax_restablecer_password(request):
+    """Restablece la contraseña del usuario después de validar el código."""
+    if request.method == "POST":
+        
+        data = json.loads(request.body)
+        correo = data.get("correo")
+        nueva_password = data.get("nueva_password")
+        confirmar_password = data.get("confirmar_password")
+        
+        if not all([correo, nueva_password, confirmar_password]):
+            return JsonResponse({"ok": False, "msg": "Todos los campos son requeridos."})
+        
+        if nueva_password != confirmar_password:
+            return JsonResponse({"ok": False, "msg": "Las contraseñas no coinciden."})
+        
+        # Validar contraseña
+        es_valida, mensaje = validar_contraseña(nueva_password)
+        if not es_valida:
+            return JsonResponse({"ok": False, "msg": mensaje})
+        
+        try:
+            usuario = Usuario.objects.get(correo=correo)
+            # Cambiar la contraseña
+            usuario.password = make_password(nueva_password)
+            # Limpiar el código de verificación
+            usuario.codigo_verificacion = None
+            usuario.save()
+            
+            return JsonResponse({"ok": True, "msg": "Contraseña restablecida exitosamente."})
+        except Usuario.DoesNotExist:
+            return JsonResponse({"ok": False, "msg": "Usuario no encontrado."})
     return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
 
 def registrarse(request):

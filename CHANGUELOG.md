@@ -16,6 +16,61 @@
 
 ### CHANGELOG
 ---
+## [v1.35.33-alpha.1] - 06-07-2025
+
+### Added
+- **Sistema de Recuperación de Contraseña Completo**:
+  - Nueva vista `ajax_validar_codigo` para validar códigos de verificación de 6 dígitos
+  - Nueva vista `ajax_restablecer_password` para cambiar la contraseña después de la validación
+  - Proceso de recuperación de contraseña en 3 pasos: envío de código, validación y restablecimiento
+  - Interfaz de usuario mejorada con indicadores de progreso y formularios paso a paso
+  - Validación en tiempo real de requisitos de contraseña (mayúsculas, minúsculas, números, caracteres especiales)
+  - Funcionalidad de reenvío de código de verificación
+  - Indicadores de carga (spinners) en todos los botones durante las operaciones
+
+### Changed
+- **Template `olvidar_contraseña.html`**:
+  - Actualizado completamente para soportar flujo de 3 pasos
+  - Mejorada la experiencia de usuario con campos de código de verificación individuales
+  - Añadidos toggles para mostrar/ocultar contraseñas
+  - Implementada navegación automática entre campos de código
+  - Mejorados los textos a español y la usabilidad general
+- **Rutas URL**:
+  - Agregadas nuevas rutas: `ajax/validar-codigo/` y `ajax/restablecer-password/`
+  - Configuración completa del flujo de recuperación de contraseña
+- **Estilos CSS**:
+  - Añadidos estilos para campos de verificación con estados visual (llenado, enfoque)
+  - Implementados estilos de carga con animaciones CSS
+  - Mejorada la experiencia visual de los botones con estados de carga
+
+### Fixed
+- **Importaciones y Dependencias**:
+  - Agregada importación de `make_password` desde `django.contrib.auth.hashers`
+  - Corregidas todas las dependencias necesarias para el funcionamiento completo
+- **Validaciones de Seguridad**:
+  - Implementada validación completa de contraseñas utilizando la función existente `validar_contraseña`
+  - Añadida limpieza del código de verificación después del restablecimiento exitoso
+  - Mejorada la seguridad con validaciones tanto en frontend como backend
+
+### Security
+- **Proceso de Verificación**:
+  - Códigos de verificación de 6 dígitos almacenados de forma segura
+  - Validación de códigos en el servidor antes de permitir cambio de contraseña
+  - Limpieza automática de códigos de verificación después del uso
+  - Validación de todos los campos requeridos antes del procesamiento
+
+### Performance
+- **Experiencia de Usuario**:
+  - Interfaz asíncrona con feedback inmediato al usuario
+  - Indicadores de carga para mejorar la percepción de velocidad
+  - Navegación automática entre campos para mayor fluidez
+
+### Note
+- **Funcionalidad Completa**: El sistema de recuperación de contraseña ahora está completamente funcional con validación de código
+- **Mejores Prácticas**: Implementado siguiendo las mejores prácticas de seguridad y UX
+- **Responsive**: La interfaz es completamente responsive y accesible
+
+---
 ## [v1.34.32-alpha.1] - 06-07-2025
 
 ### Added
