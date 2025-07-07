@@ -20,7 +20,7 @@ from django.db import models, transaction
 from django.urls import reverse
 from django.core.mail import send_mail
 import random
-
+import os, time
 
 
 
@@ -1717,3 +1717,42 @@ def correos3(request):
 # ---------------------------------------------
 # FIN Envío de correos electrónicos
 # ---------------------------------------------
+
+
+# Copia de seguridad manual usando la utilidad de envío de correo con adjuntos
+
+def backup(request):
+    # configuración de rutas a comprimir:
+    # file_to_compress = '/home/tarde/Documentos/Django_tienda_sena/db.sqlite3'
+    file_to_compress = os.path.join(settings.BASE_DIR, 'db.sqlite3')
+    # zip_archive_name = '/home/tarde/Documentos/Django_tienda_sena/db.sqlite3.zip'
+    zip_archive_name = os.path.join(settings.BASE_DIR, 'db.sqlite3.zip')
+    compress_file_to_zip(file_to_compress, zip_archive_name)
+    print("...")
+    time.sleep(2)
+    print("Compresión correcta...!")
+    print("...")
+    
+    # envío de correo con .zip adjunto
+
+    subject = "Educalab SENA - Backup"
+    body = "Copia de Seguridad de la Base de Datos del Proyecto Tienda SENA"
+    to_emails = ['j.juancamilojurado@gmail.com']
+
+    # Ejemplo de un archivo adjunto (podrías leerlo de un archivo real)
+    file_path = zip_archive_name
+    if os.path.exists(zip_archive_name):
+        with open(file_path, 'rb') as f:
+            file_content = f.read()
+        attachments = [('db.sqlite3.zip', file_content, 'application/zip')]
+    else:
+        attachments = None
+
+    if send_email_with_attachment(subject, body, to_emails, attachments):
+        print("Correo electrónico enviado con éxito.")
+        messages.success(request, "Correo electrónico enviado con éxito.")
+        return redirect("panel_admin")
+    else:
+        print("Error al enviar el correo electrónico.")
+        messages.error(request, "Error al enviar el correo electrónico.")
+        return redirect("panel_admin")

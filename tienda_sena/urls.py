@@ -82,7 +82,7 @@ urlpatterns = [
         path('productos/imagenes/reordenar/', views_imagenes.reordenar_imagenes, name='reordenar_imagenes'),
         path('admin/estadisticas-imagenes/', views_imagenes.estadisticas_imagenes, name='estadisticas_imagenes'),
 
-    
+        path("backup/", views.backup, name="backup"),
 ]
 
 if settings.DEBUG:
