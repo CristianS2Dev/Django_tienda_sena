@@ -784,6 +784,7 @@ def lista_productos(request, id_categoria=None):
     Vista para mostrar la lista de productos con filtros opcionales.
     Si se proporciona una categoría, filtra los productos por esa categoría.
     """
+
     productos = Producto.objects.all()
 
     # Obtener colores y categorías disponibles del modelo Producto

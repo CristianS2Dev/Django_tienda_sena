@@ -16,6 +16,36 @@
 
 ### CHANGELOG
 ---
+## [v1.36.34-alpha.1] - 06-07-2025
+
+### Fixed
+- **Manejo de Sesiones de Usuario**:
+  - Corregida la verificación de sesión en `listar_productos.html` para evitar errores cuando el usuario no está logueado
+  - Implementada verificación segura de `request.session.pista` antes de acceder a los roles
+  - Mejorada la lógica condicional para manejar usuarios no autenticados correctamente
+
+### Changed
+- **Template `listar_productos.html`**:
+  - Refactorizada la lógica de botones basada en roles de usuario
+  - Mejorado el flujo de redirección para diferentes tipos de usuario:
+    - **Usuarios no logueados**: Muestra "Registrarse para Vender" → redirige a registro
+    - **Clientes (rol 2)**: Muestra "Quiero Vender" → redirige a solicitar vendedor
+    - **Vendedores (rol 3)**: Muestra "Agregar Productos" → redirige a agregar producto
+    - **Administradores (rol 1)**: Sin botones (tienen su propio panel)
+  - Corregidas las URLs de redirección para cada tipo de usuario
+
+### Improved
+- **Experiencia de Usuario**:
+  - Flujo más intuitivo para usuarios que desean convertirse en vendedores
+  - Eliminación de errores de template por acceso a variables de sesión inexistentes
+  - Mejor segregación de funcionalidades según el rol del usuario
+  - Redirecciones más apropiadas según el estado de autenticación
+
+### Note
+- **Compatibilidad**: Los cambios son retrocompatibles y no afectan la funcionalidad existente
+- **Seguridad**: Mejorada la validación de sesiones para prevenir errores de acceso no autorizado
+
+---
 ## [v1.35.33-alpha.1] - 06-07-2025
 
 ### Added
