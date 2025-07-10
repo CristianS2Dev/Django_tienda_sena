@@ -1,23 +1,27 @@
 from django.contrib import admin
 from .models import *
-from django.utils.html import format_html
 
-# Register your models here.
-admin.site.register(Usuario)
-admin.site.register(Direccion)
+@admin.register(Usuario)
+class UsuarioAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre_apellido', 'correo', 'rol')
+    search_fields = ('nombre_apellido', 'correo')
+    list_filter = ('rol',)
+    ordering = ('-id',)
+    list_per_page = 10
+
 
 @admin.register(SolicitudVendedor)
 class SolicitudVendedorAdmin(admin.ModelAdmin):
-    list_display = ('usuario', 'estado', 'fecha_solicitud')
-    search_fields = ('usuario__nombre_apellido', 'usuario__correo')
+    list_display = ('id', 'usuario', 'estado', 'fecha_solicitud')
+    search_fields = ('usuario__nombre_apellido',)
     list_filter = ('estado',)
     ordering = ('-fecha_solicitud',)
     list_per_page = 10
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'categoria', 'stock', 'color', 'en_oferta', 'precio_original', 'descuento', 'vendedor')
-    list_filter = ('categoria', 'color', 'vendedor', 'en_oferta')
+    list_display = ('nombre', 'stock', 'categoria', 'color', 'en_oferta', 'precio_original', 'descuento', 'vendedor')
+    list_filter = ('categoria', 'color', 'vendedor')
     search_fields = ('nombre', 'descripcion')
 
 @admin.register(ImagenProducto)
@@ -57,3 +61,4 @@ class NotificacionAdmin(admin.ModelAdmin):
     search_fields = ('usuario__nombre_apellido', 'mensaje')
     ordering = ('-fecha',)
     list_per_page = 10
+
