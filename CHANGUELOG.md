@@ -16,6 +16,77 @@
 
 ### CHANGELOG
 ---
+## [v1.36.34-alpha.1] - 10-07-2025
+
+### Added
+- **Sistema de Respaldo Automatizado (Backup)**:
+  - Nuevo script `backup_cron.py` para automatización de copias de seguridad
+  - Funcionalidad de compresión de base de datos a formato ZIP
+  - Envío automático de backups por correo electrónico
+  - Configuración de cron jobs para respaldos programados
+  - Log de actividades de backup en `log_bk.txt`
+- **Comandos de Gestión Django**:
+  - Comando `reset_productos.py` para reinicializar productos con datos realistas
+  - Comando `optimizar_categorias.py` para optimización del sistema de categorías
+  - Estructura mejorada de comandos de gestión en `management/commands/`
+- **Optimización de Imágenes de Productos**:
+  - Sistema automatizado de optimización de imágenes existentes
+  - Conversión masiva a formato WebP para mejor rendimiento
+  - Reorganización de carpetas de imágenes (`optimizadas/`, `originales/`, `miniaturas/`)
+  - Limpieza automática de imágenes duplicadas y huérfanas
+
+### Changed
+- **Estructura de Base de Datos**:
+  - Migración 0021 para implementación de nuevo sistema de categorías
+  - Migración 0022 para revertir cambios de categorías cuando sea necesario
+  - Optimización de consultas y relaciones en modelos
+- **Sistema de Gestión de Archivos Media**:
+  - Reorganización completa de la carpeta `media/productos/`
+  - Implementación de estructura jerárquica para imágenes
+  - Mejoras en el sistema de limpieza de archivos no utilizados
+- **Context Processors**:
+  - Optimización del procesador de contexto para categorías
+  - Mejoras en el rendimiento de consultas de notificaciones de usuario
+  - Reducción de carga en plantillas mediante procesamiento optimizado
+
+### Fixed
+- **Limpieza de Archivos de Desarrollo**:
+  - Eliminación de archivos temporales y de prueba (`.coverage`, `t copy.py`)
+  - Limpieza de imágenes duplicadas y versiones obsoletas
+  - Corrección de rutas de archivos en configuraciones
+- **Optimización de Rendimiento**:
+  - Resolución de problemas de memoria con imágenes grandes
+  - Mejoras en la carga de productos con múltiples imágenes
+  - Optimización de consultas de base de datos para listados
+
+### Security
+- **Gestión de Respaldos**:
+  - Implementación segura de envío de archivos por correo
+  - Validación de rutas y permisos en scripts de backup
+  - Configuración segura de cron jobs para tareas automatizadas
+
+### Performance
+- **Optimización de Imágenes**:
+  - Conversión automática a WebP para reducir tamaño de archivos hasta 80%
+  - Sistema de miniaturas optimizado para carga rápida
+  - Lazy loading mejorado para imágenes de productos
+- **Base de Datos**:
+  - Optimización de consultas relacionadas con productos e imágenes
+  - Indexación mejorada para búsquedas de categorías
+  - Reducción significativa en tiempo de carga de listados
+
+### Infrastructure
+- **Automatización**:
+  - Sistema completo de backup automatizado con cron
+  - Scripts de mantenimiento para limpieza periódica
+  - Logs detallados para monitoreo de operaciones automáticas
+
+### Note
+- **Backup Importante**: El sistema ahora incluye respaldos automáticos diarios
+- **Optimización Masiva**: Se recomienda ejecutar `reset_productos.py` para beneficiarse de las optimizaciones
+- **Rendimiento Mejorado**: Mejoras significativas en velocidad de carga de imágenes y productos
+
+---
 ## [v1.35.33-alpha.1] - 06-07-2025
 
 ### Added

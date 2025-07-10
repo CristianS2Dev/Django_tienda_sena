@@ -34,26 +34,38 @@
             </li>
             
             <!-- Ítems sin submenú -->
-        
-            <li class="nav-item">
-            <a class="nav-link text-white" href="{% url 'productos_admnin' %}">
-                <i class="fas fa-user-circle me-2"></i> Productos
-            </a>
-            </li>
+    
             <li class="nav-item">
             <a class="nav-link text-white" href="#">
                 <i class="fas fa-cog me-2"></i> Categorias
             </a>
             </li>
             <li class="nav-item">
-            <a class="nav-link text-white" href="{% url 'usuarios' %}">
-                <i class="fas fa-user me-2"></i> Usuarios
-            </a>
-            </li>
-            <li class="nav-item">
-            <a class="nav-link text-white" href="#">
-                <i class="fas fa-cog me-2"></i> Configuracion
-            </a>
+                <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                   data-bs-toggle="collapse" 
+                   href="#configuracionCollapse" 
+                   role="button" 
+                   aria-expanded="false" 
+                   aria-controls="configuracionCollapse">
+                    <span><i class="fas fa-cog me-2"></i> Configuración </span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                
+                <!-- Submenú colapsable para Configuración -->
+                <ul class="collapse list-unstyled" id="configuracionCollapse">
+                    <li><a class="nav-link text-white ms-4" href="{% url 'backup' %}">
+                        <i class="fas fa-database me-2"></i> Backup
+                    </a></li>
+                    <li><a class="nav-link text-white ms-4" href="{% url 'usuarios' %}">
+                        <i class="fas fa-users-cog me-2"></i> Usuarios
+                    </a></li>
+                    <li><a class="nav-link text-white ms-4" href="{% url 'productos_admnin' %}">
+                        <i class="fas fa-box me-2"></i> Productos
+                    </a></li>
+                    <li><a class="nav-link text-white ms-4" href="#">
+                        <i class="fas fa-tools me-2"></i> Sistema
+                    </a></li>
+                </ul>
             </li>
             <li class="nav-item">
             <a class="nav-link text-white" href="#">

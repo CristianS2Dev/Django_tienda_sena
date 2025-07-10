@@ -9,6 +9,7 @@
   {% if messages %}
       {% for message in messages %} 
 <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+    
     <div class="row">
         <!-- Sidebar de filtros -->
         <div class="col-md-3">
@@ -17,13 +18,16 @@
                 <h5 class="fw-bold mb-4">Filtros</h5>
                 <!-- Categoría -->
                 <div class="mb-4">
-                    <h6 class="text-muted">Categorías</h6>
+                    <h6 class="text-muted">
+                        <i class="fas fa-filter"></i> Categorías
+                    </h6>
                     <select name="categoria" class="form-select" onchange="this.form.submit()">
-                        <option value="">Todas</option>
-                        {% for categoria in categorias %}
-                            {% if categoria.0 != 0 %}
-                                <option value="{{ categoria.0 }}" {% if categoria.0|stringformat:"s" == request.GET.categoria %}selected{% endif %}>{{ categoria.1 }}</option>
-                            {% endif %}
+                        <option value="">📁 Todas las categorías</option>
+                        {% for key, value in categorias %}
+                            <option value="{{ key }}" 
+                                    {% if key|stringformat:"s" == request.GET.categoria %}selected{% endif %}>
+                                {{ value }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
@@ -58,19 +62,20 @@
                 <a class="btn btn-success" href="{% url 'agregar_producto' %}">agregar productos</a>
             {% endif %}
             
+            <!-- Filtros de ordenamiento básicos -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold">
                     {% if request.GET.nombre %}
                         Resultados para "{{ request.GET.nombre }}"
                     {% elif categoria %}
-                        {{ categoria.1 }}
+                        {{ categoria }}
                     {% else %}
                         Todos los productos
                     {% endif %}
                 </h4>
                 <div class="mb-2 w-auto">
                     <select name="orden" class="form-select" onchange="this.form.submit()">
-                        <option value="popular" {% if request.GET.orden == 'popular' %}selected{% endif %}>Más populares</option>
+                        <option value="popular" {% if request.GET.orden == 'popular' or not request.GET.orden %}selected{% endif %}>Más populares</option>
                         <option value="barato" {% if request.GET.orden == 'barato' %}selected{% endif %}>Más baratos</option>
                         <option value="caro" {% if request.GET.orden == 'caro' %}selected{% endif %}>Más caros</option>
                     </select>

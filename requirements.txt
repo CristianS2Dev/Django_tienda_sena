@@ -1,24 +1,127 @@
-# Dependencias principales de Django
-Django>=4.2,<5.0
-Pillow>=10.0.0
-
-# Para procesamiento de imágenes mejorado (usar solo una de las siguientes opciones)
-# Pillow-SIMD>=9.5.0  # Versión optimizada de Pillow (comentado para evitar conflictos)
-
-# Para el servidor de desarrollo
-whitenoise>=6.0.0  # Para servir archivos estáticos en producción
-
-# Para bases de datos (opcional)
-psycopg2-binary>=2.9.0  # PostgreSQL
-mysql-connector-python>=8.0.0  # MySQL
-
-# Para emails
-django-email-verification>=0.3.0  # Para verificación de emails
-
-# Para autenticación social (Google, Facebook, etc.)
-django-allauth>=0.57.0
-
-# Utilidades adicionales
-python-decouple>=3.6  # Para variables de entorno
-django-crispy-forms>=2.0  # Para formularios mejorados
-django-humanize>=0.1.2  # Para formateo humano de números
+apt-clone==0.2.1
+apturl==0.5.2
+asgiref==3.8.1
+beautifulsoup4==4.10.0
+blinker==1.4
+Brlapi==0.8.3
+certifi==2020.6.20
+chardet==4.0.0
+cliapp==1.20180812.1
+click==8.0.3
+cmdtest==0.32+git
+colorama==0.4.4
+command-not-found==0.3
+configobj==5.0.6
+coverage==7.8.2
+cryptography==3.4.8
+cupshelpers==1.0
+dbus-python==1.2.18
+defer==1.0.6
+deprecation==2.1.0
+distlib==0.3.7
+distro==1.7.0
+Django==4.2.23
+django-allauth==65.9.0
+django-crispy-forms==2.4
+django-email-verification==0.3.3
+django-humanize==0.1.2
+docutils==0.21.2
+exceptiongroup==1.3.0
+eyeD3==0.8.10
+factory_boy==3.3.3
+Faker==37.3.0
+filelock==3.12.4
+git-filter-repo==2.34.0
+gpg==1.16.0
+grpcio==1.30.2
+gyp==0.1
+httplib2==0.20.2
+humanize==4.12.3
+idna==3.3
+ifaddr==0.1.7
+IMDbPY==2021.4.18
+importlib-metadata==4.6.4
+iniconfig==2.1.0
+jeepney==0.7.1
+keyring==23.5.0
+launchpadlib==1.10.16
+lazr.restfulclient==0.14.4
+lazr.uri==1.0.6
+louis==3.20.0
+macaroonbakery==1.3.1
+Mako==1.1.3
+Markdown==3.3.6
+MarkupSafe==2.0.1
+more-itertools==8.10.0
+mysql-connector-python==9.3.0
+nemo-emblems==5.8.0
+netaddr==0.8.0
+netifaces==0.11.0
+oauthlib==3.2.0
+onboard==1.4.1
+packaging==21.3
+PAM==0.4.2
+pexpect==4.8.0
+pillow==11.3.0
+platformdirs==3.11.0
+pluggy==1.6.0
+protobuf==3.12.4
+psutil==5.9.0
+psycopg2-binary==2.9.10
+ptyprocess==0.7.0
+pycairo==1.20.1
+pycups==2.0.1
+pycurl==7.44.1
+pyelftools==0.27
+Pygments==2.11.2
+PyGObject==3.42.1
+PyICU==2.8.1
+pyinotify==0.9.6
+PyJWT==2.3.0
+pymacaroons==0.13.0
+PyNaCl==1.5.0
+pyparsing==2.4.7
+pyparted==3.11.7
+pyRFC3339==1.1
+pytest==8.3.5
+pytest-django==4.11.1
+python-apt==2.4.0+ubuntu4
+python-debian==0.1.43+ubuntu1.1
+python-decouple==3.8
+python-gnupg==0.4.8
+python-magic==0.4.24
+python-xlib==0.29
+pytz==2022.1
+pyxdg==0.27
+PyYAML==5.4.1
+reportlab==3.6.8
+requests==2.25.1
+requests-file==1.5.1
+SecretStorage==3.3.1
+setproctitle==1.2.2
+six==1.16.0
+soupsieve==2.3.1
+sqlparse==0.4.4
+ssh-import-id==5.11
+systemd-python==234
+tinycss2==1.1.1
+tldextract==3.1.2
+tomli==2.2.1
+ttystatus==0.38
+typing_extensions==4.8.0
+tzdata==2025.2
+ubuntu-drivers-common==0.0.0
+ufw==0.36.1
+Unidecode==1.3.3
+urllib3==1.26.5
+validators==0.35.0
+vboxapi==1.0
+virtualenv==20.24.6
+wadllib==1.3.6
+webencodings==0.5.1
+whitenoise==6.9.0
+xdg==5
+xkit==0.0.0
+xlrd==1.2.0
+youtube-dl==2021.12.17
+zipp==1.0.0
