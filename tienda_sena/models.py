@@ -2,6 +2,7 @@ from django.db import models
 from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
+from django.utils.text import slugify
 
 # Create your models here.
 
@@ -100,6 +101,7 @@ class Direccion(models.Model):
         return f"{self.direccion}, {self.ciudad}, {self.estado}, {self.pais}"
     
 
+
 class Producto(models.Model):
     """
     Modelo para los productos.
@@ -121,16 +123,21 @@ class Producto(models.Model):
     descripcion = models.CharField(max_length=254)
     stock = models.IntegerField()
     vendedor = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    
     CATEGORIAS = (
-        (0, ""),
-        (1, "Moda"),
-        (2, "Tecnologia"),
-        (3, "Artesania"),
-        (4, "Accesorios"),
-        (5, "Servicios"),
-        (6, "Otros"),
+        (0, 'Ninguna'),
+        (1, 'Electrónicos'),
+        (2, 'Ropa'),
+        (3, 'Hogar'),
+        (4, 'Deportes'),
+        (5, 'Libros'),
+        (6, 'Juguetes'),
+        (7, 'Automotriz'),
+        (8, 'Salud y Belleza'),
+        (9, 'Jardín'),
+        (10, 'Herramientas'),
     )
-    categoria = models.IntegerField(choices=CATEGORIAS, default=0, null=True, blank=True)
+    categoria = models.IntegerField(choices=CATEGORIAS, default=0)
     COLORES = (
         (0,"Ninguno"),
         (1,"Gris"),

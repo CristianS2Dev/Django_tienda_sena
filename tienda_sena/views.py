@@ -33,16 +33,17 @@ def index(request):
         # Si el usuario es administrador, contar las solicitudes pendientes
         pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
     
-    # Obtener categorías disponibles y contar productos por categoría
+    # Obtener categorías principales y contar productos por categoría
     categorias_con_productos = []
-    for categoria_id, categoria_nombre in Producto.CATEGORIAS:
-        if categoria_id != 0:  # Excluir la categoría vacía
-            count = Producto.objects.filter(categoria=categoria_id).count()
+    
+    for key, value in Producto.CATEGORIAS:
+        if key != 0:  # Excluir "Ninguna"
+            count = Producto.objects.filter(categoria=key, vendedor__activo=True).count()
             if count > 0:  # Solo incluir categorías que tienen productos
                 categorias_con_productos.append({
-                    'id': categoria_id,
-                    'nombre': categoria_nombre,
-                    'count': count
+                    'id': key,
+                    'nombre': value,
+                    'count': count,
                 })
     
     contexto = {'data': q,
@@ -786,17 +787,21 @@ def lista_productos(request, id_categoria=None):
     """
     productos = Producto.objects.all()
 
-    # Obtener colores y categorías disponibles del modelo Producto
+    # Obtener colores y categorías disponibles del modelo
     colores_disponibles = Producto.COLORES
     categorias_disponibles = Producto.CATEGORIAS
-    colores_disponibles = Producto.COLORES
     categoria = request.GET.get('categoria')
     
     if categoria:
         try:
             categoria = int(categoria)
             productos = productos.filter(categoria=categoria)
-            categoria_obj = next((c for c in categorias_disponibles if c[0] == categoria), None)
+            # Buscar el nombre de la categoría
+            categoria_obj = None
+            for cat_id, cat_nombre in Producto.CATEGORIAS:
+                if cat_id == categoria:
+                    categoria_obj = {'id': cat_id, 'nombre': cat_nombre}
+                    break
         except (ValueError, TypeError):
             categoria_obj = None
 
@@ -825,8 +830,8 @@ def lista_productos(request, id_categoria=None):
             id_categoria = int(id_categoria)
             categoria = id_categoria
             productos = productos.filter(categoria=id_categoria)
-            # Obtener el objeto de la categoría
-            categoria_obj = next((c for c in categorias_disponibles if c[0] == id_categoria), None)
+            # Obtener el nombre de la categoría
+            categoria_obj = dict(Producto.CATEGORIAS).get(id_categoria, "Categoría desconocida")
         except (ValueError, TypeError):
             categoria = None
             categoria_obj = None
@@ -857,13 +862,19 @@ def lista_productos(request, id_categoria=None):
             pass
 
     # Ordenar productos
-    orden = request.GET.get('orden')
-    if orden == 'popular':
-        productos = productos.order_by('-id') # Suponiendo que los productos más recientes son los más populares
+    orden = request.GET.get('orden', 'popular')
+    if orden == 'popular' or orden == '':
+        productos = productos.order_by('-id')  # Más recientes como populares
     elif orden == 'barato':
         productos = productos.order_by('precio_original')
     elif orden == 'caro':
         productos = productos.order_by('-precio_original')
+    elif orden == 'reciente':
+        productos = productos.order_by('-id')
+    elif orden == 'nombre':
+        productos = productos.order_by('nombre')
+    elif orden == 'stock':
+        productos = productos.order_by('-stock')
 
     # Paginación
     from django.core.paginator import Paginator
@@ -875,7 +886,7 @@ def lista_productos(request, id_categoria=None):
     contexto = {
         'data': page_obj,
         'categoria': categoria_obj,
-        'categorias': categorias_disponibles,
+        'categorias': Producto.CATEGORIAS,
         'colores_disponibles': colores_disponibles,
         'colores_con_codigo': colores_con_codigo,
     }
@@ -1045,7 +1056,9 @@ def editar_producto(request, id_producto):
             producto.en_oferta = en_oferta
             producto.stock = stock_int
             producto.vendedor_id = vendedor
+            
             producto.categoria = categoria_int
+                
             producto.color = color_int
 
             # Procesar nuevas imágenes si las hay
