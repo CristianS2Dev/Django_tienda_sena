@@ -16,6 +16,14 @@
 
 ### CHANGELOG
 ---
+## [v1.37.36-alpha.1] - 10-07-2025
+
+### Changed
+
+- Se mejora la función `actualizar_perfil` con validaciones consistentes siguiendo el mismo patrón de otras funciones del sistema
+- Se mejora la funcion `arecuperar_contraseña` con validaciones consistentes siguiendo el mismo patrón de otras funciones del sistema
+
+---
 ## [v1.37.35-alpha.1] - 10-07-2025
 
 ### Added

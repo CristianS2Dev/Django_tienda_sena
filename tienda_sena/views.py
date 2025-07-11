@@ -21,7 +21,40 @@ from django.urls import reverse
 from django.core.mail import send_mail
 import random
 import os, time
+import mimetypes
 
+
+
+def validar_archivo_pdf(archivo):
+    """Valida que el archivo sea un PDF válido."""
+    if not archivo:
+        raise ValidationError("No se ha proporcionado ningún archivo.")
+    
+    # Validar extensión del archivo
+    if not archivo.name.lower().endswith('.pdf'):
+        raise ValidationError("El archivo debe tener extensión .pdf")
+    
+    # Validar tipo MIME
+    mime_type, _ = mimetypes.guess_type(archivo.name)
+    if mime_type != 'application/pdf':
+        raise ValidationError("El archivo debe ser un documento PDF válido.")
+    
+    # Validar tamaño del archivo (máximo 10MB)
+    max_size = 10 * 1024 * 1024  # 10MB en bytes
+    if archivo.size > max_size:
+        raise ValidationError("El archivo PDF no puede ser mayor a 10MB.")
+    
+    # Validar que el archivo tenga contenido
+    if archivo.size == 0:
+        raise ValidationError("El archivo PDF está vacío.")
+    
+    # Leer los primeros bytes para verificar que es un PDF real
+    archivo.seek(0)
+    header = archivo.read(4)
+    archivo.seek(0)  # Regresar al inicio
+    
+    if header != b'%PDF':
+        raise ValidationError("El archivo no es un PDF válido.")
 
 
 # Create your views here.
@@ -174,7 +207,6 @@ def olvidar_contraseña(request):
 @csrf_exempt  # Solo para pruebas, en producción usa el token CSRF correctamente
 def ajax_enviar_codigo(request):
     if request.method == "POST":
-        import json
         data = json.loads(request.body)
         correo = data.get("correo")
         if not correo:
@@ -233,7 +265,7 @@ def ajax_restablecer_password(request):
         correo = data.get("correo")
         nueva_password = data.get("nueva_password")
         confirmar_password = data.get("confirmar_password")
-        
+
         if not all([correo, nueva_password, confirmar_password]):
             return JsonResponse({"ok": False, "msg": "Todos los campos son requeridos."})
         
@@ -247,6 +279,11 @@ def ajax_restablecer_password(request):
         
         try:
             usuario = Usuario.objects.get(correo=correo)
+            
+            # Validar que la nueva contraseña no sea igual a la anterior
+            if check_password(nueva_password, usuario.password):
+                return JsonResponse({"ok": False, "msg": "La nueva contraseña no puede ser igual a la anterior."})
+            
             # Cambiar la contraseña
             usuario.password = make_password(nueva_password)
             # Limpiar el código de verificación
@@ -493,9 +530,23 @@ def solicitar_vendedor(request):
         if not certificado:
             messages.error(request, "Debes adjuntar tu certificado.")
             return redirect("solicitar_vendedor")
-        SolicitudVendedor.objects.create(usuario=usuario, certificado=certificado)
-        messages.success(request, "Solicitud enviada. Un administrador la revisará.")
-        return redirect("perfil_usuario")
+        
+        try:
+            # Validar que el certificado sea un PDF válido
+            validar_archivo_pdf(certificado)
+            
+            # Si la validación es exitosa, crear la solicitud
+            SolicitudVendedor.objects.create(usuario=usuario, certificado=certificado)
+            messages.success(request, "Solicitud enviada. Un administrador la revisará.")
+            return redirect("perfil_usuario")
+            
+        except ValidationError as e:
+            messages.error(request, f"Error en el certificado: {e}")
+            return redirect("solicitar_vendedor")
+        except Exception as e:
+            messages.error(request, f"Error inesperado: {e}")
+            return redirect("solicitar_vendedor")
+            
     return render(request, "usuarios/solicitar_vendedor.html")
 
 
