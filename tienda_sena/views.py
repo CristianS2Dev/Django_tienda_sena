@@ -1272,6 +1272,11 @@ def editar_producto(request, id_producto):
             # Obtener el producto a editar
             producto = Producto.objects.get(pk=id_producto)
             
+            # Validar que el vendedor es el mismo que el del producto
+            if rol == 3 and producto.vendedor_id != request.session.get("pista")["id"]:
+                messages.error(request, "No puedes editar productos de otros vendedores.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
             # Validaciones de campos obligatorios
             if not nombre or not nombre.strip():
                 messages.error(request, "El nombre del producto es obligatorio.")

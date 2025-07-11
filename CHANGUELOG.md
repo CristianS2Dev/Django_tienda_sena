@@ -15,6 +15,21 @@
 ---
 
 ### CHANGELOG
+## [v1.40.39-alpha.1] - 11-07-2025
+
+### Added
+- Nuevas optimizaciones en consultas de productos y usuarios
+- Mejoras en la carga y procesamiento de imágenes
+
+### Changed
+- Refactorización de funciones críticas para mayor eficiencia
+
+### Performance
+- Reducción de tiempos de respuesta en vistas principales
+- Optimización de uso de memoria en manejo de imágenes
+
+### Note
+- Actualización recomendada para aprovechar mejoras de velocidad
 ---
 
 ## [v1.39.38-alpha.1] - 11-07-2025
