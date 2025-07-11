@@ -60,8 +60,21 @@ def login(request):
     if request.method == "POST":
         correo = request.POST.get("correo")
         password = request.POST.get("password")
+        
+        # Validar campos vacíos
+        if not correo or not password:
+            messages.error(request, "Por favor, completa todos los campos.")
+            return redirect("login")
+        
+        # Validar que no sean solo espacios en blanco
+        if not correo.strip() or not password.strip():
+            messages.error(request, "Los campos no pueden estar vacíos.")
+            return redirect("login")
+        if not correo_valido(correo):
+            messages.error(request,"Correo electrónico inválido")
+            
         try:
-            q = Usuario.objects.get(correo=correo)
+            q = Usuario.objects.get(correo=correo.strip())
             
             # Verificar si el usuario está deshabilitado
             if not q.activo:
@@ -119,8 +132,8 @@ def validar_contraseña(password):
     if not password:
         return False, "La contraseña no puede estar vacía."
     
-    if not (8 <= len(password) <= 20):
-        return False, "La contraseña debe tener entre 8 y 20 caracteres."
+    if not (8 <= len(password) <= 15):
+        return False, "La contraseña debe tener entre 8 y 15 caracteres."
     
     if not re.search(r'[A-Z]', password):
         return False, "La contraseña debe contener al menos una letra mayúscula."
@@ -265,6 +278,14 @@ def registrarse(request):
         }
         
         try:
+            if re.search(r'\d', nombre_apellido):
+                messages.error(request, "El nombre y apellido no pueden contener números.")
+                return render(request, "registrarse.html", campos)
+            
+            if not nombre_apellido or not correo or not password or not valid_password:
+                messages.error(request, "Todos los campos son obligatorios.")
+                return render(request, "registrarse.html", campos)
+
             if not correo_valido(correo):
                 raise CorreoInvalidoError("Correo electrónico inválido")
             
@@ -353,6 +374,34 @@ def actualizar_perfil(request):
         contacto = request.POST.get("contacto")
         imagen_perfil = request.FILES.get("imagen_perfil")
         try:
+            # Validar campos obligatorios
+            if not nombre_apellido or not nombre_apellido.strip():
+                messages.error(request, "El nombre y apellido son obligatorios.")
+                return redirect("actualizar_perfil")
+            
+            # Validar que el nombre no contenga números
+            if re.search(r'\d', nombre_apellido):
+                messages.error(request, "El nombre y apellido no pueden contener números.")
+                return redirect("actualizar_perfil")
+            
+            # Validar documento (opcional pero si se proporciona debe ser válido)
+            if documento and documento.strip():
+                if not documento.strip().isdigit():
+                    messages.error(request, "El documento debe contener solo números.")
+                    return redirect("actualizar_perfil")
+                if len(documento.strip()) < 10 or len(documento.strip()) > 11:
+                    messages.error(request, "El documento debe tener entre 10 y 11 dígitos.")
+                    return redirect("actualizar_perfil")
+            
+            # Validar contacto (opcional pero si se proporciona debe ser válido)
+            if contacto and contacto.strip():
+                if not contacto.strip().isdigit():
+                    messages.error(request, "El contacto debe contener solo números.")
+                    return redirect("actualizar_perfil")
+                if len(contacto.strip()) < 10 or len(contacto.strip()) > 11:
+                    messages.error(request, "El contacto debe tener entre 10 y 11 dígitos.")
+                    return redirect("actualizar_perfil")
+            
             if imagen_perfil:
                 # Procesar imagen de perfil
                 resultado = procesar_imagen_perfil(imagen_perfil)

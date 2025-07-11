@@ -1,22 +1,15 @@
-# Core Django Framework
-Django==4.2.23
 
-# Django Authentication and Social Login
+Django==5.1.1
 django-allauth==65.9.0
-cryptography>=3.4.8
-
-# Image Processing
-Pillow==11.3.0
-
-# Python Standard Library Extensions
-requests==2.31.0
-
-# Development and Testing (optional)
-pytest==8.3.5
+Pillow==9.0.1
+pytest==8.1.1
 pytest-django==4.11.1
-
-# Database (if using PostgreSQL in production)
-# psycopg2-binary==2.9.10
-
-# Static Files Serving in Production
-whitenoise==6.9.0
+python-apt==2.4.0+ubuntu4
+python-dateutil==2.8.1
+python-debian==0.1.43+ubuntu1.1
+python-gnupg==0.4.8
+python-magic==0.4.24
+python-xlib==0.29
+python3-openid==3.2.0
+sqlparse==0.4.4
+zipp==1.0.0

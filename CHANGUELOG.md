@@ -16,6 +16,41 @@
 
 ### CHANGELOG
 ---
+## [v1.37.35-alpha.1] - 10-07-2025
+
+### Added
+
+- Se implementan validaciones robustas en la función `actualizar_perfil` para mejorar la seguridad y experiencia del usuario:
+  - Validación de campos obligatorios (nombre y apellido no pueden estar vacíos)
+  - Validación de espacios en blanco usando `.strip()` para limpiar datos de entrada
+  - Validación que previene números en nombres y apellidos usando expresiones regulares
+  - Validación opcional pero estricta para documento de identidad (solo números, 7-15 dígitos)
+  - Validación opcional pero estricta para número de contacto (solo números, 7-15 dígitos)
+- Se mantiene la funcionalidad existente de procesamiento de imágenes de perfil con optimización
+
+### Changed
+
+- Se mejora la función `actualizar_perfil` con validaciones consistentes siguiendo el mismo patrón de otras funciones del sistema
+- Se optimiza el manejo de datos de entrada eliminando espacios innecesarios antes del procesamiento
+
+### Fixed
+
+- Se previenen errores de entrada de datos inválidos en la actualización de perfil de usuario
+- Se mejora la retroalimentación al usuario con mensajes de error específicos y claros
+- Se corrige el manejo de campos opcionales para permitir valores vacíos válidos
+
+### Security
+
+- Se fortalece la validación de entrada para prevenir inyección de datos maliciosos
+- Se implementa sanitización de datos de entrada eliminando espacios en blanco
+- Se añade validación de formato para campos numéricos (documento y contacto)
+
+### Note
+
+- Las validaciones siguen el mismo estilo y patrón implementado en otras funciones como `login` y `registrarse`
+- Los campos documento y contacto son opcionales pero si se proporcionan deben cumplir con el formato establecido
+
+---
 ## [v1.36.34-alpha.1] - 10-07-2025
 
 ### Added
