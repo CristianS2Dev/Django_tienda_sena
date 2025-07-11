@@ -62,4 +62,3 @@ class NotificacionAdmin(admin.ModelAdmin):
     ordering = ('-fecha',)
     list_per_page = 10
 
-

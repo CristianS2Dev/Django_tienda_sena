@@ -46,43 +46,56 @@
                                 </div>
                                 <div class="form-text">Le enviaremos un código de verificación a este correo electrónico.</div>
                             </div>
-                            <button class="btn btn-primary w-100" id="btn-step1" type="submit">Enviar código de verificación</button>
+                            <button class="btn btn-primary w-100" id="btn-step1" type="submit">
+                                <span class="btn-text">Enviar código de verificación</span>
+                                <span class="btn-loading d-none">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Enviando...
+                                </span>
+                            </button>
                         </form>
                     </div>
 
                     <!-- Step 2: Code Verification -->
                     <div class="step-content d-none" id="step2">
-                        <h5 class="mb-4">Enter Verification Code</h5>
-                        <p class="text-muted mb-4">We've sent a verification code to your email. Please enter it
-                            below.</p>
-                        <div class="d-flex justify-content-center mb-4">
-                            <input type="text" class="verification-input" maxlength="1">
-                            <input type="text" class="verification-input" maxlength="1">
-                            <input type="text" class="verification-input" maxlength="1">
-                            <input type="text" class="verification-input" maxlength="1">
-                            <input type="text" class="verification-input" maxlength="1">
-                            <input type="text" class="verification-input" maxlength="1">
-                        </div>
-                        <div class="text-center mb-4">
-                            <span class="text-muted">Didn't receive the code? </span>
-                            <a href="#" class="text-decoration-none">Resend</a>
-                        </div>
-                        <button class="btn btn-primary w-100">Verify Code</button>
+                        <h5 class="mb-4">Ingrese el código de verificación</h5>
+                        <p class="text-muted mb-4">Hemos enviado un código de verificación a su correo electrónico. Por favor, ingréselo a continuación.</p>
+                        <form id="form-step2">
+                            <div class="d-flex justify-content-center mb-4">
+                                <input type="text" class="verification-input me-2" maxlength="1" id="code-1">
+                                <input type="text" class="verification-input me-2" maxlength="1" id="code-2">
+                                <input type="text" class="verification-input me-2" maxlength="1" id="code-3">
+                                <input type="text" class="verification-input me-2" maxlength="1" id="code-4">
+                                <input type="text" class="verification-input me-2" maxlength="1" id="code-5">
+                                <input type="text" class="verification-input" maxlength="1" id="code-6">
+                            </div>
+                            <div class="text-center mb-4">
+                                <span class="text-muted">¿No recibió el código? </span>
+                                <a href="#" class="text-decoration-none" id="resend-code">Reenviar</a>
+                            </div>
+                            <button class="btn btn-primary w-100" id="btn-step2" type="submit">
+                                <span class="btn-text">Verificar código</span>
+                                <span class="btn-loading d-none">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Verificando...
+                                </span>
+                            </button>
+                        </form>
                     </div>
 
                     <!-- Step 3: New Password -->
                     <div class="step-content d-none" id="step3">
-                        <h5 class="mb-4">Create New Password</h5>
-                        <form>
+                        <h5 class="mb-4">Crear nueva contraseña</h5>
+                        <form id="form-step3">
                             {% csrf_token %}
                             <div class="mb-4">
-                                <label class="form-label">New Password</label>
+                                <label class="form-label">Nueva contraseña</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                             <i class="fas fa-lock"></i>
                                         </span>
-                                    <input type="password" class="form-control" placeholder="Enter new password">
-                                    <span class="input-group-text password-toggle">
+                                    <input type="password" class="form-control" id="new-password" placeholder="Ingrese nueva contraseña" required>
+                                    <span class="input-group-text password-toggle" onclick="togglePassword('new-password')">
                                             <i class="fas fa-eye"></i>
                                         </span>
                                 </div>
@@ -92,41 +105,51 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label">Confirm Password</label>
+                                <label class="form-label">Confirmar contraseña</label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                             <i class="fas fa-lock"></i>
                                         </span>
-                                    <input type="password" class="form-control" placeholder="Confirm new password">
-                                    <span class="input-group-text password-toggle">
+                                    <input type="password" class="form-control" id="confirm-password" placeholder="Confirme nueva contraseña" required>
+                                    <span class="input-group-text password-toggle" onclick="togglePassword('confirm-password')">
                                             <i class="fas fa-eye"></i>
                                         </span>
                                 </div>
                             </div>
 
                             <div class="mb-4">
-                                <h6 class="mb-2">Password Requirements:</h6>
+                                <h6 class="mb-2">Requisitos de la contraseña:</h6>
                                 <ul class="requirement-list list-unstyled">
-                                    <li class="valid">
-                                        <i class="fas fa-check-circle me-2"></i>
-                                        At least 8 characters
-                                    </li>
-                                    <li>
+                                    <li id="req-length">
                                         <i class="fas fa-circle me-2"></i>
-                                        Include uppercase letters
+                                        Al menos 8 caracteres
                                     </li>
-                                    <li>
+                                    <li id="req-uppercase">
                                         <i class="fas fa-circle me-2"></i>
-                                        Include special characters
+                                        Incluir letras mayúsculas
                                     </li>
-                                    <li>
+                                    <li id="req-lowercase">
                                         <i class="fas fa-circle me-2"></i>
-                                        Include numbers
+                                        Incluir letras minúsculas
+                                    </li>
+                                    <li id="req-special">
+                                        <i class="fas fa-circle me-2"></i>
+                                        Incluir caracteres especiales
+                                    </li>
+                                    <li id="req-numbers">
+                                        <i class="fas fa-circle me-2"></i>
+                                        Incluir números
                                     </li>
                                 </ul>
                             </div>
 
-                            <button class="btn btn-primary w-100">Reset Password</button>
+                            <button class="btn btn-primary w-100" id="btn-step3" type="submit">
+                                <span class="btn-text">Restablecer contraseña</span>
+                                <span class="btn-loading d-none">
+                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    Restableciendo...
+                                </span>
+                            </button>
                         </form>
                     </div>
 
@@ -135,10 +158,9 @@
                         <div class="success-checkmark">
                             <i class="fas fa-check"></i>
                         </div>
-                        <h5 class="mb-3">Password Reset Successful!</h5>
-                        <p class="text-muted mb-4">Your password has been successfully reset. You can now log in
-                            with your new password.</p>
-                        <a href="#" class="btn btn-primary">Back to Login</a>
+                        <h5 class="mb-3">¡Contraseña restablecida exitosamente!</h5>
+                        <p class="text-muted mb-4">Su contraseña ha sido restablecida exitosamente. Ahora puede iniciar sesión con su nueva contraseña.</p>
+                        <a href="{% url 'login' %}" class="btn btn-primary">Volver al inicio de sesión</a>
                     </div>
                 </div>
             </div>
@@ -150,34 +172,259 @@
 {% block extra_js %}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        let currentEmail = '';
+        
+        // Referencias a elementos
         const formStep1 = document.getElementById('form-step1');
+        const formStep2 = document.getElementById('form-step2');
+        const formStep3 = document.getElementById('form-step3');
         const emailInput = document.getElementById('email-input');
         const step1 = document.getElementById('step1');
         const step2 = document.getElementById('step2');
-    
+        const step3 = document.getElementById('step3');
+        const success = document.getElementById('success');
+        const stepIndicators = document.querySelectorAll('.step');
+        
+        // Función para actualizar indicadores de paso
+        function updateStepIndicator(currentStep) {
+            stepIndicators.forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 <= currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+        
+        // Función para mostrar/ocultar loading en botones
+        function toggleButtonLoading(buttonId, isLoading) {
+            const button = document.getElementById(buttonId);
+            const btnText = button.querySelector('.btn-text');
+            const btnLoading = button.querySelector('.btn-loading');
+            
+            if (isLoading) {
+                btnText.classList.add('d-none');
+                btnLoading.classList.remove('d-none');
+                button.disabled = true;
+            } else {
+                btnText.classList.remove('d-none');
+                btnLoading.classList.add('d-none');
+                button.disabled = false;
+            }
+        }
+        
+        // Paso 1: Enviar código
         formStep1.addEventListener('submit', function(e) {
             e.preventDefault();
+            currentEmail = emailInput.value;
+            
+            toggleButtonLoading('btn-step1', true);
+            
             fetch("{% url 'ajax_enviar_codigo' %}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRFToken": "{{ csrf_token }}"
                 },
-                body: JSON.stringify({ correo: emailInput.value })
+                body: JSON.stringify({ correo: currentEmail })
             })
             .then(response => response.json())
             .then(data => {
+                toggleButtonLoading('btn-step1', false);
                 if (data.ok) {
                     step1.classList.add('d-none');
                     step2.classList.remove('d-none');
+                    updateStepIndicator(2);
+                    // Enfocar el primer campo de código
+                    document.getElementById('code-1').focus();
                 } else {
                     alert(data.msg);
                 }
             })
             .catch(error => {
-                alert("Error enviando el correo electronico.");
+                toggleButtonLoading('btn-step1', false);
+                alert("Error enviando el correo electrónico.");
             });
         });
+        
+        // Paso 2: Validar código
+        formStep2.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const code = Array.from({length: 6}, (_, i) => 
+                document.getElementById(`code-${i + 1}`).value
+            ).join('');
+            
+            if (code.length !== 6) {
+                alert("Por favor, ingrese el código completo de 6 dígitos.");
+                return;
+            }
+            
+            toggleButtonLoading('btn-step2', true);
+            
+            fetch("{% url 'ajax_validar_codigo' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ 
+                    correo: currentEmail,
+                    codigo: code 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                toggleButtonLoading('btn-step2', false);
+                if (data.ok) {
+                    step2.classList.add('d-none');
+                    step3.classList.remove('d-none');
+                    updateStepIndicator(3);
+                    // Enfocar el campo de nueva contraseña
+                    document.getElementById('new-password').focus();
+                } else {
+                    alert(data.msg);
+                }
+            })
+            .catch(error => {
+                toggleButtonLoading('btn-step2', false);
+                alert("Error validando el código.");
+            });
+        });
+        
+        // Paso 3: Restablecer contraseña
+        formStep3.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (newPassword !== confirmPassword) {
+                alert("Las contraseñas no coinciden.");
+                return;
+            }
+            
+            toggleButtonLoading('btn-step3', true);
+            
+            fetch("{% url 'ajax_restablecer_password' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ 
+                    correo: currentEmail,
+                    nueva_password: newPassword,
+                    confirmar_password: confirmPassword
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                toggleButtonLoading('btn-step3', false);
+                if (data.ok) {
+                    step3.classList.add('d-none');
+                    success.classList.remove('d-none');
+                } else {
+                    alert(data.msg);
+                }
+            })
+            .catch(error => {
+                toggleButtonLoading('btn-step3', false);
+                alert("Error restableciendo la contraseña.");
+            });
+        });
+        
+        // Funcionalidad para campos de código
+        const codeInputs = document.querySelectorAll('.verification-input');
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', function(e) {
+                if (e.target.value && index < codeInputs.length - 1) {
+                    codeInputs[index + 1].focus();
+                }
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    codeInputs[index - 1].focus();
+                }
+            });
+        });
+        
+        // Reenviar código
+        document.getElementById('resend-code').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            fetch("{% url 'ajax_enviar_codigo' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ correo: currentEmail })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert("Código reenviado exitosamente.");
+                    // Limpiar campos de código
+                    codeInputs.forEach(input => input.value = '');
+                    codeInputs[0].focus();
+                } else {
+                    alert(data.msg);
+                }
+            })
+            .catch(error => {
+                alert("Error reenviando el código.");
+            });
+        });
+        
+        // Validación de contraseña en tiempo real
+        const newPasswordInput = document.getElementById('new-password');
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('input', function() {
+                validatePassword(this.value);
+            });
+        }
+        
+        function validatePassword(password) {
+            const requirements = {
+                'req-length': password.length >= 8,
+                'req-uppercase': /[A-Z]/.test(password),
+                'req-lowercase': /[a-z]/.test(password),
+                'req-special': /[!@#$%^&*(),.?":{}|<>-]/.test(password),
+                'req-numbers': /\d/.test(password)
+            };
+            
+            Object.keys(requirements).forEach(reqId => {
+                const element = document.getElementById(reqId);
+                const icon = element.querySelector('i');
+                
+                if (requirements[reqId]) {
+                    element.classList.add('valid');
+                    icon.classList.remove('fa-circle');
+                    icon.classList.add('fa-check-circle');
+                } else {
+                    element.classList.remove('valid');
+                    icon.classList.remove('fa-check-circle');
+                    icon.classList.add('fa-circle');
+                }
+            });
+        }
     });
-    </script>
+    
+    // Función para mostrar/ocultar contraseña
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = input.nextElementSibling.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
 {% endblock %}

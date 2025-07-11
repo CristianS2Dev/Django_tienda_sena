@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}Autenticación con Google{% endblock %}
+
+{% block main %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-google text-danger" style="font-size: 3rem;"></i>
+                    </div>
+                    
+                    <h3 class="card-title mb-4">Iniciar sesión con Google</h3>
+                    
+                    <p class="text-muted mb-4">
+                        Estás a punto de iniciar sesión usando tu cuenta de Google. 
+                        Serás redirigido a Google para completar la autenticación de forma segura.
+                    </p>
+                    
+                    <div class="d-grid gap-2">
+                        <form method="post" action="{% url 'google_login' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg w-100">
+                                <i class="bi bi-google me-2"></i>
+                                Continuar con Google
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'login' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Volver al login
+                        </a>
+                    </div>
+                    
+                    <small class="text-muted mt-3 d-block">
+                        Al continuar, aceptas que Google comparta tu información básica con nosotros.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

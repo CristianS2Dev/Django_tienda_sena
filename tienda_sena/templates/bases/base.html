@@ -11,6 +11,58 @@
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    /* Mega menú para categorías */
+    .mega-menu {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .mega-menu .dropdown-header {
+      font-weight: 600;
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .mega-menu .dropdown-header a {
+      color: #0d6efd !important;
+      transition: color 0.3s ease;
+    }
+    
+    .mega-menu .dropdown-header a:hover {
+      color: #0a58ca !important;
+    }
+    
+    .mega-menu .dropdown-item {
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      margin: 2px 0;
+    }
+    
+    .mega-menu .dropdown-item:hover {
+      background-color: #0d6efd;
+      color: white;
+      transform: translateX(5px);
+    }
+    
+    .mega-menu .dropdown-item:hover .fa-chevron-right {
+      color: white !important;
+    }
+    
+    /* Responsivo */
+    @media (max-width: 768px) {
+      .mega-menu {
+        min-width: 300px !important;
+      }
+      .mega-menu .col-md-4 {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
 
 </head>
 {% block extra_js %}
@@ -41,19 +93,15 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle text-white" href="#" id="categoriasDropdown" role="button"
                    data-bs-toggle="dropdown" aria-expanded="false">
-                    Categorías
+                    <i class="fas fa-th-large"></i> Categorías
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="categoriasDropdown">
-                    {% for categoria in categorias %}
-                        {% if categoria.0 != 0 %}
-                            <li>
-                                <a class="dropdown-item" href="{% url 'productos_por_categoria' categoria.0 %}">
-                                    {{ categoria.1 }}
-                                </a>
-                            </li>
+                <div class="dropdown-menu" aria-labelledby="categoriasDropdown">
+                    {% for key, value in categorias %}
+                        {% if key != 0 %}
+                            <a class="dropdown-item" href="{% url 'productos_por_categoria' key %}">{{ value }}</a>
                         {% endif %}
                     {% endfor %}
-                </ul>
+                </div>
             </li>
             <li class="nav-item">
               <a class="nav-link active fw-medium text-white" href="{% url 'sobre_nosotros' %}">Sobre Nosotros</a>

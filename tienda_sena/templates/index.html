@@ -181,54 +181,83 @@
             <div class="d-flex flex-column ">
                 <h5><a href="#">Instagram</a></h5>
                 <h5><a href="#">Facebook</a></h5>
-                <h5><a href="#">Linkedin</a></h5>
-                
-                
+                <h5><a href="#">Linkedin</a></h5>      
             </div>
         </div>
     </div>
-
 </section>
 <section>
     <div class="section mg-2 mt-5 mb-5 sect6 "> 
         <div class="text-center">
             <h1>Explora Nuestras Categorias</h1>
-            <h3><a class="text-decoration-none pt-3" href="#">VER TODOS LOS SERVICIOS</a></h3>
+            <h3><a class="text-decoration-none pt-3" href="{% url 'lista_productos' %}">VER TODOS LOS PRODUCTOS</a></h3>
         </div>
         <div class="card-group container gap-4">
-            <div class="card">
-                <img src="{% static 'assets/innovacion.jpg' %}" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Innovación</h5>
-                  <p class="card-text">50 Proyectos</p>
+            {% for categoria in categorias_index %}
+            <div class="card shadow-sm border-0 overflow-hidden">
+                <!-- Imagen dinámica según categoría -->
+                {% if categoria.imagen %}
+                    <img src="{{ categoria.imagen }}" class="card-img-top" alt="{{ categoria.nombre }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    {% if "Tecnología" in categoria.nombre %}
+                        <img src="{% static 'assets/tecnologia.jpg' %}" class="card-img-top" alt="...">
+                    {% elif "Moda" in categoria.nombre or "Belleza" in categoria.nombre %}
+                        <img src="{% static 'assets/moda.jpg' %}" class="card-img-top" alt="...">
+                    {% elif "Artesanía" in categoria.nombre or "Hogar" in categoria.nombre %}
+                        <img src="{% static 'assets/arte_diseño.jpg' %}" class="card-img-top" alt="...">
+                    {% elif "Electrohogar" in categoria.nombre or "Muebles" in categoria.nombre %}
+                        <img src="{% static 'assets/muebles.jpg' %}" class="card-img-top" alt="...">
+                    {% else %}
+                        <img src="{% static 'assets/innovacion.jpg' %}" class="card-img-top" alt="...">
+                    {% endif %}
+                {% endif %}
+                
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-primary">
+                        <i class="fas fa-folder-open me-2"></i>
+                        {{ categoria.nombre }}
+                    </h5>
+                    <p class="card-text text-muted flex-grow-1">
+                        <i class="fas fa-cube me-1"></i>
+                        {{ categoria.count }} Producto{{ categoria.count|pluralize }}
+                        {% if categoria.count > 0 %}
+                            <small class="d-block mt-1">
+                                <i class="fas fa-star text-warning"></i>
+                                Disponible ahora
+                            </small>
+                        {% endif %}
+                    </p>
+                    <div class="mt-auto">
+                        <a href="{% url 'productos_por_categoria' categoria.id %}" 
+                           class="btn btn-primary w-100 rounded-pill">
+                            <i class="fas fa-shopping-bag me-2"></i>
+                            Ver Productos
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="card">
-                <img src="{% static 'assets/arte_diseño.jpg' %}" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Arte y Diseño</h5>
-                  <p class="card-text">30 Proyectos</p>
+                
+                <!-- Badge de productos -->
+                {% if categoria.count > 0 %}
+                <div class="position-absolute top-0 end-0 m-2">
+                    <span class="badge bg-success rounded-pill">
+                        {{ categoria.count }}
+                    </span>
                 </div>
+                {% endif %}
             </div>
-            <div class="card">
-                <img src="{% static 'assets/tecnologia.jpg' %}" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Tecnologia</h5>
-                  <p class="card-text">50 Proyectos</p>
-                </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No hay categorías con productos disponibles</h5>
+                <p class="text-muted">Pronto tendremos productos increíbles para ti</p>
             </div>
-            <div class="card">
-                <img src="{% static 'assets/moda.jpg' %}" class="card-img-top" alt="...">
-                <div class="card-body">
-                  <h5 class="card-title">Moda</h5>
-                  <p class="card-text">100 Proyectos</p>
-                </div>
-            </div>
+            {% endfor %}
         </div>
         
   
     </div>
 </section>
+
  <!-- Banner de publicidad -->
 <!-- <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050; width: 300px; height: 300px;">
   <div class="card text-center shadow" style="height: 100%;">

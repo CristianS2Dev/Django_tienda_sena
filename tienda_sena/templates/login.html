@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/login.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 </head>
 {% block main %}
@@ -44,13 +45,25 @@
                     <input type="password" name="password" class="form-control pe-5" id="password" placeholder="Ingresa tu contraseña" required="">
                     <i class="bi bi-eye toggle-password" id="togglePasswordLogin" data-target="password"></i>
                 </div>
-            </div>
-            
-            
+            </div>           
             <div class="text-center">
                 <button type="submit" class="btn btn-success btn-lg ">Iniciar Sesion</button>
             </div>
-            <div class="text-center mt-1">
+            
+            <!-- Separador -->
+            <div class="text-center my-3">
+            </div>
+            
+            <!-- Botón de Google -->
+            {% load socialaccount %}
+            <div class="text-center">
+                <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger btn-lg w-100 d-flex align-items-center justify-content-center">
+                    <i class="bi bi-google me-2"></i>
+                    Continuar con Google
+                </a>
+            </div>
+            
+            <div class="text-center mt-3">
                 <a href="{% url 'olvidar_contraseña' %}">Olvidaste la contraseña?</a>
             </div>
             <div class="text-center mt-1">

@@ -16,6 +16,8 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Site ID required by django-allauth
+SITE_ID = 1
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -38,10 +40,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tienda_sena',
+    'django.contrib.sites',  # Requerido por allauth
+    'tienda_sena.apps.TiendaSenaConfig',  # Usar la configuración con signals
     'django.contrib.humanize', # para formatear números en los templates
-    'django.contrib.admindocs'
-
+    'django.contrib.admindocs',
+    
+    # Django Allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # Requerido por allauth
 ]
 
 ROOT_URLCONF = 'tienda.urls'
@@ -70,6 +79,7 @@ TEMPLATES = [
                 'tienda_sena.context_processors.categorias',  
                 'tienda_sena.context_processors.colores',  
                 'tienda_sena.context_processors.notificaciones_usuario',
+                'django.template.context_processors.request',  # Requerido por allauth
             ],
         },
     },
@@ -111,9 +121,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
@@ -125,6 +135,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'tienda_sena/static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
@@ -134,6 +145,47 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Django Allauth Configuration
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Configuración de Google OAuth
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
+
+# URLs de redirección después del login/logout
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Configuraciones de cuenta (nueva sintaxis)
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Sin verificación de email para desarrollo
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+
+# Configuración para social login
+SOCIALACCOUNT_LOGIN_ON_GET = True  # Permite login directo sin confirmación
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Registro automático para nuevos usuarios
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'  # Sin verificación de email para cuentas sociales
+
+# Variables de entorno para Google OAuth (agregar a un archivo .env)
+# GOOGLE_OAUTH2_CLIENT_ID = 'tu-client-id-aqui'
+# GOOGLE_OAUTH2_CLIENT_SECRET = 'tu-client-secret-aqui'
 #EMAIL SETTINGS
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -142,3 +194,33 @@ EMAIL_HOST_USER = "j.juancamilojurado@gmail.com"  # Your email address
 EMAIL_HOST_PASSWORD = "ztpbteftqpycyszu"  # Your email password
 EMAIL_PORT = 465  # SMTP port
 EMAIL_USE_SSL = True  # Use SSL for secure connection
+
+# Configuración de mensajes personalizados para Django Allauth
+ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+
+# Mensajes personalizados para login social
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+
+# Configuración de idioma y mensajes personalizados
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
+# Configuraciones adicionales para mensajes en español
+ACCOUNT_SESSION_REMEMBER = None
+ACCOUNT_LOGOUT_ON_GET = False
+
+# Personalizar mensajes de éxito
+MESSAGE_TAGS = {
+    50: 'critical',
+}
+
+# Si quieres sobrescribir completamente el mensaje de login exitoso
+# puedes usar esta configuración en tu vista personalizada
+CUSTOM_ALLAUTH_MESSAGES = {
+    'SUCCESSFULLY_SIGNED_IN': 'Sesión iniciada correctamente como {user}',
+    'SIGNED_OUT': 'Has cerrado sesión correctamente',
+    'EMAIL_CONFIRMATION_SENT': 'Se ha enviado un correo de confirmación',
+}

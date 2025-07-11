@@ -16,7 +16,7 @@
 
 ### CHANGELOG
 ---
-## [v1.34.32-alpha.1] - 10-07-2025
+## [v1.37.35-alpha.1] - 10-07-2025
 
 ### Added
 
@@ -51,20 +51,233 @@
 - Los campos documento y contacto son opcionales pero si se proporcionan deben cumplir con el formato establecido
 
 ---
+## [v1.36.34-alpha.1] - 10-07-2025
+
+### Added
+- **Sistema de Respaldo Automatizado (Backup)**:
+  - Nuevo script `backup_cron.py` para automatización de copias de seguridad
+  - Funcionalidad de compresión de base de datos a formato ZIP
+  - Envío automático de backups por correo electrónico
+  - Configuración de cron jobs para respaldos programados
+  - Log de actividades de backup en `log_bk.txt`
+- **Comandos de Gestión Django**:
+  - Comando `reset_productos.py` para reinicializar productos con datos realistas
+  - Comando `optimizar_categorias.py` para optimización del sistema de categorías
+  - Estructura mejorada de comandos de gestión en `management/commands/`
+- **Optimización de Imágenes de Productos**:
+  - Sistema automatizado de optimización de imágenes existentes
+  - Conversión masiva a formato WebP para mejor rendimiento
+  - Reorganización de carpetas de imágenes (`optimizadas/`, `originales/`, `miniaturas/`)
+  - Limpieza automática de imágenes duplicadas y huérfanas
+
+### Changed
+- **Estructura de Base de Datos**:
+  - Migración 0021 para implementación de nuevo sistema de categorías
+  - Migración 0022 para revertir cambios de categorías cuando sea necesario
+  - Optimización de consultas y relaciones en modelos
+- **Sistema de Gestión de Archivos Media**:
+  - Reorganización completa de la carpeta `media/productos/`
+  - Implementación de estructura jerárquica para imágenes
+  - Mejoras en el sistema de limpieza de archivos no utilizados
+- **Context Processors**:
+  - Optimización del procesador de contexto para categorías
+  - Mejoras en el rendimiento de consultas de notificaciones de usuario
+  - Reducción de carga en plantillas mediante procesamiento optimizado
+
+### Fixed
+- **Limpieza de Archivos de Desarrollo**:
+  - Eliminación de archivos temporales y de prueba (`.coverage`, `t copy.py`)
+  - Limpieza de imágenes duplicadas y versiones obsoletas
+  - Corrección de rutas de archivos en configuraciones
+- **Optimización de Rendimiento**:
+  - Resolución de problemas de memoria con imágenes grandes
+  - Mejoras en la carga de productos con múltiples imágenes
+  - Optimización de consultas de base de datos para listados
+
+### Security
+- **Gestión de Respaldos**:
+  - Implementación segura de envío de archivos por correo
+  - Validación de rutas y permisos en scripts de backup
+  - Configuración segura de cron jobs para tareas automatizadas
+
+### Performance
+- **Optimización de Imágenes**:
+  - Conversión automática a WebP para reducir tamaño de archivos hasta 80%
+  - Sistema de miniaturas optimizado para carga rápida
+  - Lazy loading mejorado para imágenes de productos
+- **Base de Datos**:
+  - Optimización de consultas relacionadas con productos e imágenes
+  - Indexación mejorada para búsquedas de categorías
+  - Reducción significativa en tiempo de carga de listados
+
+### Infrastructure
+- **Automatización**:
+  - Sistema completo de backup automatizado con cron
+  - Scripts de mantenimiento para limpieza periódica
+  - Logs detallados para monitoreo de operaciones automáticas
+
+### Note
+- **Backup Importante**: El sistema ahora incluye respaldos automáticos diarios
+- **Optimización Masiva**: Se recomienda ejecutar `reset_productos.py` para beneficiarse de las optimizaciones
+- **Rendimiento Mejorado**: Mejoras significativas en velocidad de carga de imágenes y productos
+
+---
+## [v1.35.33-alpha.1] - 06-07-2025
+
+### Added
+- **Sistema de Recuperación de Contraseña Completo**:
+  - Nueva vista `ajax_validar_codigo` para validar códigos de verificación de 6 dígitos
+  - Nueva vista `ajax_restablecer_password` para cambiar la contraseña después de la validación
+  - Proceso de recuperación de contraseña en 3 pasos: envío de código, validación y restablecimiento
+  - Interfaz de usuario mejorada con indicadores de progreso y formularios paso a paso
+  - Validación en tiempo real de requisitos de contraseña (mayúsculas, minúsculas, números, caracteres especiales)
+  - Funcionalidad de reenvío de código de verificación
+  - Indicadores de carga (spinners) en todos los botones durante las operaciones
+
+### Changed
+- **Template `olvidar_contraseña.html`**:
+  - Actualizado completamente para soportar flujo de 3 pasos
+  - Mejorada la experiencia de usuario con campos de código de verificación individuales
+  - Añadidos toggles para mostrar/ocultar contraseñas
+  - Implementada navegación automática entre campos de código
+  - Mejorados los textos a español y la usabilidad general
+- **Rutas URL**:
+  - Agregadas nuevas rutas: `ajax/validar-codigo/` y `ajax/restablecer-password/`
+  - Configuración completa del flujo de recuperación de contraseña
+- **Estilos CSS**:
+  - Añadidos estilos para campos de verificación con estados visual (llenado, enfoque)
+  - Implementados estilos de carga con animaciones CSS
+  - Mejorada la experiencia visual de los botones con estados de carga
+
+### Fixed
+- **Importaciones y Dependencias**:
+  - Agregada importación de `make_password` desde `django.contrib.auth.hashers`
+  - Corregidas todas las dependencias necesarias para el funcionamiento completo
+- **Validaciones de Seguridad**:
+  - Implementada validación completa de contraseñas utilizando la función existente `validar_contraseña`
+  - Añadida limpieza del código de verificación después del restablecimiento exitoso
+  - Mejorada la seguridad con validaciones tanto en frontend como backend
+
+### Security
+- **Proceso de Verificación**:
+  - Códigos de verificación de 6 dígitos almacenados de forma segura
+  - Validación de códigos en el servidor antes de permitir cambio de contraseña
+  - Limpieza automática de códigos de verificación después del uso
+  - Validación de todos los campos requeridos antes del procesamiento
+
+### Performance
+- **Experiencia de Usuario**:
+  - Interfaz asíncrona con feedback inmediato al usuario
+  - Indicadores de carga para mejorar la percepción de velocidad
+  - Navegación automática entre campos para mayor fluidez
+
+### Note
+- **Funcionalidad Completa**: El sistema de recuperación de contraseña ahora está completamente funcional con validación de código
+- **Mejores Prácticas**: Implementado siguiendo las mejores prácticas de seguridad y UX
+- **Responsive**: La interfaz es completamente responsive y accesible
+
+---
+## [v1.34.32-alpha.1] - 06-07-2025
+
+### Added
+- **Autenticación Social con Django Allauth**:
+  - Integración completa de django-allauth para autenticación con Google
+  - Botón de "Continuar con Google" en la página de login con diseño mejorado
+  - Configuración automática de OAuth2 para Google
+  - Archivo `signals.py` para manejar el login de usuarios y creación de cuentas sociales
+  - Script de configuración automatizada `setup_google_auth.bat` para instalación fácil
+  - Archivos `.env` y `.env.example` para configuración de credenciales OAuth2
+- **Mejoras en la Página de Inicio**:
+  - Categorías dinámicas en `index.html` que muestran productos reales
+  - Enlaces directos a productos por categoría desde la página principal
+  - Contador de productos por categoría actualizado dinámicamente
+
+### Changed
+- **Configuración de Django**:
+  - Actualizado `settings.py` con configuraciones completas de allauth
+  - Agregados backends de autenticación para múltiples métodos de login
+  - Configurado SITE_ID y middleware requeridos por allauth
+  - Actualizada configuración de templates para incluir context processors de allauth
+- **URLs y Enrutamiento**:
+  - Modificado `urls.py` para incluir rutas de allauth (`/accounts/`)
+  - Integradas URLs de autenticación social en el sistema de enrutamiento
+- **Templates y UI**:
+  - Mejorado `login.html` con botón de Google y estilos actualizados
+  - Añadidos iconos de Bootstrap para mejor experiencia visual
+  - Integradas las etiquetas de socialaccount en los templates
+
+### Fixed
+- **Flujo de Autenticación Mejorado**:
+  - Corregido el flujo de login para soportar múltiples métodos de autenticación
+  - Mejorado el manejo de errores en el proceso de login social
+  - Optimizada la experiencia de usuario en el proceso de registro/login
+
+### Security
+- **OAuth2 y Seguridad**:
+  - Implementada autenticación OAuth2 con Google siguiendo mejores prácticas
+  - Configuración segura de variables de entorno para credenciales
+  - Validaciones adicionales para cuentas de redes sociales
+
+### Performance
+- **Carga Dinámica de Contenido**:
+  - Optimizada la carga de categorías en la página principal
+  - Mejorado el rendimiento de consultas para mostrar productos por categoría
+
+### Note
+- **Configuración Requerida**: Se debe configurar `GOOGLE_OAUTH2_CLIENT_ID` y `GOOGLE_OAUTH2_CLIENT_SECRET` en el archivo `.env`
+- **Script de Instalación**: Usar `setup_google_auth.bat` para configuración automática del entorno
+- **Dependencias**: Se requiere instalar django-allauth según `requirements.txt`
+
+---
 ## [v1.33.31-alpha.1] - 06-07-2025
 
 ### Added
-
-- Se introduce el campo 'activo' al modelo Usuario para rastrear el estado de activación de los usuarios
-- Se implementa sistema de filtrado para usuarios activos y deshabilitados en el panel de administración
-- Se mejora la interfaz de usuario con sistema de reseñas y calificaciones en la página de detalle del producto
-- Se actualiza JavaScript para la funcionalidad de calificación por estrellas
-- Se añade migración para el nuevo campo 'activo' en la base de datos
+- **Autenticación Social con Google OAuth2**:
+  - Integración completa de django-allauth para autenticación social
+  - Botón de "Continuar con Google" en la página de login
+  - Configuración automática de cuentas de usuario desde Google
+  - Manejo de señales para usuarios de redes sociales
+- **Campo de Estado de Usuario**:
+  - Nuevo campo `activo` en el modelo Usuario para control de cuentas
+  - Migración 0020 para agregar el campo activo
+- **Mejoras en la Página de Inicio**:
+  - Categorías dinámicas que muestran cantidad real de productos
+  - Enlaces directos a productos por categoría
+  - Interfaz mejorada para explorar categorías
+- **Configuración de Entorno**:
+  - Archivos .env y .env.example para variables de entorno
+  - Script automatizado de configuración (setup_google_auth.bat)
+  - Configuración de zona horaria a América/Bogotá
 
 ### Changed
+- **Configuración de Django**:
+  - Actualizada configuración de INSTALLED_APPS para incluir allauth
+  - Configurados authentication backends para múltiples métodos de login
+  - Mejorada configuración de templates y middleware
+  - Actualizada configuración de idioma a español
+- **URLs y Routing**:
+  - Agregadas rutas de allauth para autenticación social
+  - Configurado manejo de archivos media en desarrollo
+- **Templates y UI**:
+  - Mejorado diseño del login con botón de Google
+  - Actualizados estilos CSS y JavaScript
+  - Mejoras en responsive design y usabilidad
 
-- Se mejora la gestión de usuarios con la funcionalidad de activación/desactivación
-- Se actualiza el panel de administración para incluir filtros por estado de usuario
+### Fixed
+- **Merge Conflicts Resueltos**:
+  - Combinados cambios de autenticación social con mejoras de UI
+  - Resueltos conflictos en base de datos manteniendo datos locales
+  - Solucionados conflictos de dependencias en migraciones
+
+### Security
+- **Autenticación Mejorada**:
+  - Implementado OAuth2 con Google para mayor seguridad
+  - Configuración PKCE habilitada para mayor protección
+  - Validaciones adicionales para cuentas de redes sociales
+
+### Note
+- **Configuración Requerida**: Es necesario configurar las credenciales de Google OAuth2 en el archivo .env
+- **Migraciones**: Se requiere ejecutar `python manage.py migrate` para aplicar la nueva migración de usuario activo
 
 ---
 

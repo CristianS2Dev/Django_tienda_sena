@@ -1,8 +1,8 @@
 from .models import *
 
 def categorias(request):
-    categorias = Producto.CATEGORIAS
-    return {'categorias': categorias}
+    # Devolver las categorías estáticas desde el modelo Producto
+    return {'categorias': Producto.CATEGORIAS}
 
 def colores(request):
     colores = Producto.COLORES

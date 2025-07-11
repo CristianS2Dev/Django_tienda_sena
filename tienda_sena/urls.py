@@ -13,6 +13,8 @@ urlpatterns = [
         path('registrarse/', views.registrarse, name='registrarse'),
         path('olvidar_contraseña/', views.olvidar_contraseña, name='olvidar_contraseña'),
         path('ajax/enviar-codigo/', views.ajax_enviar_codigo, name='ajax_enviar_codigo'),
+        path('ajax/validar-codigo/', views.ajax_validar_codigo, name='ajax_validar_codigo'),
+        path('ajax/restablecer-password/', views.ajax_restablecer_password, name='ajax_restablecer_password'),
         path('sobre_nosotros', views.sobre_nosotros, name='sobre_nosotros'),
 
     #Perfil Administrador
@@ -80,7 +82,7 @@ urlpatterns = [
         path('productos/imagenes/reordenar/', views_imagenes.reordenar_imagenes, name='reordenar_imagenes'),
         path('admin/estadisticas-imagenes/', views_imagenes.estadisticas_imagenes, name='estadisticas_imagenes'),
 
-    
+        path("backup/", views.backup, name="backup"),
 ]
 
 if settings.DEBUG:

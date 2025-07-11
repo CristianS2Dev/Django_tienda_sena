@@ -6,6 +6,7 @@ from .models import *
 from .utils import *
 from .image_utils import optimizar_imagen, crear_miniatura, validar_imagen_mejorada, obtener_info_imagen
 import re
+import json
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
@@ -19,7 +20,7 @@ from django.db import models, transaction
 from django.urls import reverse
 from django.core.mail import send_mail
 import random
-
+import os, time
 
 
 
@@ -31,9 +32,24 @@ def index(request):
     if request.session.get("pista",{}).get("rol") == 1:
         # Si el usuario es administrador, contar las solicitudes pendientes
         pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
+    
+    # Obtener categorías principales y contar productos por categoría
+    categorias_con_productos = []
+    
+    for key, value in Producto.CATEGORIAS:
+        if key != 0:  # Excluir "Ninguna"
+            count = Producto.objects.filter(categoria=key, vendedor__activo=True).count()
+            if count > 0:  # Solo incluir categorías que tienen productos
+                categorias_con_productos.append({
+                    'id': key,
+                    'nombre': value,
+                    'count': count,
+                })
+    
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
                 "pendientes_solicitudes_vendedor": pendientes,
+                'categorias_index': categorias_con_productos,
     }
     return render(request, 'index.html', contexto)
 
@@ -95,7 +111,7 @@ def logout(request):
         del request.session["pista"]
         return redirect("index")
     except:
-        messages.error(request, "Ocurrio un error")
+        messages.error(request, "Ocurrió un error")
         return redirect("index")
 
 def sobre_nosotros(request):
@@ -183,6 +199,63 @@ def ajax_enviar_codigo(request):
             return JsonResponse({"ok": True, "msg": "Código enviado al correo."})
         except Usuario.DoesNotExist:
             return JsonResponse({"ok": False, "msg": "El correo no está registrado."})
+    return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
+
+@csrf_exempt
+def ajax_validar_codigo(request):
+    """Valida el código de verificación enviado por el usuario."""
+    if request.method == "POST":
+        data = json.loads(request.body)
+        correo = data.get("correo")
+        codigo = data.get("codigo")
+        
+        if not correo or not codigo:
+            return JsonResponse({"ok": False, "msg": "Correo y código requeridos."})
+        
+        try:
+            usuario = Usuario.objects.get(correo=correo)
+            if usuario.codigo_verificacion == int(codigo):
+                return JsonResponse({"ok": True, "msg": "Código válido."})
+            else:
+                return JsonResponse({"ok": False, "msg": "Código incorrecto."})
+        except Usuario.DoesNotExist:
+            return JsonResponse({"ok": False, "msg": "Usuario no encontrado."})
+        except ValueError:
+            return JsonResponse({"ok": False, "msg": "Código inválido."})
+    return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
+
+@csrf_exempt
+def ajax_restablecer_password(request):
+    """Restablece la contraseña del usuario después de validar el código."""
+    if request.method == "POST":
+        
+        data = json.loads(request.body)
+        correo = data.get("correo")
+        nueva_password = data.get("nueva_password")
+        confirmar_password = data.get("confirmar_password")
+        
+        if not all([correo, nueva_password, confirmar_password]):
+            return JsonResponse({"ok": False, "msg": "Todos los campos son requeridos."})
+        
+        if nueva_password != confirmar_password:
+            return JsonResponse({"ok": False, "msg": "Las contraseñas no coinciden."})
+        
+        # Validar contraseña
+        es_valida, mensaje = validar_contraseña(nueva_password)
+        if not es_valida:
+            return JsonResponse({"ok": False, "msg": mensaje})
+        
+        try:
+            usuario = Usuario.objects.get(correo=correo)
+            # Cambiar la contraseña
+            usuario.password = make_password(nueva_password)
+            # Limpiar el código de verificación
+            usuario.codigo_verificacion = None
+            usuario.save()
+            
+            return JsonResponse({"ok": True, "msg": "Contraseña restablecida exitosamente."})
+        except Usuario.DoesNotExist:
+            return JsonResponse({"ok": False, "msg": "Usuario no encontrado."})
     return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
 
 def registrarse(request):
@@ -763,17 +836,21 @@ def lista_productos(request, id_categoria=None):
     """
     productos = Producto.objects.all()
 
-    # Obtener colores y categorías disponibles del modelo Producto
+    # Obtener colores y categorías disponibles del modelo
     colores_disponibles = Producto.COLORES
     categorias_disponibles = Producto.CATEGORIAS
-    colores_disponibles = Producto.COLORES
     categoria = request.GET.get('categoria')
     
     if categoria:
         try:
             categoria = int(categoria)
             productos = productos.filter(categoria=categoria)
-            categoria_obj = next((c for c in categorias_disponibles if c[0] == categoria), None)
+            # Buscar el nombre de la categoría
+            categoria_obj = None
+            for cat_id, cat_nombre in Producto.CATEGORIAS:
+                if cat_id == categoria:
+                    categoria_obj = {'id': cat_id, 'nombre': cat_nombre}
+                    break
         except (ValueError, TypeError):
             categoria_obj = None
 
@@ -802,8 +879,8 @@ def lista_productos(request, id_categoria=None):
             id_categoria = int(id_categoria)
             categoria = id_categoria
             productos = productos.filter(categoria=id_categoria)
-            # Obtener el objeto de la categoría
-            categoria_obj = next((c for c in categorias_disponibles if c[0] == id_categoria), None)
+            # Obtener el nombre de la categoría
+            categoria_obj = dict(Producto.CATEGORIAS).get(id_categoria, "Categoría desconocida")
         except (ValueError, TypeError):
             categoria = None
             categoria_obj = None
@@ -834,13 +911,19 @@ def lista_productos(request, id_categoria=None):
             pass
 
     # Ordenar productos
-    orden = request.GET.get('orden')
-    if orden == 'popular':
-        productos = productos.order_by('-id') # Suponiendo que los productos más recientes son los más populares
+    orden = request.GET.get('orden', 'popular')
+    if orden == 'popular' or orden == '':
+        productos = productos.order_by('-id')  # Más recientes como populares
     elif orden == 'barato':
         productos = productos.order_by('precio_original')
     elif orden == 'caro':
         productos = productos.order_by('-precio_original')
+    elif orden == 'reciente':
+        productos = productos.order_by('-id')
+    elif orden == 'nombre':
+        productos = productos.order_by('nombre')
+    elif orden == 'stock':
+        productos = productos.order_by('-stock')
 
     # Paginación
     from django.core.paginator import Paginator
@@ -852,7 +935,7 @@ def lista_productos(request, id_categoria=None):
     contexto = {
         'data': page_obj,
         'categoria': categoria_obj,
-        'categorias': categorias_disponibles,
+        'categorias': Producto.CATEGORIAS,
         'colores_disponibles': colores_disponibles,
         'colores_con_codigo': colores_con_codigo,
     }
@@ -1022,7 +1105,9 @@ def editar_producto(request, id_producto):
             producto.en_oferta = en_oferta
             producto.stock = stock_int
             producto.vendedor_id = vendedor
+            
             producto.categoria = categoria_int
+                
             producto.color = color_int
 
             # Procesar nuevas imágenes si las hay
@@ -1694,3 +1779,42 @@ def correos3(request):
 # ---------------------------------------------
 # FIN Envío de correos electrónicos
 # ---------------------------------------------
+
+
+# Copia de seguridad manual usando la utilidad de envío de correo con adjuntos
+
+def backup(request):
+    # configuración de rutas a comprimir:
+    # file_to_compress = '/home/tarde/Documentos/Django_tienda_sena/db.sqlite3'
+    file_to_compress = os.path.join(settings.BASE_DIR, 'db.sqlite3')
+    # zip_archive_name = '/home/tarde/Documentos/Django_tienda_sena/db.sqlite3.zip'
+    zip_archive_name = os.path.join(settings.BASE_DIR, 'db.sqlite3.zip')
+    compress_file_to_zip(file_to_compress, zip_archive_name)
+    print("...")
+    time.sleep(2)
+    print("Compresión correcta...!")
+    print("...")
+    
+    # envío de correo con .zip adjunto
+
+    subject = "Educalab SENA - Backup"
+    body = "Copia de Seguridad de la Base de Datos del Proyecto Tienda SENA"
+    to_emails = ['j.juancamilojurado@gmail.com']
+
+    # Ejemplo de un archivo adjunto (podrías leerlo de un archivo real)
+    file_path = zip_archive_name
+    if os.path.exists(zip_archive_name):
+        with open(file_path, 'rb') as f:
+            file_content = f.read()
+        attachments = [('db.sqlite3.zip', file_content, 'application/zip')]
+    else:
+        attachments = None
+
+    if send_email_with_attachment(subject, body, to_emails, attachments):
+        print("Correo electrónico enviado con éxito.")
+        messages.success(request, "Correo electrónico enviado con éxito.")
+        return redirect("panel_admin")
+    else:
+        print("Error al enviar el correo electrónico.")
+        messages.error(request, "Error al enviar el correo electrónico.")
+        return redirect("panel_admin")
