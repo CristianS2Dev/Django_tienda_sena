@@ -16,6 +16,30 @@
 
 ### CHANGELOG
 ---
+
+## [v1.39.37-alpha.1] - 11-07-2025
+
+### Added
+- Nueva migración para el campo de categoría de productos
+- Validaciones mejoradas para productos en las vistas
+
+### Changed
+- Modificado el enlace del botón de login para mejor funcionalidad
+- Actualizada la estructura de la base de datos para productos
+
+### Removed
+- Eliminado archivo `.env.example` para simplificar la configuración
+- Limpieza de respaldos antiguos de la base de datos
+
+### Fixed
+- Corregidas validaciones de productos en el sistema
+- Mejorada la gestión de categorías de productos
+
+### Note
+- Esta versión incluye cambios en la estructura de base de datos que requieren migración
+- Se recomienda hacer backup antes de aplicar las migraciones
+
+---
 ## [v1.37.35-alpha.1] - 10-07-2025
 
 ### Added
