@@ -16,6 +16,47 @@
 
 ### CHANGELOG
 ---
+
+## [v1.39.38-alpha.1] - 11-07-2025
+
+### Fixed
+- Resueltos conflictos de merge entre rama `dark` y rama `main`
+- Solucionados conflictos en migración 0024_alter_producto_categoria.py
+- Corregidos conflictos en template login.html
+- Mantenida base de datos local para preservar datos
+- Integrados cambios de autenticación social y mejoras de UI
+
+### Note
+- Merge completado exitosamente entre ramas divergentes
+- Se mantuvieron los datos locales de la base de datos
+- Todas las funcionalidades de ambas ramas están ahora integradas
+
+---
+
+## [v1.39.37-alpha.1] - 11-07-2025
+
+### Added
+- Nueva migración para el campo de categoría de productos
+- Validaciones mejoradas para productos en las vistas
+
+### Changed
+- Modificado el enlace del botón de login para mejor funcionalidad
+- Actualizada la estructura de la base de datos para productos
+
+### Removed
+- Eliminado archivo `.env.example` para simplificar la configuración
+- Limpieza de respaldos antiguos de la base de datos
+
+### Fixed
+- Corregidas validaciones de productos en el sistema
+- Mejorada la gestión de categorías de productos
+
+### Note
+- Esta versión incluye cambios en la estructura de base de datos que requieren migración
+- Se recomienda hacer backup antes de aplicar las migraciones
+
+---
+
 ## [v1.37.36-alpha.1] - 10-07-2025
 
 ### Changed
@@ -23,6 +64,7 @@
 - Se mejora la función `actualizar_perfil` con validaciones consistentes siguiendo el mismo patrón de otras funciones del sistema
 - Se mejora la funcion `arecuperar_contraseña` con validaciones consistentes siguiendo el mismo patrón de otras funciones del sistema
 
+---
 ---
 ## [v1.37.35-alpha.1] - 10-07-2025
 

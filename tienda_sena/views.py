@@ -7,6 +7,7 @@ from .utils import *
 from .image_utils import optimizar_imagen, crear_miniatura, validar_imagen_mejorada, obtener_info_imagen
 import re
 import json
+import random
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
@@ -1033,10 +1034,51 @@ def agregar_producto(request):
         imagenes = request.FILES.getlist("imagenes")
 
         try:
+            # Validaciones de campos obligatorios
+            if not nombre or not nombre.strip():
+                messages.error(request, "El nombre del producto es obligatorio.")
+                return redirect("agregar_producto")
+            
+            if not descripcion or not descripcion.strip():
+                messages.error(request, "La descripción del producto es obligatoria.")
+                return redirect("agregar_producto")
+            
+            # Validar que el nombre no contenga números
+            if re.search(r'\d', nombre):
+                messages.error(request, "El nombre del producto no puede contener números.")
+                return redirect("agregar_producto")
+            
+            # Validar longitud del nombre
+            if len(nombre.strip()) < 3:
+                messages.error(request, "El nombre del producto debe tener al menos 3 caracteres.")
+                return redirect("agregar_producto")
+            
+            if len(nombre.strip()) > 100:
+                messages.error(request, "El nombre del producto no puede exceder 100 caracteres.")
+                return redirect("agregar_producto")
+            
+            # Validar longitud de la descripción
+            if len(descripcion.strip()) < 10:
+                messages.error(request, "La descripción debe tener al menos 10 caracteres.")
+                return redirect("agregar_producto")
+            
+            if len(descripcion.strip()) > 1000:
+                messages.error(request, "La descripción no puede exceder 1000 caracteres.")
+                return redirect("agregar_producto")
+            
             # Convertir valores a tipos apropiados para validación
             precio_original_decimal = Decimal(precio_original) if precio_original else Decimal('0')
             descuento_decimal = Decimal(descuento) if descuento else Decimal('0')
             stock_int = int(stock) if stock else 0
+            
+            # Validar precio original
+            if precio_original_decimal <= 0:
+                messages.error(request, "El precio original debe ser mayor que 0.")
+                return redirect("agregar_producto")
+            
+            if precio_original_decimal > 999999:
+                messages.error(request, "El precio original no puede exceder $999,999.")
+                return redirect("agregar_producto")
             
             if precio_original_decimal < 0:
                 messages.error(request, "El precio original no puede ser negativo.")
@@ -1047,6 +1089,76 @@ def agregar_producto(request):
             if stock_int < 0:
                 messages.error(request,"El stock no puede ser negativo.")
                 return redirect("agregar_producto")
+            
+            if stock_int > 10000:
+                messages.error(request, "El stock no puede exceder 10,000 unidades.")
+                return redirect("agregar_producto")
+            
+            # Validar categoría y color
+            if not categoria or categoria == "0":
+                messages.error(request, "Debes seleccionar una categoría válida.")
+                return redirect("agregar_producto")
+            
+            if not color or color == "0":
+                messages.error(request, "Debes seleccionar un color válido.")
+                return redirect("agregar_producto")
+            
+            # Validar que no exista un producto con el mismo nombre del mismo vendedor
+            if Producto.objects.filter(nombre__iexact=nombre.strip(), vendedor_id=vendedor).exists():
+                messages.error(request, "Ya tienes un producto registrado con este nombre.")
+                return redirect("agregar_producto")
+
+            # ===== VALIDACIONES DE NEGOCIO =====
+            # Validar que si está en oferta, el descuento sea mayor a 0
+            if en_oferta and descuento_decimal <= 0:
+                messages.error(request, "Si el producto está en oferta, debe tener un descuento mayor a 0.")
+                return redirect("agregar_producto")
+
+            # Validar precio final no sea negativo o muy bajo
+            precio_final = precio_original_decimal * (1 - descuento_decimal / 100)
+            if precio_final <= 0:
+                messages.error(request, "El precio final después del descuento debe ser mayor que 0.")
+                return redirect("agregar_producto")
+            
+            if precio_final < 1000:  # Precio mínimo de $1000
+                messages.error(request, "El precio final del producto debe ser al menos $1,000.")
+                return redirect("agregar_producto")
+
+            # ===== VALIDACIONES DE CONTENIDO =====
+            # Validar palabras ofensivas o inapropiadas
+            palabras_prohibidas = ['spam', 'fake', 'ilegal', 'estafa', 'falso', 'robo', 'copia', 'pirata']
+            if any(palabra in nombre.lower() for palabra in palabras_prohibidas):
+                messages.error(request, "El nombre contiene palabras no permitidas.")
+                return redirect("agregar_producto")
+            
+            if any(palabra in descripcion.lower() for palabra in palabras_prohibidas):
+                messages.error(request, "La descripción contiene palabras no permitidas.")
+                return redirect("agregar_producto")
+
+            # Validar caracteres especiales excesivos en el nombre
+            if len(re.findall(r'[!@#$%^&*(),.?":{}|<>]', nombre)) > 2:
+                messages.error(request, "El nombre contiene demasiados caracteres especiales.")
+                return redirect("agregar_producto")
+
+            # Validar que el nombre no sea solo mayúsculas (spam)
+            if nombre.isupper() and len(nombre) > 10:
+                messages.error(request, "El nombre no puede estar completamente en mayúsculas.")
+                return redirect("agregar_producto")
+
+            # ===== VALIDACIONES DE VENDEDOR =====
+            # Validar que el vendedor existe y está activo
+            try:
+                vendedor_obj = Usuario.objects.get(id=vendedor, activo=True, rol__in=[1, 3])
+            except Usuario.DoesNotExist:
+                messages.error(request, "Vendedor no válido o inactivo.")
+                return redirect("agregar_producto")
+
+            # ===== VALIDACIONES DE SEGURIDAD =====
+            # Validar que el usuario tiene permisos para asignar ese vendedor
+            if request.session.get("pista")["rol"] == 3:  # Si es vendedor
+                if int(vendedor) != request.session.get("pista")["id"]:
+                    messages.error(request, "No puedes crear productos para otro vendedor.")
+                    return redirect("agregar_producto")
 
             # Validar cantidad de imágenes
             if len(imagenes) == 0:
@@ -1057,6 +1169,19 @@ def agregar_producto(request):
                 messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")
                 return redirect("agregar_producto")
 
+            # ===== VALIDACIONES DE IMÁGENES MEJORADAS =====
+            # Validar formato de imagen específico para productos
+            formatos_permitidos = ['jpg', 'jpeg', 'png', 'webp']
+            for imagen in imagenes:
+                if not imagen.name.lower().split('.')[-1] in formatos_permitidos:
+                    messages.error(request, f"Formato de imagen no permitido: {imagen.name}")
+                    return redirect("agregar_producto")
+                
+                # Validar tamaño mínimo de imagen (evitar imágenes muy pequeñas)
+                if imagen.size < 10000:  # 10KB mínimo
+                    messages.error(request, f"La imagen {imagen.name} es demasiado pequeña (mínimo 10KB).")
+                    return redirect("agregar_producto")
+
             # Procesar y validar imágenes
             imagenes_procesadas = []
             for i, imagen in enumerate(imagenes):
@@ -1066,32 +1191,38 @@ def agregar_producto(request):
                     return redirect("agregar_producto")
                 imagenes_procesadas.append(resultado)
 
-            # Crear el producto
-            producto = Producto(
-                nombre=nombre,
-                descripcion=descripcion,
-                precio_original=precio_original_decimal,
-                descuento=descuento_decimal,
-                en_oferta=en_oferta,
-                stock=stock_int,
-                vendedor_id=vendedor,
-                categoria=int(categoria) if categoria else 0,
-                color=int(color) if color else 0,
-            )
-            producto.full_clean()
-            producto.save()
+            # Validar que al menos una imagen sea marcada como principal (automático para la primera)
+            if not any(img.get('es_principal', False) for img in imagenes_procesadas):
+                imagenes_procesadas[0]['es_principal'] = True
 
-            # Guardar imágenes procesadas
-            for i, resultado in enumerate(imagenes_procesadas):
-                imagen_producto = ImagenProducto(
-                    producto=producto,
-                    imagen_original=imagenes[i],
-                    imagen=resultado['imagen_optimizada'],
-                    miniatura=resultado['miniatura'],
-                    es_principal=(i == 0),  # Primera imagen es principal
-                    orden=i
+            # ===== CREAR PRODUCTO CON TRANSACCIÓN =====
+            with transaction.atomic():
+                # Crear el producto
+                producto = Producto(
+                    nombre=nombre.strip(),
+                    descripcion=descripcion.strip(),
+                    precio_original=precio_original_decimal,
+                    descuento=descuento_decimal,
+                    en_oferta=en_oferta,
+                    stock=stock_int,
+                    vendedor_id=vendedor,
+                    categoria=int(categoria) if categoria else 0,
+                    color=int(color) if color else 0,
                 )
-                imagen_producto.save()
+                producto.full_clean()
+                producto.save()
+
+                # Guardar imágenes procesadas
+                for i, resultado in enumerate(imagenes_procesadas):
+                    imagen_producto = ImagenProducto(
+                        producto=producto,
+                        imagen_original=imagenes[i],
+                        imagen=resultado['imagen_optimizada'],
+                        miniatura=resultado['miniatura'],
+                        es_principal=(i == 0),  # Primera imagen es principal
+                        orden=i
+                    )
+                    imagen_producto.save()
                 
             messages.success(request, f"Producto guardado correctamente con {len(imagenes_procesadas)} imágenes optimizadas!")
             
@@ -1141,6 +1272,38 @@ def editar_producto(request, id_producto):
             # Obtener el producto a editar
             producto = Producto.objects.get(pk=id_producto)
             
+            # Validaciones de campos obligatorios
+            if not nombre or not nombre.strip():
+                messages.error(request, "El nombre del producto es obligatorio.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            if not descripcion or not descripcion.strip():
+                messages.error(request, "La descripción del producto es obligatoria.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            # Validar que el nombre no contenga números
+            if re.search(r'\d', nombre):
+                messages.error(request, "El nombre del producto no puede contener números.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            # Validar longitud del nombre
+            if len(nombre.strip()) < 3:
+                messages.error(request, "El nombre del producto debe tener al menos 3 caracteres.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            if len(nombre.strip()) > 100:
+                messages.error(request, "El nombre del producto no puede exceder 100 caracteres.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            # Validar longitud de la descripción
+            if len(descripcion.strip()) < 10:
+                messages.error(request, "La descripción debe tener al menos 10 caracteres.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            if len(descripcion.strip()) > 1000:
+                messages.error(request, "La descripción no puede exceder 1000 caracteres.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
             # Convertir valores a tipos apropiados
             precio_original_decimal = Decimal(precio_original) if precio_original else Decimal(0)
             descuento_decimal = Decimal(descuento) if descuento else Decimal(0)
@@ -1148,54 +1311,156 @@ def editar_producto(request, id_producto):
             categoria_int = int(categoria) if categoria else 0
             color_int = int(color) if color else 0
             
-            # Actualizar los campos del producto
-            producto.nombre = nombre
-            producto.descripcion = descripcion
-            producto.precio_original = precio_original_decimal
-            producto.descuento = descuento_decimal
-            producto.en_oferta = en_oferta
-            producto.stock = stock_int
-            producto.vendedor_id = vendedor
+            # Validar precio original
+            if precio_original_decimal <= 0:
+                messages.error(request, "El precio original debe ser mayor que 0.")
+                return redirect("editar_producto", id_producto=id_producto)
             
-            producto.categoria = categoria_int
-                
-            producto.color = color_int
+            if precio_original_decimal > 999999:
+                messages.error(request, "El precio original no puede exceder $999,999.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            # Validar descuento
+            if descuento_decimal < 0 or descuento_decimal > 100:
+                messages.error(request, "El descuento debe estar entre 0 y 100.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            # Validar stock
+            if stock_int < 0:
+                messages.error(request, "El stock no puede ser negativo.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            if stock_int > 10000:
+                messages.error(request, "El stock no puede exceder 10,000 unidades.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            # Validar categoría y color
+            if not categoria or categoria == "0":
+                messages.error(request, "Debes seleccionar una categoría válida.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            if not color or color == "0":
+                messages.error(request, "Debes seleccionar un color válido.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            # Validar que no exista otro producto con el mismo nombre del mismo vendedor (excluyendo el actual)
+            if Producto.objects.filter(nombre__iexact=nombre.strip(), vendedor_id=vendedor).exclude(id=id_producto).exists():
+                messages.error(request, "Ya tienes otro producto registrado con este nombre.")
+                return redirect("editar_producto", id_producto=id_producto)
 
-            # Procesar nuevas imágenes si las hay
-            if imagenes:
-                if len(imagenes) > 5:
-                    messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")
+            # ===== VALIDACIONES DE NEGOCIO =====
+            # Validar que si está en oferta, el descuento sea mayor a 0
+            if en_oferta and descuento_decimal <= 0:
+                messages.error(request, "Si el producto está en oferta, debe tener un descuento mayor a 0.")
+                return redirect("editar_producto", id_producto=id_producto)
+
+            # Validar precio final no sea negativo o muy bajo
+            precio_final = precio_original_decimal * (1 - descuento_decimal / 100)
+            if precio_final <= 0:
+                messages.error(request, "El precio final después del descuento debe ser mayor que 0.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            if precio_final < 1000:  # Precio mínimo de $1000
+                messages.error(request, "El precio final del producto debe ser al menos $1,000.")
+                return redirect("editar_producto", id_producto=id_producto)
+
+            # ===== VALIDACIONES DE CONTENIDO =====
+            # Validar palabras ofensivas o inapropiadas
+            palabras_prohibidas = ['spam', 'fake', 'ilegal', 'estafa', 'falso', 'robo', 'copia', 'pirata']
+            if any(palabra in nombre.lower() for palabra in palabras_prohibidas):
+                messages.error(request, "El nombre contiene palabras no permitidas.")
+                return redirect("editar_producto", id_producto=id_producto)
+            
+            if any(palabra in descripcion.lower() for palabra in palabras_prohibidas):
+                messages.error(request, "La descripción contiene palabras no permitidas.")
+                return redirect("editar_producto", id_producto=id_producto)
+
+            # Validar caracteres especiales excesivos en el nombre
+            if len(re.findall(r'[!@#$%^&*(),.?":{}|<>]', nombre)) > 2:
+                messages.error(request, "El nombre contiene demasiados caracteres especiales.")
+                return redirect("editar_producto", id_producto=id_producto)
+
+            # Validar que el nombre no sea solo mayúsculas (spam)
+            if nombre.isupper() and len(nombre) > 10:
+                messages.error(request, "El nombre no puede estar completamente en mayúsculas.")
+                return redirect("editar_producto", id_producto=id_producto)
+
+            # ===== VALIDACIONES DE VENDEDOR =====
+            # Validar que el vendedor existe y está activo
+            try:
+                vendedor_obj = Usuario.objects.get(id=vendedor, activo=True, rol__in=[1, 3])
+            except Usuario.DoesNotExist:
+                messages.error(request, "Vendedor no válido o inactivo.")
+                return redirect("editar_producto", id_producto=id_producto)
+
+            # ===== VALIDACIONES DE SEGURIDAD =====
+            # Validar que el usuario tiene permisos para asignar ese vendedor
+            if request.session.get("pista")["rol"] == 3:  # Si es vendedor
+                if int(vendedor) != request.session.get("pista")["id"]:
+                    messages.error(request, "No puedes editar productos de otro vendedor.")
                     return redirect("editar_producto", id_producto=id_producto)
+            
+            # ===== ACTUALIZAR PRODUCTO CON TRANSACCIÓN =====
+            with transaction.atomic():
+                # Actualizar los campos del producto
+                producto.nombre = nombre.strip()
+                producto.descripcion = descripcion.strip()
+                producto.precio_original = precio_original_decimal
+                producto.descuento = descuento_decimal
+                producto.en_oferta = en_oferta
+                producto.stock = stock_int
+                producto.vendedor_id = vendedor
+                producto.categoria = categoria_int
+                producto.color = color_int
 
-                # Procesar y validar nuevas imágenes
-                imagenes_procesadas = []
-                for i, imagen in enumerate(imagenes):
-                    resultado = procesar_imagen_producto(imagen)
-                    if not resultado['success']:
-                        messages.error(request, f"Error en imagen {i+1}: {resultado['error']}")
+                # Procesar nuevas imágenes si las hay
+                if imagenes:
+                    if len(imagenes) > 5:
+                        messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")
                         return redirect("editar_producto", id_producto=id_producto)
-                    imagenes_procesadas.append(resultado)
 
-                # Obtener el próximo número de orden
-                ultimo_orden = ImagenProducto.objects.filter(producto=producto).aggregate(
-                    max_orden=models.Max('orden'))['max_orden'] or 0
+                    # ===== VALIDACIONES DE IMÁGENES MEJORADAS =====
+                    # Validar formato de imagen específico para productos
+                    formatos_permitidos = ['jpg', 'jpeg', 'png', 'webp']
+                    for imagen in imagenes:
+                        if not imagen.name.lower().split('.')[-1] in formatos_permitidos:
+                            messages.error(request, f"Formato de imagen no permitido: {imagen.name}")
+                            return redirect("editar_producto", id_producto=id_producto)
+                        
+                        # Validar tamaño mínimo de imagen (evitar imágenes muy pequeñas)
+                        if imagen.size < 10000:  # 10KB mínimo
+                            messages.error(request, f"La imagen {imagen.name} es demasiado pequeña (mínimo 10KB).")
+                            return redirect("editar_producto", id_producto=id_producto)
 
-                # Guardar las nuevas imágenes procesadas
-                for i, resultado in enumerate(imagenes_procesadas):
-                    imagen_producto = ImagenProducto(
-                        producto=producto,
-                        imagen_original=imagenes[i],
-                        imagen=resultado['imagen_optimizada'],
-                        miniatura=resultado['miniatura'],
-                        es_principal=False,  # Las nuevas no son principales por defecto
-                        orden=ultimo_orden + i + 1
-                    )
-                    imagen_producto.save()
-                
-                messages.info(request, f"Se agregaron {len(imagenes_procesadas)} imágenes optimizadas.")
+                    # Procesar y validar nuevas imágenes
+                    imagenes_procesadas = []
+                    for i, imagen in enumerate(imagenes):
+                        resultado = procesar_imagen_producto(imagen)
+                        if not resultado['success']:
+                            messages.error(request, f"Error en imagen {i+1}: {resultado['error']}")
+                            return redirect("editar_producto", id_producto=id_producto)
+                        imagenes_procesadas.append(resultado)
 
-            producto.full_clean()
-            producto.save()
+                    # Obtener el próximo número de orden
+                    ultimo_orden = ImagenProducto.objects.filter(producto=producto).aggregate(
+                        max_orden=models.Max('orden'))['max_orden'] or 0
+
+                    # Guardar las nuevas imágenes procesadas
+                    for i, resultado in enumerate(imagenes_procesadas):
+                        imagen_producto = ImagenProducto(
+                            producto=producto,
+                            imagen_original=imagenes[i],
+                            imagen=resultado['imagen_optimizada'],
+                            miniatura=resultado['miniatura'],
+                            es_principal=False,  # Las nuevas no son principales por defecto
+                            orden=ultimo_orden + i + 1
+                        )
+                        imagen_producto.save()
+                    
+                    messages.info(request, f"Se agregaron {len(imagenes_procesadas)} imágenes optimizadas.")
+
+                producto.full_clean()
+                producto.save()
 
             messages.success(request, "Producto actualizado correctamente!")
             if rol == 1:
