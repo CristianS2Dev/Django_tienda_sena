@@ -389,8 +389,8 @@ def actualizar_perfil(request):
                 if not documento.strip().isdigit():
                     messages.error(request, "El documento debe contener solo números.")
                     return redirect("actualizar_perfil")
-                if len(documento.strip()) < 10 or len(documento.strip()) > 11:
-                    messages.error(request, "El documento debe tener entre 10 y 11 dígitos.")
+                if len(documento.strip()) < 4 or len(documento.strip()) > 11:
+                    messages.error(request, "El documento debe tener entre 4 y 11 dígitos.")
                     return redirect("actualizar_perfil")
             
             # Validar contacto (opcional pero si se proporciona debe ser válido)
@@ -1293,19 +1293,42 @@ def agregar_usuario(request):
         password = request.POST.get("password")
         rol = request.POST.get("rol")
         imagen_perfil = request.FILES.get("imagen_perfil")  # Obtener la imagen del formulario
+        valid_password = request.POST.get("valid_password")
+        
+
 
         try:
+            es_valida, mensaje = validar_contraseña(password)
+            
             if imagen_perfil:
+                
                 try:
                     validar_archivo(imagen_perfil) 
                     validar_tamano_archivo(imagen_perfil) 
                 except ValidationError as ve:
                     messages.error(request, f"Error de validación: {ve}")
-                    return redirect("agregar_usuario")
+                    return render("agregar_usuario")
                 except Exception as e:
                     messages.error(request, f"Error al escanear archivo: {e}")
                     return redirect("agregar_usuario")
+                
+            elif re.search(r'\d', nombre_apellido):
+                messages.error(request, "El nombre y apellido no pueden contener números.")
+                return render(request, "agregar_usuario.html")
+            
+            elif not nombre_apellido or not correo or not password or not valid_password:
+                messages.error(request, "Todos los campos son obligatorios.")
+                return render(request, "agregar_usuario.html")
 
+            elif not correo_valido(correo):
+                raise CorreoInvalidoError("Correo electrónico inválido")
+            
+            
+            elif not es_valida:
+                messages.error(request, mensaje)
+                return render(request, "listar_usuarios.html")
+            
+          
             # Crear el usuario
             q = Usuario(
                 nombre_apellido=nombre_apellido,

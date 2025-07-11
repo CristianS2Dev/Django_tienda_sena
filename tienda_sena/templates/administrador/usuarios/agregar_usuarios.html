@@ -3,8 +3,12 @@
 
 
 {% block main %}
-<div class="container">
 
+<div class="container">
+    <div id="notificaciones">
+  {% if messages %}
+      {% for message in messages %} 
+<div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
 
     {% if dato %}
         <h1>Actualizar Usuario {{ dato }}</h1>
@@ -23,7 +27,9 @@
         <label>Correo:</label>
         <input type="email" name="correo" required="" class="form-control" value="{{ dato.correo }}"/> <br>
         <label>Contraseña:</label>
-        <input type="password" name="password" required="" class="form-control" value="{{ dato.password }}"/> <br>
+        <input type="password" name="password" required="" class="form-control" /> <br>
+        <label>Validar Contraseña:</label>
+        <input type="password" name="valid_password" required="" class="form-control" /> <br>
         <label>Rol:</label>
         <select name="rol"  class="form-select">
             <option value="1" {% if dato.rol == 1 %}selected{% endif %}>Administrador</option>

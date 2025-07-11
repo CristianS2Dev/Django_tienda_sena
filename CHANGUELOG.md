@@ -16,6 +16,59 @@
 
 ### CHANGELOG
 ---
+## [v1.38.36-alpha.1] - 11-07-2025
+
+### Added
+
+- Se implementan validaciones mejoradas y robustas en la función `login` para mayor seguridad:
+  - Validación de campos vacíos que previene envío de formularios incompletos
+  - Validación de espacios en blanco usando `.strip()` para sanitizar datos de entrada
+  - Mensajes de error específicos y claros para diferentes tipos de errores de validación
+- Se agregan nuevos imports necesarios para la funcionalidad expandida:
+  - Import de `re` para expresiones regulares en validaciones
+  - Import de `json` para manejo de datos JSON
+  - Import de `random` para funcionalidades aleatorias
+  - Import de `os, time` para operaciones del sistema
+
+### Changed
+
+- Se mejora significativamente la función `login` con validaciones exhaustivas:
+  - Implementación de validación de correo electrónico usando función `correo_valido()`
+  - Mejora en el manejo de errores de autenticación con mensajes más descriptivos
+  - Optimización del flujo de validación para mejor experiencia de usuario
+- Se fortalece la función `actualizar_perfil` con validaciones más estrictas:
+  - Validaciones mejoradas para documento de identidad (4-11 dígitos, solo números)
+  - Validaciones optimizadas para número de contacto (10-11 dígitos, solo números)
+  - Mejor manejo de campos opcionales permitiendo valores vacíos válidos
+
+### Fixed
+
+- Se corrige el manejo de datos de entrada en el sistema de autenticación:
+  - Eliminación automática de espacios en blanco antes del procesamiento
+  - Prevención de errores por campos que contienen solo espacios
+  - Mejor validación de formato de correo electrónico
+- Se mejora la retroalimentación al usuario con mensajes de error más específicos:
+  - Mensajes diferenciados para campos vacíos vs. campos con solo espacios
+  - Validaciones más precisas para cada tipo de campo (nombre, documento, contacto)
+
+### Security
+
+- Se fortalece la seguridad del sistema de autenticación:
+  - Validación de formato de correo antes de consultar la base de datos
+  - Sanitización de datos de entrada eliminando espacios innecesarios
+  - Prevención de inyección de datos maliciosos mediante validaciones estrictas
+- Se mejoran las validaciones de entrada en actualización de perfil:
+  - Validación de formato para campos numéricos (documento y contacto)
+  - Prevención de caracteres no válidos en nombres mediante expresiones regulares
+
+### Note
+
+- Las validaciones implementadas siguen un patrón consistente a través de todo el sistema
+- Se mantiene compatibilidad con funcionalidades existentes mientras se mejora la seguridad
+- Los campos documento y contacto siguen siendo opcionales pero con validación estricta cuando se proporcionan
+- Las mejoras son parte de un esfuerzo continuo para fortalecer la seguridad y experiencia de usuario
+
+---
 ## [v1.37.35-alpha.1] - 10-07-2025
 
 ### Added
