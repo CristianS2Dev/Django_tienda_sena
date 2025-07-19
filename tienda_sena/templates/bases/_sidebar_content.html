@@ -71,6 +71,17 @@
             <a class="nav-link text-white" href="#">
                 <i class="fas fa-cog me-2"></i> Configuracion Personal
             </a>
+            </li>            
+            <!-- Panel de Notificaciones Admin -->
+            <li class="nav-item">
+                <a class="nav-link text-white position-relative" href="{% url 'notificaciones_admin' %}">
+                    <i class="fas fa-bell-slash me-2"></i> Panel Admin
+                    {% if notificaciones_admin_pendientes > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.6rem;">
+                            {{ notificaciones_admin_pendientes }}
+                        </span>
+                    {% endif %}
+                </a>
             </li>
             
             <!-- Banner de publicidad -->
@@ -143,6 +154,18 @@
             <li class="nav-item">
                 <a class="nav-link text-white" href="#">
                     <i class="fas fa-cog me-2"></i> Configuración
+                </a>
+            </li>
+            
+            <!-- Notificaciones -->
+            <li class="nav-item">
+                <a class="nav-link text-white position-relative" href="{% url 'listar_notificaciones' %}">
+                    <i class="fas fa-bell me-2"></i> Mis Notificaciones
+                    {% if notificaciones_no_leidas > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                            {{ notificaciones_no_leidas }}
+                        </span>
+                    {% endif %}
                 </a>
             </li>
             <!-- Banner de publicidad -->

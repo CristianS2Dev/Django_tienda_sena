@@ -23,6 +23,13 @@ urlpatterns = [
         path('administrador/solicitudes_vendedor/aprobar/<int:id_solicitud>/', views.aprobar_solicitud_vendedor, name='aprobar_solicitud_vendedor'),
         path('administrador/solicitudes_vendedor/rechazar/<int:id_solicitud>/', views.rechazar_solicitud_vendedor, name='rechazar_solicitud_vendedor'),
 
+    # Sistema de Notificaciones
+        path('notificaciones/', views.listar_notificaciones, name='listar_notificaciones'),
+        path('notificaciones/admin/', views.notificaciones_admin, name='notificaciones_admin'),
+        path('notificaciones/marcar-leida/<int:id_notificacion>/', views.marcar_notificacion_leida, name='marcar_notificacion_leida'),
+        path('notificaciones/marcar-todas-leidas/', views.marcar_todas_leidas, name='marcar_todas_leidas'),
+        path('notificaciones/eliminar/<int:id_notificacion>/', views.eliminar_notificacion, name='eliminar_notificacion'),
+
 
 
 

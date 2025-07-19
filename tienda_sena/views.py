@@ -61,7 +61,7 @@ def validar_archivo_pdf(archivo):
 # Create your views here.
 def index(request):
     """Vista principal de la tienda."""
-    q = Producto.objects.all()[:6]
+    q = Producto.objects.all()[:12]
     pendientes = 0
     if request.session.get("pista",{}).get("rol") == 1:
         # Si el usuario es administrador, contar las solicitudes pendientes
@@ -343,6 +343,13 @@ def registrarse(request):
                 rol=rol,
             )
             usuario.save()
+            
+            # Crear notificaciones de bienvenida para el usuario
+            crear_notificaciones_bienvenida(usuario)
+            
+            # Notificar a administradores sobre el nuevo usuario
+            crear_notificacion_nuevo_usuario(usuario)
+            
             messages.success(request, "Usuario registrado correctamente!")
             request.session["pista"] = {
                 "id": usuario.id,
@@ -537,7 +544,25 @@ def solicitar_vendedor(request):
             validar_archivo_pdf(certificado)
             
             # Si la validación es exitosa, crear la solicitud
-            SolicitudVendedor.objects.create(usuario=usuario, certificado=certificado)
+            solicitud = SolicitudVendedor.objects.create(usuario=usuario, certificado=certificado)
+            
+            # Notificar a todos los administradores sobre la nueva solicitud
+            notificar_administradores(
+                titulo="Nueva Solicitud de Vendedor",
+                mensaje=f"{usuario.nombre_apellido} ha solicitado ser vendedor. Revisa su certificado.",
+                tipo='vendor_request',
+                url='/administrador/solicitudes_vendedor/'
+            )
+            
+            # Notificar al usuario que su solicitud fue enviada
+            crear_notificacion(
+                usuario=usuario,
+                titulo="Solicitud Enviada",
+                mensaje="Tu solicitud para ser vendedor ha sido enviada. Un administrador la revisará pronto.",
+                tipo='info',
+                url='/perfil_usuario/'
+            )
+            
             messages.success(request, "Solicitud enviada. Un administrador la revisará.")
             return redirect("perfil_usuario")
             
@@ -1224,6 +1249,18 @@ def agregar_producto(request):
                     )
                     imagen_producto.save()
                 
+                # Notificar a administradores sobre el nuevo producto
+                crear_notificacion_nuevo_producto(producto)
+                
+                # Notificar al vendedor sobre el producto creado exitosamente
+                crear_notificacion(
+                    usuario=vendedor_obj,
+                    titulo="Producto Publicado",
+                    mensaje=f"Tu producto '{producto.nombre}' ha sido publicado exitosamente.",
+                    tipo='success',
+                    url=f'/producto/user/{producto.id}/'
+                )
+                
             messages.success(request, f"Producto guardado correctamente con {len(imagenes_procesadas)} imágenes optimizadas!")
             
             # Mostrar información de optimización
@@ -1788,11 +1825,19 @@ def aprobar_solicitud_vendedor(request, id_solicitud):
     solicitud.usuario.rol = 3  # Cambia a vendedor
     solicitud.usuario.save()
     solicitud.save()
-    # Crear notificación
-    Notificacion.objects.create(
+    
+    # Crear notificación de aprobación
+    crear_notificacion(
         usuario=solicitud.usuario,
-        mensaje="¡Tu solicitud para ser vendedor ha sido aprobada!"
+        titulo="¡Solicitud Aprobada!",
+        mensaje="¡Tu solicitud para ser vendedor ha sido aprobada! Ya puedes comenzar a vender.",
+        tipo='success',
+        url='/perfil_usuario/'
     )
+    
+    # Crear notificaciones de bienvenida para vendedor
+    crear_notificaciones_bienvenida(solicitud.usuario)
+    
     messages.success(request, "Solicitud aprobada y usuario actualizado a vendedor.")
     return redirect("solicitudes_vendedor")
 
@@ -1801,21 +1846,266 @@ def rechazar_solicitud_vendedor(request, id_solicitud):
     solicitud = SolicitudVendedor.objects.get(pk=id_solicitud)
     solicitud.estado = 'rechazado'
     solicitud.save()
-    # Crear notificación
-    Notificacion.objects.create(
+    # Crear notificación mejorada usando la función helper
+    crear_notificacion(
         usuario=solicitud.usuario,
-        mensaje="Tu solicitud para ser vendedor fue rechazada. Puedes volver a intentarlo."
+        titulo="Solicitud de Vendedor Rechazada",
+        mensaje="Tu solicitud para ser vendedor fue rechazada. Puedes volver a intentarlo.",
+        tipo='warning'
     )
     messages.info(request, "Solicitud rechazada.")
     return redirect("solicitudes_vendedor")
 
-def notificaciones_usuario(request):
-    if request.session.get("pista") and request.session["pista"]["rol"] == 2:
-        usuario_id = request.session["pista"]["id"]
-        usuario = Usuario.objects.get(pk=usuario_id)
-        notificaciones = Notificacion.objects.filter(usuario=usuario).order_by('-fecha')[:10]
-        return {"notificaciones_usuario": notificaciones}
-    return {"notificaciones_usuario": []}
+# ===============================================
+# SISTEMA DE NOTIFICACIONES
+# ===============================================
+
+def listar_notificaciones(request):
+    """Vista para listar todas las notificaciones del usuario"""
+    if not request.session.get("pista"):
+        return redirect('login')
+    
+    usuario_id = request.session["pista"]["id"]
+    usuario = Usuario.objects.get(pk=usuario_id)
+    
+    # Obtener todas las notificaciones paginadas
+    notificaciones = Notificacion.objects.filter(usuario=usuario).order_by('-fecha')
+    
+    context = {
+        'notificaciones': notificaciones,
+        'titulo': 'Mis Notificaciones'
+    }
+    return render(request, 'notificaciones/listar_notificaciones.html', context)
+
+def marcar_notificacion_leida(request, id_notificacion):
+    """Marca una notificación específica como leída"""
+    if not request.session.get("pista"):
+        return JsonResponse({'success': False, 'error': 'No autenticado'})
+    
+    usuario_id = request.session["pista"]["id"]
+    
+    try:
+        notificacion = Notificacion.objects.get(
+            id=id_notificacion, 
+            usuario_id=usuario_id
+        )
+        notificacion.marcar_como_leida()
+        
+        # Si tiene URL, redirigir ahí
+        if notificacion.url:
+            return JsonResponse({
+                'success': True, 
+                'redirect': notificacion.url
+            })
+        
+        return JsonResponse({'success': True})
+        
+    except Notificacion.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notificación no encontrada'})
+
+def marcar_todas_leidas(request):
+    """Marca todas las notificaciones como leídas"""
+    if not request.session.get("pista"):
+        return JsonResponse({'success': False, 'error': 'No autenticado'})
+    
+    usuario_id = request.session["pista"]["id"]
+    
+    # Marcar todas como leídas
+    notificaciones_no_leidas = Notificacion.objects.filter(
+        usuario_id=usuario_id, 
+        leida=False
+    )
+    
+    for notificacion in notificaciones_no_leidas:
+        notificacion.marcar_como_leida()
+    
+    count = notificaciones_no_leidas.count()
+    
+    return JsonResponse({
+        'success': True, 
+        'message': f'{count} notificaciones marcadas como leídas'
+    })
+
+def eliminar_notificacion(request, id_notificacion):
+    """Elimina una notificación específica"""
+    if not request.session.get("pista"):
+        return JsonResponse({'success': False, 'error': 'No autenticado'})
+    
+    usuario_id = request.session["pista"]["id"]
+    
+    try:
+        notificacion = Notificacion.objects.get(
+            id=id_notificacion, 
+            usuario_id=usuario_id
+        )
+        notificacion.delete()
+        return JsonResponse({'success': True})
+        
+    except Notificacion.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Notificación no encontrada'})
+
+def crear_notificacion(usuario, titulo, mensaje, tipo='info', url=None):
+    """
+    Función helper para crear notificaciones de manera consistente
+    
+    Args:
+        usuario: Instancia del modelo Usuario
+        titulo: Título de la notificación
+        mensaje: Mensaje de la notificación
+        tipo: Tipo de notificación ('info', 'success', 'warning', 'error', etc.)
+        url: URL opcional para redirección
+    """
+    return Notificacion.objects.create(
+        usuario=usuario,
+        titulo=titulo,
+        mensaje=mensaje,
+        tipo=tipo,
+        url=url
+    )
+
+def crear_notificaciones_bienvenida(usuario):
+    """
+    Crea notificaciones de bienvenida para nuevos usuarios
+    """
+    if usuario.rol == 2:  # Cliente
+        crear_notificacion(
+            usuario=usuario,
+            titulo="¡Bienvenido a Tienda SENA!",
+            mensaje="Explora nuestros productos y encuentra lo que necesitas.",
+            tipo='success',
+            url='/lista_productos/'
+        )
+        crear_notificacion(
+            usuario=usuario,
+            titulo="Completa tu perfil",
+            mensaje="Completa tu información personal para una mejor experiencia.",
+            tipo='info',
+            url='/actualizar_perfil/'
+        )
+    elif usuario.rol == 3:  # Vendedor
+        crear_notificacion(
+            usuario=usuario,
+            titulo="¡Bienvenido vendedor!",
+            mensaje="Ya puedes comenzar a publicar tus productos.",
+            tipo='success',
+            url='/agregar_producto'
+        )
+
+def crear_notificacion_pedido(usuario, orden_id, estado):
+    """
+    Crear notificaciones relacionadas con pedidos
+    """
+    estados_config = {
+        'creado': {
+            'titulo': 'Pedido Realizado',
+            'mensaje': f'Tu pedido #{orden_id} ha sido confirmado.',
+            'tipo': 'success'
+        },
+        'enviado': {
+            'titulo': 'Pedido Enviado',
+            'mensaje': f'Tu pedido #{orden_id} está en camino.',
+            'tipo': 'info'
+        },
+        'entregado': {
+            'titulo': 'Pedido Entregado',
+            'mensaje': f'Tu pedido #{orden_id} ha sido entregado. ¡Califica tu experiencia!',
+            'tipo': 'success'
+        }
+    }
+    
+    config = estados_config.get(estado)
+    if config:
+        crear_notificacion(
+            usuario=usuario,
+            titulo=config['titulo'],
+            mensaje=config['mensaje'],
+            tipo=config['tipo'],
+            url=f'/historial_compras_usuario/'
+        )
+
+def notificar_administradores(titulo, mensaje, tipo='sistema', url=None):
+    """
+    Envía una notificación a todos los administradores activos
+    
+    Args:
+        titulo: Título de la notificación
+        mensaje: Mensaje de la notificación
+        tipo: Tipo de notificación
+        url: URL opcional para redirección
+    """
+    administradores = Usuario.objects.filter(rol=1, activo=True)
+    
+    for admin in administradores:
+        crear_notificacion(
+            usuario=admin,
+            titulo=titulo,
+            mensaje=mensaje,
+            tipo=tipo,
+            url=url
+        )
+    
+    return administradores.count()
+
+def crear_notificacion_nuevo_usuario(usuario_nuevo):
+    """
+    Notifica a los administradores sobre nuevos usuarios registrados
+    """
+    notificar_administradores(
+        titulo="Nuevo Usuario Registrado",
+        mensaje=f"El usuario {usuario_nuevo.nombre_apellido} se ha registrado en la plataforma.",
+        tipo='new_user',
+        url='/usuarios/'
+    )
+
+def crear_notificacion_nuevo_producto(producto):
+    """
+    Notifica a los administradores sobre nuevos productos agregados
+    """
+    notificar_administradores(
+        titulo="Nuevo Producto Publicado",
+        mensaje=f"{producto.vendedor.nombre_apellido} ha publicado '{producto.nombre}' en {producto.get_categoria_display()}.",
+        tipo='new_product',
+        url=f'/producto/admin/{producto.id}/'
+    )
+
+@session_rol_permission(1)
+def notificaciones_admin(request):
+    """
+    Vista especial para administradores con filtros de notificaciones
+    """
+    tipo_filtro = request.GET.get('tipo', 'all')
+    
+    # Obtener notificaciones del administrador actual
+    usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
+    
+    notificaciones_query = Notificacion.objects.filter(usuario=usuario)
+    
+    if tipo_filtro != 'all':
+        notificaciones_query = notificaciones_query.filter(tipo=tipo_filtro)
+    
+    notificaciones = notificaciones_query.order_by('-fecha')[:50]
+    
+    # Estadísticas para el dashboard
+    stats = {
+        'total': notificaciones_query.count(),
+        'no_leidas': notificaciones_query.filter(leida=False).count(),
+        'por_tipo': {
+            'vendedor': notificaciones_query.filter(tipo='vendedor').count(),
+            'pedido': notificaciones_query.filter(tipo='pedido').count(),
+            'sistema': notificaciones_query.filter(tipo='sistema').count(),
+            'info': notificaciones_query.filter(tipo='info').count(),
+        }
+    }
+    
+    context = {
+        'notificaciones': notificaciones,
+        'stats': stats,
+        'tipo_filtro': tipo_filtro,
+        'tipos_disponibles': Notificacion.TIPOS_NOTIFICACION,
+        'titulo': 'Panel de Notificaciones - Administrador'
+    }
+    
+    return render(request, 'administrador/notificaciones_admin.html', context)
 # -----------------------------------------------------
     # FIN ADMINISTRADOR
 # -----------------------------------------------------
@@ -1979,6 +2269,32 @@ def pagar_carrito(request):
                 producto.stock = F('stock') - elemento.cantidad
                 producto.save()
                 elemento.delete()
+            
+            # Notificar al usuario sobre el pedido realizado
+            crear_notificacion_pedido(usuario, orden.id, 'creado')
+            
+            # Notificar a administradores sobre el nuevo pedido
+            notificar_administradores(
+                titulo="Nuevo Pedido Realizado",
+                mensaje=f"{usuario.nombre_apellido} ha realizado un pedido por ${total:,.0f}.",
+                tipo='pedido',
+                url=f'/panel_admin/'
+            )
+            
+            # Notificar a vendedores sobre sus productos vendidos
+            vendedores_notificados = set()
+            for item in orden.items.all():
+                vendedor = item.producto.vendedor
+                if vendedor.id not in vendedores_notificados:
+                    crear_notificacion(
+                        usuario=vendedor,
+                        titulo="¡Producto Vendido!",
+                        mensaje=f"Tu producto '{item.producto.nombre}' ha sido vendido (x{item.cantidad}).",
+                        tipo='success',
+                        url='/ordenes_vendedor/'
+                    )
+                    vendedores_notificados.add(vendedor.id)
+            
             carrito.elementos.all().delete()
             messages.success(request, "Pago procesado correctamente.")
     except Exception as e:

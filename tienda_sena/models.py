@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from django.utils.text import slugify
+from django.utils import timezone
 
 # Create your models here.
 
@@ -339,14 +340,60 @@ class Notificacion(models.Model):
 
     Campos:
         usuario (ForeignKey): Usuario destinatario.
+        titulo (CharField): Título de la notificación.
         mensaje (CharField): Mensaje de la notificación.
+        tipo (CharField): Tipo de notificación para diferentes estilos.
+        url (CharField): URL opcional para redirección.
         leida (BooleanField): Si la notificación ha sido leída.
         fecha (DateTimeField): Fecha de creación.
+        fecha_leida (DateTimeField): Fecha cuando fue leída.
     """
+    TIPOS_NOTIFICACION = [
+        ('info', 'Información'),
+        ('success', 'Éxito'),
+        ('warning', 'Advertencia'),
+        ('error', 'Error'),
+        ('pedido', 'Pedido'),
+        ('vendedor', 'Vendedor'),
+        ('sistema', 'Sistema'),
+    ]
+    
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=100, default="Notificación")
     mensaje = models.CharField(max_length=255)
+    tipo = models.CharField(max_length=20, choices=TIPOS_NOTIFICACION, default='info')
+    url = models.CharField(max_length=200, blank=True, null=True)
     leida = models.BooleanField(default=False)
     fecha = models.DateTimeField(auto_now_add=True)
+    fecha_leida = models.DateTimeField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Notificación'
+        verbose_name_plural = 'Notificaciones'
+    
+    def __str__(self):
+        return f"{self.titulo} - {self.usuario.nombre_apellido}"
+    
+    def marcar_como_leida(self):
+        """Marca la notificación como leída"""
+        if not self.leida:
+            self.leida = True
+            self.fecha_leida = timezone.now()
+            self.save()
+    
+    def get_icono(self):
+        """Retorna el icono FontAwesome según el tipo"""
+        iconos = {
+            'info': 'fas fa-info-circle text-primary',
+            'success': 'fas fa-check-circle text-success',
+            'warning': 'fas fa-exclamation-triangle text-warning',
+            'error': 'fas fa-times-circle text-danger',
+            'pedido': 'fas fa-shopping-cart text-info',
+            'vendedor': 'fas fa-store text-warning',
+            'sistema': 'fas fa-cog text-secondary',
+        }
+        return iconos.get(self.tipo, 'fas fa-bell text-primary')
 
 
 class CalificacionProducto(models.Model):
