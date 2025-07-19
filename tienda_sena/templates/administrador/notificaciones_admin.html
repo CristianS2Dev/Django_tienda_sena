@@ -1,0 +1,233 @@
+{% extends 'bases/base.html' %}
+{% load static breadcrumbs %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block main %}
+<div class="d-flex" style="min-height: 100vh;">
+    <!-- Botón de menú hamburguesa para pantallas pequeñas -->
+    <button class="btn btn-dark d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" style="border-radius: 0%;">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    {% include 'bases/_sidebar_usuario.html' %}
+    
+    <!-- Contenido principal -->
+    <div class="container content" style="padding: 20px;padding-top: 40px;">
+        <div id="notificaciones">
+            {% if messages %}
+                {% for message in messages %} 
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> 
+                        {{ message}} 
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-bell me-2"></i>{{ titulo }}</h1>
+            <div>
+                <button class="btn btn-outline-primary me-2" onclick="marcarTodasLeidas()">
+                    <i class="fas fa-check-double me-1"></i>Marcar todas como leídas
+                </button>
+                <a href="{% url 'panel_admin' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Volver al panel
+                </a>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5>Total</h5>
+                                <h3>{{ stats.total }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-bell fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5>No Leídas</h5>
+                                <h3>{{ stats.no_leidas }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-exclamation-circle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5>Vendedores</h5>
+                                <h3>{{ stats.por_tipo.vendedor }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-store fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5>Pedidos</h5>
+                                <h3>{{ stats.por_tipo.pedido }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-shopping-cart fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Filtrar por tipo:</h5>
+                <div class="btn-group" role="group">
+                    <a href="?tipo=all" class="btn {% if tipo_filtro == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                        <i class="fas fa-list me-1"></i>Todas
+                    </a>
+                    {% for tipo_val, tipo_label in tipos_disponibles %}
+                        <a href="?tipo={{ tipo_val }}" class="btn {% if tipo_filtro == tipo_val %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                            {% if tipo_val == 'vendedor' %}<i class="fas fa-store me-1"></i>
+                            {% elif tipo_val == 'pedido' %}<i class="fas fa-shopping-cart me-1"></i>
+                            {% elif tipo_val == 'sistema' %}<i class="fas fa-cog me-1"></i>
+                            {% elif tipo_val == 'success' %}<i class="fas fa-check-circle me-1"></i>
+                            {% elif tipo_val == 'warning' %}<i class="fas fa-exclamation-triangle me-1"></i>
+                            {% elif tipo_val == 'error' %}<i class="fas fa-times-circle me-1"></i>
+                            {% else %}<i class="fas fa-info-circle me-1"></i>
+                            {% endif %}
+                            {{ tipo_label }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de notificaciones -->
+        {% if notificaciones %}
+            <div class="row">
+                {% for notificacion in notificaciones %}
+                    <div class="col-12 mb-3" data-id="{{ notificacion.id }}">
+                        <div class="card notification-card {% if not notificacion.leida %}border-primary{% endif %}" 
+                             style="border-left: 4px solid {% if notificacion.tipo == 'success' %}#28a745{% elif notificacion.tipo == 'warning' %}#ffc107{% elif notificacion.tipo == 'error' %}#dc3545{% elif notificacion.tipo == 'vendedor' %}#fd7e14{% elif notificacion.tipo == 'pedido' %}#17a2b8{% else %}#007bff{% endif %};">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="{{ notificacion.get_icono }} me-2"></i>
+                                            <h5 class="card-title mb-0 {% if not notificacion.leida %}fw-bold{% endif %}">
+                                                {{ notificacion.titulo }}
+                                            </h5>
+                                            {% if not notificacion.leida %}
+                                                <span class="badge bg-primary ms-2">Nueva</span>
+                                            {% endif %}
+                                            <span class="badge bg-secondary ms-2">{{ notificacion.get_tipo_display }}</span>
+                                        </div>
+                                        
+                                        <p class="card-text">{{ notificacion.mensaje }}</p>
+                                        
+                                        <div class="d-flex align-items-center text-muted">
+                                            <small>
+                                                <i class="fas fa-clock me-1"></i>
+                                                {{ notificacion.fecha|date:"d/m/Y H:i" }}
+                                            </small>
+                                            {% if notificacion.leida and notificacion.fecha_leida %}
+                                                <small class="ms-3">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    Leída el {{ notificacion.fecha_leida|date:"d/m/Y H:i" }}
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            {% if not notificacion.leida %}
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="marcarLeida({{ notificacion.id }})">
+                                                        <i class="fas fa-check me-2"></i>Marcar como leída
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% if notificacion.url %}
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ notificacion.url }}" onclick="marcarLeida({{ notificacion.id }})">
+                                                        <i class="fas fa-external-link-alt me-2"></i>Ver más
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#" onclick="eliminarNotificacion({{ notificacion.id }})">
+                                                    <i class="fas fa-trash me-2"></i>Eliminar
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay notificaciones</h4>
+                        <p class="text-muted">No hay notificaciones {% if tipo_filtro != 'all' %}de tipo "{{ tipo_filtro }}"{% endif %} para mostrar.</p>
+                        {% if tipo_filtro != 'all' %}
+                            <a href="?tipo=all" class="btn btn-primary">
+                                <i class="fas fa-list me-1"></i>Ver todas las notificaciones
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .notification-card {
+        transition: all 0.3s ease;
+    }
+    
+    .notification-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+</style>
+
+<script>
+    // Reutilizar las funciones del archivo base.html
+    // Las funciones marcarLeida, eliminarNotificacion, etc. ya están definidas globalmente
+</script>
+{% endblock %}

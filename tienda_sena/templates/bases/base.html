@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   <link rel="stylesheet" href="{% static 'css/login.css' %}" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
   
@@ -108,18 +109,6 @@
             </li>
           </ul>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-            {% if request.session.pista and request.session.pista.rol == 1 %}
-              <li class="nav-item">
-                <a class="nav-link fw-medium text-white position-relative" href="{% url 'solicitudes_vendedor' %}">
-                  <i class="fas fa-user-check"></i> Solicitudes Vendedor
-                  {% if pendientes_solicitudes_vendedor > 0 %}
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                      {{ pendientes_solicitudes_vendedor }}
-                    </span>
-                  {% endif %}
-                </a>
-              </li>
-            {% endif %}
             <li class="nav-item">
               <a class="nav-link contact-button fw-medium text-white" href="{% url 'carrito' %}" aria-label="Carrito de Compras">
                 <i class="fas fa-shopping-cart"></i>
@@ -144,25 +133,118 @@
             <li class="nav-item dropdown">
               <a class="nav-link fw-medium text-white position-relative" href="#" id="notificacionesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-bell"></i>
-                {% if notificaciones_usuario and notificaciones_usuario|length > 0 %}
-                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    {{ notificaciones_usuario|length }}
+                {% if notificaciones_no_leidas > 0 %}
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contador-notificaciones">
+                    {{ notificaciones_no_leidas }}
                   </span>
                 {% endif %}
               </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificacionesDropdown" style="min-width: 300px;">
+              <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificacionesDropdown" style="min-width: 350px; max-height: 500px; overflow-y: auto;">
+                <li class="dropdown-header d-flex justify-content-between align-items-center">
+                  <span><strong>Notificaciones</strong></span>
+                  {% if notificaciones_no_leidas > 0 %}
+                    <button class="btn btn-link btn-sm p-0 text-primary" onclick="marcarTodasLeidas()" title="Marcar todas como leídas">
+                      <i class="fas fa-check-double"></i>
+                    </button>
+                  {% endif %}
+                </li>
+                <li><hr class="dropdown-divider m-0"></li>
+                
                 {% if notificaciones_usuario and notificaciones_usuario|length > 0 %}
-                  {% for noti in notificaciones_usuario %}
-                    <li>
-                      <span class="dropdown-item{% if not noti.leida %} fw-bold{% endif %}">
-                        {{ noti.mensaje }}
-                        <small class="text-muted d-block">{{ noti.fecha|date:"d/m/Y H:i" }}</small>
-                      </span>
+                  {% for noti in notificaciones_usuario|slice:":10" %}
+                    <li class="notification-item" data-id="{{ noti.id }}">
+                      <div class="dropdown-item notification-content p-0 {% if not noti.leida %}unread{% endif %}" 
+                           style="cursor: pointer; border-radius: 12px; border: 1px solid #e9ecef; background: {% if not noti.leida %}linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%){% else %}#ffffff{% endif %};"
+                           onclick="{% if noti.url %}clickNotificacion({{ noti.id }}, '{{ noti.url }}'){% endif %}">
+                        
+                        <div class="p-3">
+                          <div class="d-flex align-items-start">
+                            <!-- Icono con badge de color -->
+                            <div class="me-3 mt-1">
+                              <div class="notification-icon-wrapper rounded-circle d-flex align-items-center justify-content-center" 
+                                   style="width: 40px; height: 40px; background-color: {% if noti.tipo == 'success' %}#28a745{% elif noti.tipo == 'warning' %}#ffc107{% elif noti.tipo == 'error' %}#dc3545{% elif noti.tipo == 'vendor_request' %}#17a2b8{% elif noti.tipo == 'new_user' %}#6f42c1{% elif noti.tipo == 'new_product' %}#fd7e14{% else %}#007bff{% endif %}20;">
+                                <i class="{{ noti.get_icono }} text-{% if noti.tipo == 'success' %}success{% elif noti.tipo == 'warning' %}warning{% elif noti.tipo == 'error' %}danger{% elif noti.tipo == 'vendor_request' %}info{% elif noti.tipo == 'new_user' %}primary{% elif noti.tipo == 'new_product' %}warning{% else %}primary{% endif %}" style="font-size: 1.1rem;"></i>
+                              </div>
+                            </div>
+                            
+                            <!-- Contenido de la notificación -->
+                            <div class="flex-grow-1">
+                              <div class="d-flex justify-content-between align-items-start mb-1">
+                                <h6 class="mb-0 text-truncate notification-title" style="font-size: 0.9rem; font-weight: 600; color: #2c3e50;">
+                                  {{ noti.titulo }}
+                                  {% if not noti.leida %}
+                                    <span class="badge bg-primary ms-1" style="font-size: 0.6rem;">Nuevo</span>
+                                  {% endif %}
+                                </h6>
+                                
+                                <!-- Menú de acciones -->
+                                <div class="dropdown">
+                                  <button class="btn btn-link btn-sm p-1 text-muted notification-menu-btn" 
+                                          data-bs-toggle="dropdown" 
+                                          onclick="event.stopPropagation();"
+                                          style="border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-ellipsis-h" style="font-size: 0.8rem;"></i>
+                                  </button>
+                                  <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius: 8px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                                    {% if not noti.leida %}
+                                      <li><a class="dropdown-item d-flex align-items-center" href="#" onclick="event.stopPropagation(); marcarLeida({{ noti.id }});">
+                                        <i class="fas fa-check me-2 text-success"></i>Marcar como leída
+                                      </a></li>
+                                    {% endif %}
+                                    {% if noti.url %}
+                                      <li><a class="dropdown-item d-flex align-items-center" href="{{ noti.url }}" onclick="event.stopPropagation(); marcarLeida({{ noti.id }});">
+                                        <i class="fas fa-external-link-alt me-2 text-primary"></i>Ver más
+                                      </a></li>
+                                    {% endif %}
+                                    <li><hr class="dropdown-divider m-1"></li>
+                                    <li><a class="dropdown-item d-flex align-items-center text-danger" href="#" onclick="event.stopPropagation(); eliminarNotificacion({{ noti.id }});">
+                                      <i class="fas fa-trash me-2"></i>Eliminar
+                                    </a></li>
+                                  </ul>
+                                </div>
+                              </div>
+                              
+                              <p class="mb-2 text-muted notification-message" style="font-size: 0.85rem; line-height: 1.4;">
+                                {{ noti.mensaje }}
+                              </p>
+                              
+                              <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted" style="font-size: 0.75rem;">
+                                  <i class="fas fa-clock me-1"></i>
+                                  {{ noti.fecha|date:"d/m/Y H:i" }}
+                                </small>
+                                {% if noti.url %}
+                                  <small class="text-primary" style="font-size: 0.75rem;">
+                                    <i class="fas fa-arrow-right"></i>
+                                  </small>
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
                   {% endfor %}
+                  
+                  {% if notificaciones_usuario|length > 10 %}
+                    <li class="mt-2">
+                      <div class="text-center p-2">
+                        <a class="btn btn-outline-primary btn-sm rounded-pill" href="{% url 'listar_notificaciones' %}" style="font-size: 0.85rem; padding: 8px 20px;">
+                          <i class="fas fa-list me-2"></i>Ver todas las notificaciones
+                        </a>
+                      </div>
+                    </li>
+                  {% endif %}
                 {% else %}
-                  <li><span class="dropdown-item text-muted">Sin notificaciones</span></li>
+                  <li>
+                    <div class="no-notifications">
+                      <div class="text-center">
+                        <i class="fas fa-bell-slash text-muted mb-3" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <h6 class="text-muted mb-2" style="font-weight: 500;">Sin notificaciones</h6>
+                        <p class="text-muted small mb-0" style="font-size: 0.8rem;">Te notificaremos cuando tengas algo nuevo</p>
+                      </div>
+                    </div>
+                  </li>
                 {% endif %}
               </ul>
             </li>
@@ -216,6 +298,139 @@
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/app.js' %}"></script>
+
+    <!-- JavaScript para Notificaciones -->
+    <script>
+        // Función para marcar una notificación como leída
+        function marcarLeida(idNotificacion) {
+            fetch(`/notificaciones/marcar-leida/${idNotificacion}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar visualmente la notificación
+                    const notificationItem = document.querySelector(`[data-id="${idNotificacion}"]`);
+                    if (notificationItem) {
+                        const content = notificationItem.querySelector('.notification-content');
+                        content.classList.remove('bg-light', 'fw-bold');
+                    }
+                    
+                    // Actualizar contador
+                    actualizarContadorNotificaciones();
+                    
+                    // Si tiene redirección, redirigir después de un breve delay
+                    if (data.redirect) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 500);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Función para marcar todas las notificaciones como leídas
+        function marcarTodasLeidas() {
+            fetch('/notificaciones/marcar-todas-leidas/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar visualmente todas las notificaciones
+                    document.querySelectorAll('.notification-content').forEach(item => {
+                        item.classList.remove('bg-light', 'fw-bold');
+                    });
+                    
+                    // Ocultar contador
+                    const contador = document.getElementById('contador-notificaciones');
+                    if (contador) {
+                        contador.style.display = 'none';
+                    }
+                    
+                    // Mostrar mensaje de éxito
+                    if (data.message) {
+                        console.log(data.message);
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Función para eliminar una notificación
+        function eliminarNotificacion(idNotificacion) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
+                fetch(`/notificaciones/eliminar/${idNotificacion}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remover la notificación del DOM
+                        const notificationItem = document.querySelector(`[data-id="${idNotificacion}"]`);
+                        if (notificationItem) {
+                            notificationItem.remove();
+                        }
+                        
+                        // Actualizar contador
+                        actualizarContadorNotificaciones();
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+
+        // Función auxiliar para actualizar el contador de notificaciones
+        function actualizarContadorNotificaciones() {
+            const notificacionesNoLeidas = document.querySelectorAll('.notification-content.bg-light').length;
+            const contador = document.getElementById('contador-notificaciones');
+            
+            if (contador) {
+                if (notificacionesNoLeidas > 0) {
+                    contador.textContent = notificacionesNoLeidas;
+                    contador.style.display = 'inline';
+                } else {
+                    contador.style.display = 'none';
+                }
+            }
+        }
+
+        // Función para obtener el token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Función para hacer click directo en una notificación (redirigir sin marcar como leída)
+        function clickNotificacion(idNotificacion, url) {
+            if (url && url !== '#') {
+                window.location.href = url;
+            }
+        }
+    </script>
 
 </body>
 

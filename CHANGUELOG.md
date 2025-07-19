@@ -15,6 +15,75 @@
 ---
 
 ### CHANGELOG
+## [v1.41.40-alpha.1] - 19-07-2025
+
+### Added
+- **Sistema de Notificaciones Completo**:
+  - Nuevo modelo `Notificacion` con tipos diferenciados (info, success, warning, error, pedido, vendedor, sistema)
+  - Vista `listar_notificaciones` para ver historial completo de notificaciones del usuario
+  - Vista `notificaciones_admin` con panel especializado para administradores con filtros y estadísticas
+  - Funciones helper: `crear_notificacion`, `crear_notificaciones_bienvenida`, `crear_notificacion_pedido`
+  - Sistema de notificaciones automáticas para nuevos usuarios, productos y acciones de vendedores
+  - Template `listar_notificaciones.html` para interfaz de usuario de notificaciones
+  - Template `notificaciones_admin.html` para panel administrativo especializado
+  - CSS personalizado `notifications.css` para estilos mejorados de notificaciones
+- **Gestión Avanzada de Imágenes de Productos**:
+  - Nueva carpeta `static/assets/productos_default/` con imágenes por defecto optimizadas
+  - Sistema de respaldo de imágenes para productos sin imagen personalizada
+  - Optimización automática de imágenes de productos existentes
+
+### Changed
+- **Context Processor Mejorado**:
+  - Optimización del `context_processor.py` para manejo eficiente de notificaciones
+  - Contador inteligente de notificaciones no leídas para todos los roles
+  - Soporte especializado para notificaciones de administradores
+- **Base Template Actualizado**:
+  - Mejorado `base.html` con dropdown de notificaciones completamente funcional
+  - Implementación de JavaScript para marcar notificaciones como leídas/eliminar
+  - Interfaz visual mejorada con iconos FontAwesome diferenciados por tipo
+  - Sistema de navegación directa desde notificaciones con URLs específicas
+- **URLs y Routing**:
+  - Nuevas rutas para gestión completa de notificaciones: `listar_notificaciones/`, `marcar-leida/`, `marcar-todas-leidas/`, `eliminar/`
+  - Ruta especializada `notificaciones-admin/` para panel administrativo
+- **Modelos Actualizados**:
+  - Migración 0025 para mejoras en el modelo `Notificacion`
+  - Nuevos campos: `titulo`, `tipo`, `url`, `fecha_leida` con opciones Meta mejoradas
+  - Métodos helper: `marcar_como_leida()`, `get_icono()` para mejor funcionalidad
+
+### Fixed
+- **Gestión de Estados de Notificaciones**:
+  - Corrección en el manejo de notificaciones leídas/no leídas
+  - Mejora en la persistencia de estado de notificaciones entre sesiones
+  - Solución de conflictos de merge entre ramas `dark` y `main`
+- **Optimización de Consultas**:
+  - Mejora en consultas de base de datos para notificaciones
+  - Optimización de context processors para reducir carga del sistema
+- **Interfaz de Usuario**:
+  - Corrección de estilos responsive en dropdown de notificaciones
+  - Mejora en indicadores visuales de notificaciones no leídas
+
+### Performance
+- **Sistema de Notificaciones Eficiente**:
+  - Implementación de paginación en listado de notificaciones (límite de 20 en dropdown)
+  - Queries optimizadas para conteo de notificaciones no leídas
+  - Carga asíncrona de acciones de notificaciones via AJAX
+- **Context Processing Optimizado**:
+  - Reducción de consultas innecesarias en context processors
+  - Cache inteligente de contadores de notificaciones
+
+### Security
+- **Validaciones de Sesión**:
+  - Verificación de autenticación para todas las vistas de notificaciones
+  - Validación de permisos por rol para notificaciones administrativas
+  - Protección CSRF en todas las acciones de notificaciones via AJAX
+
+### Note
+- **Sistema Completo**: El sistema de notificaciones está ahora completamente funcional para todos los roles
+- **Migración Requerida**: Ejecutar `python manage.py migrate` para aplicar migración 0025
+- **Administradores**: Nuevo panel especializado en `/notificaciones-admin/` con filtros y estadísticas
+
+---
+
 ## [v1.40.39-alpha.1] - 11-07-2025
 
 ### Added

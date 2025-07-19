@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 'descripcion': 'Zapatillas deportivas de alta calidad para running y entrenamiento. Suela antideslizante y diseño ergonómico.',
                 'categoria': 4,  # Deportes
                 'color': 3,      # Negro
-                'precio': Decimal('129.99'),
+                'precio': Decimal('520000'),
                 'stock': 25,
                 'en_oferta': True,
                 'descuento': Decimal('15.00'),
@@ -58,7 +58,7 @@ class Command(BaseCommand):
                 'descripcion': 'Bolso de cuero genuino para mujer, perfecto para el día a día. Incluye múltiples compartimentos.',
                 'categoria': 2,  # Ropa
                 'color': 1,      # Gris
-                'precio': Decimal('89.99'),
+                'precio': Decimal('360000'),
                 'stock': 15,
                 'en_oferta': False,
                 'descuento': Decimal('0.00'),
@@ -69,62 +69,62 @@ class Command(BaseCommand):
                 'descripcion': 'Reloj inteligente con monitor de frecuencia cardíaca, GPS y resistencia al agua. Batería de 7 días.',
                 'categoria': 1,  # Electrónicos
                 'color': 3,      # Negro
-                'precio': Decimal('199.99'),
+                'precio': Decimal('800000'),
                 'stock': 20,
                 'en_oferta': True,
                 'descuento': Decimal('25.00'),
                 'imagenes': ['61U7T1koQqL._AC_SX679_.jpg']
             },
             {
-                'nombre': 'Mochila de Viaje',
+                'nombre': 'Mochila de Viaje Premium',
                 'descripcion': 'Mochila resistente al agua con múltiples compartimentos. Ideal para viajes y aventuras.',
                 'categoria': 4,  # Deportes
                 'color': 2,      # Blanco
-                'precio': Decimal('75.50'),
+                'precio': Decimal('302000'),
                 'stock': 30,
                 'en_oferta': False,
                 'descuento': Decimal('0.00'),
-                'imagenes': ['51eg55uWmdL._AC_UX679_.jpg']
+                'imagenes': ['51eg55uWmdL_wIUHWxm._AC_UX679_.jpg']
             },
             {
                 'nombre': 'Auriculares Bluetooth Premium',
                 'descripcion': 'Auriculares inalámbricos con cancelación de ruido activa. Sonido de alta fidelidad y 30 horas de batería.',
                 'categoria': 1,  # Electrónicos
                 'color': 3,      # Negro
-                'precio': Decimal('159.99'),
+                'precio': Decimal('640000'),
                 'stock': 18,
                 'en_oferta': True,
                 'descuento': Decimal('20.00'),
                 'imagenes': ['61pHAEJ4NML_sqBwShn._AC_UX679_.jpg']
             },
             {
-                'nombre': 'Chaqueta de Invierno',
-                'descripcion': 'Chaqueta térmica resistente al viento y al agua. Perfecta para temperaturas extremas.',
+                'nombre': 'Ropa Deportiva Elegante',
+                'descripcion': 'Conjunto deportivo cómodo y elegante para entrenamientos. Material transpirable y de alta calidad.',
                 'categoria': 2,  # Ropa
                 'color': 3,      # Negro
-                'precio': Decimal('120.00'),
+                'precio': Decimal('480000'),
                 'stock': 12,
                 'en_oferta': False,
                 'descuento': Decimal('0.00'),
-                'imagenes': ['71HblAHs5xL_YIiaiRb._AC_UY879_-2.jpg']
+                'imagenes': ['71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg']
             },
             {
                 'nombre': 'Set de Utensilios de Cocina',
                 'descripcion': 'Juego completo de utensilios de cocina de acero inoxidable. Incluye 12 piezas esenciales.',
                 'categoria': 3,  # Hogar
                 'color': 2,      # Blanco
-                'precio': Decimal('65.99'),
+                'precio': Decimal('264000'),
                 'stock': 22,
                 'en_oferta': True,
                 'descuento': Decimal('10.00'),
-                'imagenes': ['61mtL65D4cL_uyxIC28_A1Gjj7j._AC_SX679_.jpg']
+                'imagenes': ['61mtL65D4cL_uyxIC28._AC_SX679_.jpg']
             },
             {
                 'nombre': 'Laptop Gaming HP',
                 'descripcion': 'Laptop para gaming con procesador Intel i7, 16GB RAM, tarjeta gráfica GTX 1660Ti y SSD de 512GB.',
                 'categoria': 1,  # Electrónicos
                 'color': 3,      # Negro
-                'precio': Decimal('899.99'),
+                'precio': Decimal('3600000'),
                 'stock': 8,
                 'en_oferta': True,
                 'descuento': Decimal('12.00'),
@@ -135,7 +135,7 @@ class Command(BaseCommand):
                 'descripcion': 'Juego de sábanas de algodón egipcio 100%. Suaves, cómodas y duraderas. Incluye funda de almohada.',
                 'categoria': 3,  # Hogar
                 'color': 2,      # Blanco
-                'precio': Decimal('45.99'),
+                'precio': Decimal('184000'),
                 'stock': 35,
                 'en_oferta': False,
                 'descuento': Decimal('0.00'),
@@ -146,7 +146,7 @@ class Command(BaseCommand):
                 'descripcion': 'Cámara DSLR con lente 18-55mm, sensor de 24MP y grabación de video 4K. Perfecta para fotografía profesional.',
                 'categoria': 1,  # Electrónicos
                 'color': 3,      # Negro
-                'precio': Decimal('549.99'),
+                'precio': Decimal('2200000'),
                 'stock': 10,
                 'en_oferta': True,
                 'descuento': Decimal('18.00'),
@@ -157,7 +157,7 @@ class Command(BaseCommand):
                 'descripcion': 'Vestido de algodón para uso diario. Cómodo, elegante y disponible en varios talles.',
                 'categoria': 2,  # Ropa
                 'color': 5,      # Azul
-                'precio': Decimal('39.99'),
+                'precio': Decimal('160000'),
                 'stock': 28,
                 'en_oferta': False,
                 'descuento': Decimal('0.00'),
@@ -168,7 +168,7 @@ class Command(BaseCommand):
                 'descripcion': 'Fragancia premium unisex con notas frescas y duraderas. Presentación de 100ml.',
                 'categoria': 8,  # Salud y Belleza
                 'color': 0,      # Ninguno
-                'precio': Decimal('85.00'),
+                'precio': Decimal('340000'),
                 'stock': 16,
                 'en_oferta': True,
                 'descuento': Decimal('22.00'),
@@ -179,7 +179,7 @@ class Command(BaseCommand):
                 'descripcion': 'Teclado mecánico RGB para gaming con switches Cherry MX. Retroiluminación personalizable.',
                 'categoria': 1,  # Electrónicos
                 'color': 3,      # Negro
-                'precio': Decimal('119.99'),
+                'precio': Decimal('480000'),
                 'stock': 14,
                 'en_oferta': False,
                 'descuento': Decimal('0.00'),
@@ -190,7 +190,7 @@ class Command(BaseCommand):
                 'descripcion': 'Set de 3 plantas ideales para decorar espacios interiores. Fáciles de cuidar y purificadoras de aire.',
                 'categoria': 9,  # Jardín
                 'color': 0,      # Ninguno
-                'precio': Decimal('32.50'),
+                'precio': Decimal('130000'),
                 'stock': 25,
                 'en_oferta': True,
                 'descuento': Decimal('8.00'),
@@ -201,11 +201,121 @@ class Command(BaseCommand):
                 'descripcion': 'Reloj analógico de pulsera con correa de cuero genuino. Diseño clásico y elegante.',
                 'categoria': 2,  # Ropa (accesorios)
                 'color': 1,      # Gris
-                'precio': Decimal('95.00'),
+                'precio': Decimal('380000'),
                 'stock': 20,
                 'en_oferta': False,
                 'descuento': Decimal('0.00'),
                 'imagenes': ['eduardo-pastor-3oejsU5OQVk-unsplash.jpg']
+            },
+            {
+                'nombre': 'Zapatos Formales de Cuero',
+                'descripcion': 'Zapatos formales de cuero genuino para hombre. Perfectos para ocasiones especiales y trabajo.',
+                'categoria': 2,  # Ropa
+                'color': 3,      # Negro
+                'precio': Decimal('580000'),
+                'stock': 18,
+                'en_oferta': True,
+                'descuento': Decimal('15.00'),
+                'imagenes': ['71kWymZcL_tiPkI4z._AC_SX679_.jpg']
+            },
+            {
+                'nombre': 'Set de Cocina Premium',
+                'descripcion': 'Utensilios de cocina profesionales con acabado premium. Ideales para chefs y amantes de la cocina.',
+                'categoria': 3,  # Hogar
+                'color': 2,      # Blanco
+                'precio': Decimal('360000'),
+                'stock': 15,
+                'en_oferta': False,
+                'descuento': Decimal('0.00'),
+                'imagenes': ['71pWzhdJNwL_xLeykwX._AC_UL640_QL65_ML3_.jpg']
+            },
+            {
+                'nombre': 'Ropa de Cama Luxury',
+                'descripcion': 'Juego completo de ropa de cama con diseño elegante. Incluye sábanas, fundas y protector.',
+                'categoria': 3,  # Hogar
+                'color': 2,      # Blanco
+                'precio': Decimal('320000'),
+                'stock': 20,
+                'en_oferta': True,
+                'descuento': Decimal('12.00'),
+                'imagenes': ['71YAIFU48IL_wDF8K8Q._AC_UL640_QL65_ML3_.jpg']
+            },
+            {
+                'nombre': 'Conjunto Deportivo Premium',
+                'descripcion': 'Conjunto deportivo de alta gama con tecnología transpirable. Perfecto para entrenamientos intensos.',
+                'categoria': 4,  # Deportes
+                'color': 3,      # Negro
+                'precio': Decimal('440000'),
+                'stock': 22,
+                'en_oferta': False,
+                'descuento': Decimal('0.00'),
+                'imagenes': ['71z3kpMAYsL_VzwOiMm._AC_UY879_.jpg']
+            },
+            {
+                'nombre': 'Accesorios Electrónicos',
+                'descripcion': 'Set completo de accesorios para dispositivos electrónicos. Incluye cables, adaptadores y soportes.',
+                'categoria': 1,  # Electrónicos
+                'color': 3,      # Negro
+                'precio': Decimal('182000'),
+                'stock': 30,
+                'en_oferta': True,
+                'descuento': Decimal('20.00'),
+                'imagenes': ['81fPKd-2AYL_yklNgJs._AC_SL1500_.jpg']
+            },
+            {
+                'nombre': 'Ropa Casual Moderna',
+                'descripcion': 'Conjunto casual moderno y cómodo para uso diario. Disponible en diferentes tallas.',
+                'categoria': 2,  # Ropa
+                'color': 5,      # Azul
+                'precio': Decimal('260000'),
+                'stock': 25,
+                'en_oferta': False,
+                'descuento': Decimal('0.00'),
+                'imagenes': ['81XH0e8fefL._AC_UY879_.jpg']
+            },
+            {
+                'nombre': 'Productos para el Hogar',
+                'descripcion': 'Set de productos esenciales para el hogar. Incluye elementos decorativos y funcionales.',
+                'categoria': 3,  # Hogar
+                'color': 2,      # Blanco
+                'precio': Decimal('224000'),
+                'stock': 28,
+                'en_oferta': True,
+                'descuento': Decimal('8.00'),
+                'imagenes': ['51UDEzMJVpL_Y53Vy0r._AC_UL640_QL65_ML3_.jpg']
+            },
+            {
+                'nombre': 'Cámara de Acción Deportiva',
+                'descripcion': 'Cámara de acción resistente al agua con grabación 4K. Perfecta para deportes extremos.',
+                'categoria': 1,  # Electrónicos
+                'color': 3,      # Negro
+                'precio': Decimal('1200000'),
+                'stock': 12,
+                'en_oferta': True,
+                'descuento': Decimal('25.00'),
+                'imagenes': ['jason-leung-DmD8HVOjy4c-unsplash.jpg']
+            },
+            {
+                'nombre': 'Accesorios de Viaje Premium',
+                'descripcion': 'Set completo de accesorios para viajeros. Incluye organizadores, adaptadores y más.',
+                'categoria': 4,  # Deportes
+                'color': 1,      # Gris
+                'precio': Decimal('358000'),
+                'stock': 16,
+                'en_oferta': False,
+                'descuento': Decimal('0.00'),
+                'imagenes': ['eduardo-pastor-sWcDEaemw14-unsplash.jpg']
+            },
+            {
+                'nombre': 'Productos Artesanales',
+                'descripcion': 'Colección de productos artesanales únicos. Ideales para decoración y regalos especiales.',
+                'categoria': 9,  # Jardín
+                'color': 0,      # Ninguno
+                'precio': Decimal('172000'),
+                'stock': 20,
+                'en_oferta': True,
+                'descuento': Decimal('10.00'),
+                'imagenes': ['mnz-m1m2EZOZVwA-unsplash.jpg']
             }
         ]
         
@@ -233,7 +343,8 @@ class Command(BaseCommand):
                     settings.BASE_DIR, 
                     'tienda_sena', 
                     'static', 
-                    'FotosProductos', 
+                    'assets', 
+                    'productos_default', 
                     imagen_nombre
                 )
                 

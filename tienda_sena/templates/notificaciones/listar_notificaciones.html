@@ -1,0 +1,280 @@
+{% extends 'bases/base.html' %}
+{% load static breadcrumbs %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block main %}
+<div class="d-flex" style="min-height: 100vh;">
+    <!-- Botón de menú hamburguesa para pantallas pequeñas -->
+    <button class="btn btn-dark d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar" style="border-radius: 0%;">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    {% include 'bases/_sidebar_usuario.html' %}
+    
+    <!-- Contenido principal -->
+    <div class="container content" style="padding: 20px;padding-top: 40px;">
+        <div id="notificaciones">
+            {% if messages %}
+                {% for message in messages %} 
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> 
+                        {{ message}} 
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-bell me-2"></i>{{ titulo }}</h1>
+            <div>
+                <button class="btn btn-outline-primary me-2" onclick="marcarTodasLeidas()">
+                    <i class="fas fa-check-double me-1"></i>Marcar todas como leídas
+                </button>
+                <a href="{% url 'perfil_usuario' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Volver al perfil
+                </a>
+            </div>
+        </div>
+
+        {% if notificaciones %}
+            <div class="row">
+                {% for notificacion in notificaciones %}
+                    <div class="col-12 mb-3" data-id="{{ notificacion.id }}">
+                        <div class="card notification-card {% if not notificacion.leida %}border-primary{% endif %}" 
+                             style="border-left: 4px solid {% if notificacion.tipo == 'success' %}#28a745{% elif notificacion.tipo == 'warning' %}#ffc107{% elif notificacion.tipo == 'error' %}#dc3545{% else %}#007bff{% endif %};">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="{{ notificacion.get_icono }} me-2"></i>
+                                            <h5 class="card-title mb-0 {% if not notificacion.leida %}fw-bold{% endif %}">
+                                                {{ notificacion.titulo }}
+                                            </h5>
+                                            {% if not notificacion.leida %}
+                                                <span class="badge bg-primary ms-2">Nueva</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <p class="card-text">{{ notificacion.mensaje }}</p>
+                                        
+                                        <div class="d-flex align-items-center text-muted">
+                                            <small>
+                                                <i class="fas fa-clock me-1"></i>
+                                                {{ notificacion.fecha|date:"d/m/Y H:i" }}
+                                            </small>
+                                            {% if notificacion.leida and notificacion.fecha_leida %}
+                                                <small class="ms-3">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    Leída el {{ notificacion.fecha_leida|date:"d/m/Y H:i" }}
+                                                </small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            {% if not notificacion.leida %}
+                                                <li>
+                                                    <a class="dropdown-item" href="#" onclick="marcarLeida({{ notificacion.id }})">
+                                                        <i class="fas fa-check me-2"></i>Marcar como leída
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            {% if notificacion.url %}
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ notificacion.url }}" onclick="marcarLeida({{ notificacion.id }})">
+                                                        <i class="fas fa-external-link-alt me-2"></i>Ver más
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#" onclick="eliminarNotificacion({{ notificacion.id }})">
+                                                    <i class="fas fa-trash me-2"></i>Eliminar
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="card">
+                    <div class="card-body">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No tienes notificaciones</h4>
+                        <p class="text-muted">Cuando recibas notificaciones, aparecerán aquí.</p>
+                        <a href="{% url 'perfil_usuario' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left me-1"></i>Volver al perfil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .notification-card {
+        transition: all 0.3s ease;
+    }
+    
+    .notification-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+    
+    .notification-dropdown {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border: none;
+        border-radius: 8px;
+    }
+    
+    .notification-content {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .notification-content:hover {
+        background-color: #f8f9fa !important;
+    }
+</style>
+
+<script>
+    // Función específica para la página de notificaciones
+    function eliminarNotificacion(idNotificacion) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
+            fetch(`/notificaciones/eliminar/${idNotificacion}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Animar la eliminación
+                    const card = document.querySelector(`[data-id="${idNotificacion}"]`);
+                    if (card) {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateX(-100%)';
+                        
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // Verificar si quedan notificaciones
+                            const remainingCards = document.querySelectorAll('[data-id]');
+                            if (remainingCards.length === 0) {
+                                location.reload(); // Recargar para mostrar el mensaje de "sin notificaciones"
+                            }
+                        }, 300);
+                    }
+                } else {
+                    alert('Error al eliminar la notificación');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al eliminar la notificación');
+            });
+        }
+    }
+
+    function marcarLeida(idNotificacion) {
+        fetch(`/notificaciones/marcar-leida/${idNotificacion}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar visualmente la notificación
+                const card = document.querySelector(`[data-id="${idNotificacion}"]`);
+                if (card) {
+                    const title = card.querySelector('.card-title');
+                    const badge = card.querySelector('.badge');
+                    
+                    title.classList.remove('fw-bold');
+                    card.classList.remove('border-primary');
+                    
+                    if (badge) {
+                        badge.remove();
+                    }
+                }
+                
+                // Si tiene redirección, redirigir
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function marcarTodasLeidas() {
+        const noLeidas = document.querySelectorAll('.border-primary').length;
+        
+        if (noLeidas === 0) {
+            alert('No hay notificaciones por marcar como leídas');
+            return;
+        }
+
+        fetch('/notificaciones/marcar-todas-leidas/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar visualmente todas las notificaciones
+                document.querySelectorAll('[data-id]').forEach(card => {
+                    const title = card.querySelector('.card-title');
+                    const badge = card.querySelector('.badge');
+                    
+                    title.classList.remove('fw-bold');
+                    card.classList.remove('border-primary');
+                    
+                    if (badge) {
+                        badge.remove();
+                    }
+                });
+                
+                alert(data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Función para obtener el token CSRF (reutilizada)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
