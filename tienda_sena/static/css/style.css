@@ -297,3 +297,31 @@
         font-size: 1rem;
     }
 }
+
+/* Estilos para el sidebar - Solo correcciones específicas */
+.offcanvas {
+    max-width: 280px !important;
+    width: 280px !important;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Ajustes para el banner en sidebar */
+.sidebar-banner {
+    width: 100% !important;
+    max-width: 230px;
+}
+
+/* Ajustes responsive para el sidebar */
+@media (max-width: 767px) {
+    .offcanvas {
+        max-width: 320px !important;
+        width: 85% !important;
+    }
+    
+    .sidebar-banner {
+        max-width: 100% !important;
+    }
+}

@@ -15,6 +15,27 @@
 ---
 
 ### CHANGELOG
+---
+
+## [v1.43.42-alpha.1] - 20-07-2025
+
+### Changed
+- **Mejoras en Estilos del Sidebar**:
+  - Optimización de estilos CSS para mejor apariencia visual del sidebar
+  - Mejoras en la responsividad del sidebar para diferentes tamaños de pantalla
+  - Actualizaciones en el diseño para mayor consistencia visual
+- **Posicionamiento de Badge de Notificaciones**:
+  - Reposicionamiento mejorado del badge de notificaciones para mejor visibilidad
+  - Ajustes en la ubicación del indicador de notificaciones no leídas
+  - Mejoras en la experiencia visual del sistema de notificaciones
+
+### Fixed
+- **Responsive Design**:
+  - Corrección de problemas de responsive en el sidebar para dispositivos móviles
+  - Mejora en la adaptabilidad del layout en diferentes resoluciones
+  - Optimización de la visualización en tablets y smartphones
+
+---
 
 ## [v1.42.41-alpha.1] - 19-07-2025
 

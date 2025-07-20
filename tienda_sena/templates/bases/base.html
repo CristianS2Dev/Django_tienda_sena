@@ -134,7 +134,7 @@
               <a class="nav-link fw-medium text-white position-relative" href="#" id="notificacionesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-bell"></i>
                 {% if notificaciones_no_leidas > 0 %}
-                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contador-notificaciones">
+                  <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger" id="contador-notificaciones" style="font-size: 0.7rem; min-width: 18px; height: 18px; line-height: 18px; margin-left: 8px; margin-top: -2px;">
                     {{ notificaciones_no_leidas }}
                   </span>
                 {% endif %}
