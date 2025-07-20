@@ -1,0 +1,245 @@
+{% extends 'bases/base.html' %}
+{% load static humanize %}
+
+{% block titulo %}Checkout - Método de Envío{% endblock %}
+
+{% block main %}
+<div class="container py-5">
+    <!-- Indicador de progreso -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="checkout-progress">
+                <div class="progress-step completed">
+                    <div class="step-number"><i class="fas fa-check"></i></div>
+                    <div class="step-title">Resumen</div>
+                </div>
+                <div class="progress-line completed"></div>
+                <div class="progress-step completed">
+                    <div class="step-number"><i class="fas fa-check"></i></div>
+                    <div class="step-title">Dirección</div>
+                </div>
+                <div class="progress-line completed"></div>
+                <div class="progress-step active">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Envío</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Confirmación</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Selecciona tu Método de Envío</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h6><i class="fas fa-map-marker-alt text-primary"></i> Enviar a:</h6>
+                        <p class="text-muted mb-0">
+                            {{ direccion.direccion }}<br>
+                            {{ direccion.ciudad }}, {{ direccion.estado }} {{ direccion.codigo_postal }}<br>
+                            {{ direccion.pais }}
+                        </p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for metodo_key, metodo_info in metodos_envio.items %}
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="metodo_envio" 
+                                       value="{{ metodo_key }}" id="metodo{{ metodo_key }}"
+                                       {% if forloop.first %}checked{% endif %}
+                                       onchange="updateTotal()">
+                                <label class="form-check-label w-100" for="metodo{{ metodo_key }}">
+                                    <div class="card border-2 shipping-option">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h6 class="mb-1">{{ metodo_info.nombre }}</h6>
+                                                    <p class="text-muted mb-0">
+                                                        {% if metodo_key == 'estandar' %}
+                                                            <i class="fas fa-truck"></i> Entrega en 3-5 días hábiles
+                                                        {% elif metodo_key == 'express' %}
+                                                            <i class="fas fa-shipping-fast"></i> Entrega en 1-2 días hábiles
+                                                        {% elif metodo_key == 'recoger' %}
+                                                            <i class="fas fa-store"></i> Recoge en nuestra tienda
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                                <div class="text-end">
+                                                    {% if metodo_info.costo == 0 %}
+                                                        <strong class="text-success">GRATIS</strong>
+                                                    {% else %}
+                                                        <strong>${{ metodo_info.costo|intcomma }}</strong>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'checkout_paso2_direccion' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Continuar <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Resumen del Pedido</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>${{ subtotal|intcomma }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Envío:</span>
+                        <span id="costo-envio">$5.000</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total:</strong>
+                        <strong id="total-final">${{ subtotal|add:5000|intcomma }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Información de Envío</h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">
+                        <strong>Envío Estándar:</strong> Entrega en 3-5 días hábiles<br>
+                        <strong>Envío Express:</strong> Entrega en 1-2 días hábiles<br>
+                        <strong>Recoger en Tienda:</strong> Disponible de Lunes a Sábado de 9:00 AM a 6:00 PM
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.progress-step.active .step-number {
+    background-color: #007bff;
+    color: white;
+}
+
+.progress-step.completed .step-number {
+    background-color: #28a745;
+    color: white;
+}
+
+.step-title {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.progress-step.active .step-title,
+.progress-step.completed .step-title {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.progress-line {
+    height: 2px;
+    width: 60px;
+    background-color: #dee2e6;
+    margin: 0 10px;
+    margin-top: -20px;
+}
+
+.progress-line.completed {
+    background-color: #28a745;
+}
+
+.form-check-input:checked + .form-check-label .shipping-option {
+    border-color: #007bff !important;
+    background-color: #f8f9ff;
+}
+
+.shipping-option {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.shipping-option:hover {
+    border-color: #007bff !important;
+}
+</style>
+
+<script>
+const metodosCosto = {
+    'estandar': 5000,
+    'express': 12000,
+    'recoger': 0
+};
+
+const subtotal = {{ subtotal }};
+
+function updateTotal() {
+    const metodoSeleccionado = document.querySelector('input[name="metodo_envio"]:checked').value;
+    const costoEnvio = metodosCosto[metodoSeleccionado];
+    const total = subtotal + costoEnvio;
+    
+    // Actualizar el costo de envío
+    const costoEnvioElement = document.getElementById('costo-envio');
+    if (costoEnvio === 0) {
+        costoEnvioElement.innerHTML = '<span class="text-success">GRATIS</span>';
+    } else {
+        costoEnvioElement.textContent = '$' + costoEnvio.toLocaleString();
+    }
+    
+    // Actualizar el total
+    document.getElementById('total-final').textContent = '$' + total.toLocaleString();
+}
+
+// Inicializar al cargar la página
+document.addEventListener('DOMContentLoaded', updateTotal);
+</script>
+{% endblock %}

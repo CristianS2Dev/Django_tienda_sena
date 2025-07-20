@@ -20,6 +20,7 @@ from django.db import IntegrityError
 from django.db import models, transaction
 from django.urls import reverse
 from django.core.mail import send_mail
+from django.views.decorators.cache import never_cache
 import random
 import os, time
 import mimetypes
@@ -626,6 +627,9 @@ def agregar_direccion(request):
         messages.error(request, "Usuario no encontrado.")
         return redirect('login')
 
+    # Detectar si viene del checkout
+    desde_checkout = request.GET.get('from_checkout') or request.POST.get('from_checkout')
+    
     breadcrumbs = [
         ("Inicio", reverse("index")),
         ("Mi cuenta", reverse("perfil_usuario")),
@@ -664,13 +668,20 @@ def agregar_direccion(request):
                 pais=pais,
                 principal=principal
             )
+            
             messages.success(request, 'Dirección agregada correctamente.')
-            return redirect('direccion_usuario')
+            
+            # Redirigir según el origen
+            if desde_checkout:
+                messages.info(request, f"Dirección '{nueva_direccion.direccion}' agregada al checkout.")
+                return redirect('checkout_paso2_direccion')
+            else:
+                return redirect('direccion_usuario')
+                
         except ValidationError as ve:
             messages.error(request, f"Error de validación: {ve}")
         except Exception as e:
             messages.error(request, f"Error inesperado: {e}")
-
 
         # Si hay un error, devolver los datos ingresados al formulario
         return render(request, 'usuarios/agregar_direccion_usuario.html', {
@@ -681,6 +692,7 @@ def agregar_direccion(request):
             'codigo_postal_valor': codigo_postal,
             'pais_valor': pais,
             'principal_valor': principal,
+            'from_checkout': desde_checkout,
         })
 
     # Para solicitudes GET, pasar valores vacíos al formulario
@@ -692,6 +704,7 @@ def agregar_direccion(request):
         'codigo_postal_valor': '',
         'pais_valor': '',
         'principal_valor': False,
+        'from_checkout': desde_checkout,  # Pasar el parámetro al template
     })
 
 
@@ -762,7 +775,7 @@ def set_primary_address(request, id_address):
         messages.error(request, "Dirección no encontrada.")
     except Exception as e:
         messages.error(request, f"Error inesperado: {e}")
-    return redirect('address')
+    return redirect('direccion_usuario')
 
 def eliminar_direccion(request, id):
     """"Elimina una dirección existente del usuario autenticado."""
@@ -2116,39 +2129,44 @@ def notificaciones_admin(request):
 
 def obtener_carrito(request):
     """Obtiene el carrito del usuario autenticado o de la sesión."""
-    if request.user.is_authenticated:
-        # Buscar el usuario en tu modelo personalizado
-        usuario = Usuario.objects.filter(correo=request.user.email).first()
-        if not usuario:
-            # Crear el usuario automáticamente si no existe
-            usuario = Usuario.objects.create(
-                nombre_apellido=request.user.get_full_name() or request.user.username,
-                correo=request.user.email,
-                password=request.user.password,
-                rol=2,  # O el rol por defecto que desees
-            )
-        carrito, creado = Carrito.objects.get_or_create(usuario=usuario)
-    else:
-        carrito_id = request.session.get('carrito_id')
-        if carrito_id:
-            carrito = Carrito.objects.filter(id=carrito_id).first()
-            if not carrito:
-                messages.info(request, "Tu carrito fue eliminado por inactividad. Se ha creado uno nuevo.")
-                carrito = Carrito.objects.create()
-                request.session['carrito_id'] = carrito.id
-        else:
-            carrito = Carrito.objects.create()
-            request.session['carrito_id'] = carrito.id
-        return carrito
+    usuario_id = request.session.get("pista", {}).get("id")
+    
+    if usuario_id:
+        try:
+            usuario = Usuario.objects.get(pk=usuario_id)
+            
+            # Limpiar carritos huérfanos o inconsistentes para este usuario
+            carritos_usuario = Carrito.objects.filter(usuario=usuario)
+            if carritos_usuario.count() > 1:
+                # Si hay múltiples carritos, conservar solo el más reciente
+                carrito_principal = carritos_usuario.order_by('-id').first()
+                carritos_usuario.exclude(id=carrito_principal.id).delete()
+            
+            carrito, creado = Carrito.objects.get_or_create(usuario=usuario)
+            return carrito
+        except Usuario.DoesNotExist:
+            # Si el usuario no existe, limpiar la sesión
+            if "pista" in request.session:
+                del request.session["pista"]
+    
+    # Para usuarios no autenticados, usar sesión
+    carrito_id = request.session.get('carrito_id')
+    if carrito_id:
+        try:
+            carrito = Carrito.objects.get(id=carrito_id)
+            return carrito
+        except Carrito.DoesNotExist:
+            # El carrito no existe, crear uno nuevo
+            pass
+    
+    # Crear nuevo carrito para usuario anónimo
+    carrito = Carrito.objects.create(usuario=None)
+    request.session['carrito_id'] = carrito.id
+    return carrito
 
 def agregar_carrito(request, id_producto):
     """Agrega un producto al carrito."""
-    try:
-        carrito = obtener_carrito(request)
-    except ValueError as e:
-        messages.error(request, str(e))
-        return redirect('login')  # Redirigir al login si no se puede obtener el carrito
-
+    carrito = obtener_carrito(request)
     producto = get_object_or_404(Producto, id=id_producto)
     cantidad = int(request.POST.get('cantidad', 1))
 
@@ -2164,12 +2182,16 @@ def agregar_carrito(request, id_producto):
         return redirect('carrito')
     
     # Buscar o crear el elemento en el carrito
-    elemento, creado = ElementoCarrito.objects.get_or_create(carrito=carrito, producto=producto)
+    elemento, creado = ElementoCarrito.objects.get_or_create(
+        carrito=carrito, 
+        producto=producto,
+        defaults={'cantidad': cantidad}
+    )
+    
     if not creado:
         elemento.cantidad += cantidad  # Incrementar la cantidad si ya existe
-    else:
-        elemento.cantidad = cantidad  # Establecer la cantidad si es un nuevo elemento
-    elemento.save()
+        elemento.save()
+    
     messages.success(request, f"{producto.nombre} agregado al carrito.")
     return redirect('carrito')
 
@@ -2221,6 +2243,276 @@ def actualizar_carrito(request, id_elemento):
             'total': total
         })
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def checkout_paso1_resumen(request):
+    """Paso 1: Resumen del carrito antes del checkout"""
+    carrito = obtener_carrito(request)
+    
+    if not carrito.elementos.exists():
+        messages.error(request, "El carrito está vacío.")
+        return redirect('carrito')
+    
+    # Verificar que el usuario esté logueado
+    if not carrito.usuario:
+        usuario_id = request.session.get("pista", {}).get("id")
+        if usuario_id:
+            try:
+                usuario = Usuario.objects.get(pk=usuario_id)
+                carrito.usuario = usuario
+                carrito.save()
+            except Usuario.DoesNotExist:
+                messages.error(request, "Usuario no encontrado.")
+                return redirect('login')
+        else:
+            messages.error(request, "Debes iniciar sesión para continuar.")
+            return redirect('login')
+    
+    elementos = carrito.elementos.select_related('producto')
+    subtotal = sum(elemento.producto.precio * elemento.cantidad for elemento in elementos)
+    
+    # Verificar stock disponible
+    problemas_stock = []
+    for elemento in elementos:
+        if elemento.cantidad > elemento.producto.stock:
+            problemas_stock.append({
+                'producto': elemento.producto.nombre,
+                'solicitado': elemento.cantidad,
+                'disponible': elemento.producto.stock
+            })
+    
+    contexto = {
+        'elementos': elementos,
+        'subtotal': subtotal,
+        'problemas_stock': problemas_stock,
+        'paso_actual': 1,
+        'total_pasos': 4,
+    }
+    
+    return render(request, 'productos/checkout/paso1_resumen.html', contexto)
+
+
+@never_cache
+def checkout_paso2_direccion(request):
+    """Paso 2: Selección de dirección de envío"""
+    carrito = obtener_carrito(request)
+    
+    if not carrito.elementos.exists():
+        messages.error(request, "El carrito está vacío.")
+        return redirect('carrito')
+    
+    # Asegurar que el carrito tenga un usuario
+    if not carrito.usuario:
+        messages.error(request, "Debes completar el paso anterior.")
+        return redirect('checkout_paso1_resumen')
+    
+    usuario = carrito.usuario
+    
+    # Verificar que el usuario del carrito coincida con el de la sesión
+    usuario_sesion_id = request.session.get("pista", {}).get("id")
+    if usuario_sesion_id != usuario.id:
+        # Corregir el carrito para que use el usuario de la sesión
+        if usuario_sesion_id:
+            try:
+                usuario_sesion = Usuario.objects.get(pk=usuario_sesion_id)
+                carrito.usuario = usuario_sesion
+                carrito.save()
+                usuario = usuario_sesion
+            except Usuario.DoesNotExist:
+                messages.error(request, "Error de sesión.")
+                return redirect('login')
+    
+    direcciones = Direccion.objects.filter(usuario=usuario).order_by('-principal', '-id')
+    direccion_principal = direcciones.filter(principal=True).first()
+    
+    if not direcciones.exists():
+        messages.info(request, "No tienes direcciones registradas. Agrega una dirección para continuar.")
+    
+    if request.method == 'POST':
+        direccion_id = request.POST.get('direccion_id')
+        
+        if direccion_id:
+            direccion = get_object_or_404(Direccion, id=direccion_id, usuario=usuario)
+            # Guardar la dirección seleccionada en la sesión
+            request.session['checkout_direccion_id'] = direccion.id
+            messages.success(request, f"Dirección seleccionada: {direccion.direccion}")
+            return redirect('checkout_paso3_envio')
+        else:
+            messages.error(request, "Debes seleccionar una dirección.")
+    
+    contexto = {
+        'direcciones': direcciones,
+        'direccion_principal': direccion_principal,
+        'paso_actual': 2,
+        'total_pasos': 4,
+    }
+    
+    response = render(request, 'productos/checkout/paso2_direccion.html', contexto)
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
+
+
+def checkout_paso3_envio(request):
+    """Paso 3: Selección de método de envío"""
+    carrito = obtener_carrito(request)
+    
+    if not carrito.elementos.exists():
+        messages.error(request, "El carrito está vacío.")
+        return redirect('carrito')
+    
+    # Verificar que se haya seleccionado una dirección
+    direccion_id = request.session.get('checkout_direccion_id')
+    if not direccion_id:
+        messages.error(request, "Debes seleccionar una dirección primero.")
+        return redirect('checkout_paso2_direccion')
+    
+    direccion = get_object_or_404(Direccion, id=direccion_id, usuario=carrito.usuario)
+    subtotal = sum(elemento.producto.precio * elemento.cantidad for elemento in carrito.elementos.all())
+    
+    # Métodos de envío con costos
+    metodos_envio = {
+        'estandar': {'nombre': 'Envío Estándar (3-5 días)', 'costo': 5000},
+        'express': {'nombre': 'Envío Express (1-2 días)', 'costo': 12000},
+        'recoger': {'nombre': 'Recoger en Tienda', 'costo': 0},
+    }
+    
+    if request.method == 'POST':
+        metodo_seleccionado = request.POST.get('metodo_envio')
+        
+        if metodo_seleccionado in metodos_envio:
+            # Guardar el método de envío en la sesión
+            request.session['checkout_metodo_envio'] = metodo_seleccionado
+            request.session['checkout_costo_envio'] = metodos_envio[metodo_seleccionado]['costo']
+            return redirect('checkout_paso4_confirmacion')
+        else:
+            messages.error(request, "Debes seleccionar un método de envío.")
+    
+    contexto = {
+        'direccion': direccion,
+        'metodos_envio': metodos_envio,
+        'subtotal': subtotal,
+        'paso_actual': 3,
+        'total_pasos': 4,
+    }
+    
+    return render(request, 'productos/checkout/paso3_envio.html', contexto)
+
+
+def checkout_paso4_confirmacion(request):
+    """Paso 4: Confirmación y procesamiento del pago"""
+    carrito = obtener_carrito(request)
+    
+    if not carrito.elementos.exists():
+        messages.error(request, "El carrito está vacío.")
+        return redirect('carrito')
+    
+    direccion_id = request.session.get('checkout_direccion_id')
+    metodo_envio = request.session.get('checkout_metodo_envio')
+    costo_envio = request.session.get('checkout_costo_envio', 0)
+    
+    if not all([direccion_id, metodo_envio]):
+        messages.error(request, "Debes completar todos los pasos del checkout.")
+        return redirect('checkout_paso1_resumen')
+    
+    direccion = get_object_or_404(Direccion, id=direccion_id, usuario=carrito.usuario)
+    elementos = carrito.elementos.select_related('producto')
+    subtotal = sum(elemento.producto.precio * elemento.cantidad for elemento in elementos)
+    total = subtotal + costo_envio
+    
+    # Información del método de envío
+    metodos_envio = {
+        'estandar': 'Envío Estándar (3-5 días)',
+        'express': 'Envío Express (1-2 días)',
+        'recoger': 'Recoger en Tienda',
+    }
+    
+    if request.method == 'POST':
+        notas = request.POST.get('notas', '')
+        
+        try:
+            with transaction.atomic():
+                # Verificar stock una vez más
+                for elemento in elementos:
+                    producto = Producto.objects.select_for_update().get(pk=elemento.producto.pk)
+                    if elemento.cantidad > producto.stock:
+                        messages.error(request, f"Stock insuficiente para {producto.nombre}. Disponible: {producto.stock}")
+                        return redirect('carrito')
+                
+                orden = Orden.objects.create(
+                    usuario=carrito.usuario,
+                    direccion=direccion,
+                    subtotal=subtotal,
+                    costo_envio=costo_envio,
+                    total=total,
+                    metodo_envio=metodo_envio,
+                    notas=notas
+                )
+                
+                # Crear los items de la orden y actualizar stock
+                for elemento in elementos:
+                    producto = Producto.objects.select_for_update().get(pk=elemento.producto.pk)
+                    OrdenItem.objects.create(
+                        orden=orden,
+                        producto=producto,
+                        cantidad=elemento.cantidad,
+                        precio_unitario=producto.precio
+                    )
+                    producto.stock = F('stock') - elemento.cantidad
+                    producto.save()
+                
+                # Limpiar carrito y sesión
+                carrito.elementos.all().delete()
+                request.session.pop('checkout_direccion_id', None)
+                request.session.pop('checkout_metodo_envio', None)
+                request.session.pop('checkout_costo_envio', None)
+                
+                # Notificaciones
+                crear_notificacion_pedido(carrito.usuario, orden.id, 'creado')
+                notificar_administradores(
+                    titulo="Nuevo Pedido Realizado",
+                    mensaje=f"{carrito.usuario.nombre_apellido} ha realizado un pedido por ${total:,.0f}.",
+                    tipo='pedido',
+                    url=f'/panel_admin/'
+                )
+                
+                messages.success(request, f"¡Pedido #{orden.id} creado exitosamente!")
+                return redirect('checkout_exito', orden_id=orden.id)
+                
+        except Exception as e:
+            messages.error(request, f"Error al procesar el pedido: {e}")
+            return redirect('carrito')
+    
+    contexto = {
+        'direccion': direccion,
+        'elementos': elementos,
+        'subtotal': subtotal,
+        'costo_envio': costo_envio,
+        'total': total,
+        'metodo_envio_nombre': metodos_envio.get(metodo_envio, metodo_envio),
+        'paso_actual': 4,
+        'total_pasos': 4,
+    }
+    
+    return render(request, 'productos/checkout/paso4_confirmacion.html', contexto)
+
+
+def checkout_exito(request, orden_id):
+    """Página de éxito después de completar el checkout"""
+    orden = get_object_or_404(Orden, id=orden_id)
+    
+    # Verificar que el usuario tenga acceso a esta orden
+    usuario_id = request.session.get("pista", {}).get("id")
+    if not usuario_id or orden.usuario.id != usuario_id:
+        messages.error(request, "No tienes acceso a esta orden.")
+        return redirect('index')
+    
+    contexto = {
+        'orden': orden,
+    }
+    
+    return render(request, 'productos/checkout/exito.html', contexto)
+
 
 @session_rol_permission()
 def pagar_carrito(request):

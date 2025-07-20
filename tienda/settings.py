@@ -212,8 +212,14 @@ LOCALE_PATHS = [
 ACCOUNT_SESSION_REMEMBER = None
 ACCOUNT_LOGOUT_ON_GET = False
 
-# Personalizar mensajes de éxito
+# Personalizar mensajes para usar clases de Bootstrap
+from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning', 
+    messages.ERROR: 'danger',
     50: 'critical',
 }
 

@@ -1,0 +1,190 @@
+{% extends 'bases/base.html' %}
+{% load static humanize custom_filters %}
+
+{% block titulo %}Pedido Confirmado{% endblock %}
+
+{% block main %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Mensaje de éxito -->
+            <div class="text-center mb-5">
+                <div class="success-icon mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2 class="text-success mb-3">¡Pedido Confirmado!</h2>
+                <p class="lead text-muted">
+                    Tu pedido #{{ orden.id }} ha sido procesado exitosamente.
+                </p>
+            </div>
+
+            <!-- Detalles del pedido -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-receipt"></i> Detalles del Pedido #{{ orden.id }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <strong>Fecha del Pedido:</strong><br>
+                            {{ orden.creado_en|date:"d/m/Y H:i" }}
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>Estado:</strong><br>
+                            <span class="badge bg-warning">{{ orden.get_estado_pago_display }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <strong>Método de Envío:</strong><br>
+                            {{ orden.get_metodo_envio_display }}
+                        </div>
+                        <div class="col-sm-6">
+                            <strong>Total Pagado:</strong><br>
+                            <span class="h5 text-success">${{ orden.total|intcomma }}</span>
+                        </div>
+                    </div>
+
+                    {% if orden.direccion %}
+                    <div class="mb-3">
+                        <strong>Dirección de Envío:</strong><br>
+                        {{ orden.direccion.direccion }}<br>
+                        {{ orden.direccion.ciudad }}, {{ orden.direccion.estado }}<br>
+                        {{ orden.direccion.codigo_postal }}, {{ orden.direccion.pais }}
+                    </div>
+                    {% endif %}
+
+                    {% if orden.notas %}
+                    <div class="mb-3">
+                        <strong>Notas:</strong><br>
+                        <p class="text-muted">{{ orden.notas }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Productos del pedido -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-box"></i> Productos Pedidos</h6>
+                </div>
+                <div class="card-body">
+                    {% for item in orden.items.all %}
+                        <div class="d-flex align-items-center border-bottom py-3">
+                            <div class="me-3">
+                                {% if item.producto.imagenes.first %}
+                                    <img src="{{ item.producto.imagenes.first.imagen.url }}" 
+                                         alt="{{ item.producto.nombre }}" 
+                                         class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 60px; height: 60px;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ item.producto.nombre }}</h6>
+                                <p class="text-muted mb-0">
+                                    Cantidad: {{ item.cantidad }} × ${{ item.precio_unitario|intcomma }}
+                                </p>
+                            </div>
+                            <div class="text-end">
+                                <strong>${{ item.cantidad|mul:item.precio_unitario|intcomma }}</strong>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="border-top pt-3 mt-3">
+                        <div class="row">
+                            <div class="col-sm-8"></div>
+                            <div class="col-sm-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>${{ orden.subtotal|intcomma }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Envío:</span>
+                                    <span>
+                                        {% if orden.costo_envio == 0 %}
+                                            <span class="text-success">GRATIS</span>
+                                        {% else %}
+                                            ${{ orden.costo_envio|intcomma }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total:</strong>
+                                    <strong class="text-success">${{ orden.total|intcomma }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Próximos pasos -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-clock"></i> ¿Qué sigue?</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-envelope fa-2x text-primary mb-2"></i>
+                            <h6>Confirmación por Email</h6>
+                            <small class="text-muted">Recibirás un email con los detalles de tu pedido</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-cogs fa-2x text-warning mb-2"></i>
+                            <h6>Procesamiento</h6>
+                            <small class="text-muted">Preparamos tus productos para el envío</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="fas fa-shipping-fast fa-2x text-success mb-2"></i>
+                            <h6>Envío</h6>
+                            <small class="text-muted">Te notificaremos cuando tu pedido esté en camino</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="text-center">
+                <a href="{% url 'historial_compras_usuario' %}" class="btn btn-primary me-3">
+                    <i class="fas fa-history"></i> Ver Mis Pedidos
+                </a>
+                <a href="{% url 'index' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-shopping-bag"></i> Seguir Comprando
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.success-icon i {
+    font-size: 4rem;
+    color: #28a745;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.bg-success {
+    background-color: #28a745 !important;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.border-bottom:last-child {
+    border-bottom: none !important;
+}
+</style>
+{% endblock %}
