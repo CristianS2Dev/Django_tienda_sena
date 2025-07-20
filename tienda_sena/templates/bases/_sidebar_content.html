@@ -1,7 +1,6 @@
 <ul class="nav flex-column" id="sidebarMenu">
-        <!-- Ítem con submenú: Mi Cuenta -->
+    <!-- Ítem con submenú: Mi Cuenta -->
     {% if request.session.pista.rol == 1 %}
-        <ul class="nav flex-column" id="sidebarMenu">
             <li class="nav-item">
             <a class="nav-link text-white" href="{% url 'panel_admin' %}">
                 <i class="fas fa-user-circle me-2"></i> Dashboard
@@ -76,16 +75,11 @@
             <li class="nav-item">
                 <a class="nav-link text-white position-relative" href="{% url 'notificaciones_admin' %}">
                     <i class="fas fa-bell-slash me-2"></i> Panel Admin
-                    {% if notificaciones_admin_pendientes > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.6rem;">
-                            {{ notificaciones_admin_pendientes }}
-                        </span>
-                    {% endif %}
                 </a>
             </li>
             
             <!-- Banner de publicidad -->
-            <div class=" bottom-0 m-2 mt-5" style="width: 230px; height: 300px;">
+            <div class=" bottom-0 m-2 mt-5 sidebar-banner" style="height: 300px;">
                 <div class="card text-center shadow" style="height: 100%;">
                     <div class="card-body">
                         <p class="mb-0">Banner</p>
@@ -169,7 +163,7 @@
                 </a>
             </li>
             <!-- Banner de publicidad -->
-            <div class=" bottom-0 m-2 mt-5" style="width: 230px; height: 300px;">
+            <div class=" bottom-0 m-2 mt-5 sidebar-banner" style="height: 300px;">
                 <div class="card text-center shadow" style="height: 100%;">
                     <div class="card-body">
                         <p class="mb-0">Banner</p>
