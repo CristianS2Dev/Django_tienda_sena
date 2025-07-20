@@ -22,3 +22,25 @@ def group_by(value, arg):
 def total_vendedor(items_vendidos, orden_id):
     """ Calcula el total vendido por un vendedor en una orden específica. """
     return sum(item.cantidad * item.precio_unitario for item in items_vendidos if item.orden.id == orden_id)
+
+@register.filter
+def mul(value, arg):
+    """Multiplica el valor por el argumento."""
+    try:
+        # Convertir ambos valores a números decimales para mayor precisión
+        from decimal import Decimal, InvalidOperation
+        
+        if hasattr(value, '__float__') or isinstance(value, (int, float)):
+            val = Decimal(str(value))
+        else:
+            val = Decimal(str(value))
+            
+        if hasattr(arg, '__float__') or isinstance(arg, (int, float)):
+            argument = Decimal(str(arg))
+        else:
+            argument = Decimal(str(arg))
+            
+        result = val * argument
+        return float(result)
+    except (ValueError, TypeError, InvalidOperation):
+        return 0

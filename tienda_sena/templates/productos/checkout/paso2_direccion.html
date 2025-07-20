@@ -1,0 +1,198 @@
+{% extends 'bases/base.html' %}
+{% load static %}
+
+{% block titulo %}Checkout - Dirección de Envío{% endblock %}
+
+{% block main %}
+<div class="container py-5">
+    <div id="notificaciones">
+  {% if messages %}
+      {% for message in messages %} 
+<div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
+    <!-- Indicador de progreso -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="checkout-progress">
+                <div class="progress-step completed">
+                    <div class="step-number"><i class="fas fa-check"></i></div>
+                    <div class="step-title">Resumen</div>
+                </div>
+                <div class="progress-line completed"></div>
+                <div class="progress-step active">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Dirección</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Envío</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Confirmación</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Selecciona tu Dirección de Envío</h5>
+                </div>
+                <div class="card-body">
+                    {% if direcciones %}
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for direccion in direcciones %}
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="direccion_id" 
+                                           value="{{ direccion.id }}" id="direccion{{ direccion.id }}"
+                                           {% if direccion == direccion_principal %}checked{% endif %}>
+                                    <label class="form-check-label w-100" for="direccion{{ direccion.id }}">
+                                        <div class="card border-2 {% if direccion == direccion_principal %}border-primary{% else %}border-light{% endif %}">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h6 class="mb-1">
+                                                            {{ direccion.direccion }}
+                                                            {% if direccion.principal %}
+                                                                <span class="badge bg-primary ms-2">Principal</span>
+                                                            {% endif %}
+                                                        </h6>
+                                                        <p class="text-muted mb-0">
+                                                            {{ direccion.ciudad }}, {{ direccion.estado }}<br>
+                                                            {{ direccion.codigo_postal }}, {{ direccion.pais }}
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <i class="fas fa-home text-muted"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            {% endfor %}
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="{% url 'checkout_paso1_resumen' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left"></i> Volver
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    Continuar <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                            <h5>No tienes direcciones registradas</h5>
+                            <p class="text-muted">Necesitas agregar al menos una dirección para continuar con tu pedido.</p>
+                            <a href="{% url 'agregar_direccion' %}?from_checkout=true" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Agregar Dirección
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">¿Necesitas otra dirección?</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Si necesitas enviar a una dirección diferente, puedes agregarla aquí.</p>
+                    <a href="{% url 'agregar_direccion' %}?from_checkout=true" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-plus"></i> Agregar Nueva Dirección
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Información</h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">
+                        • Verificaremos tu dirección antes del envío<br>
+                        • Los tiempos de entrega pueden variar según la zona<br>
+                        • Asegúrate de que la dirección esté completa
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.progress-step.active .step-number {
+    background-color: #007bff;
+    color: white;
+}
+
+.progress-step.completed .step-number {
+    background-color: #28a745;
+    color: white;
+}
+
+.step-title {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.progress-step.active .step-title,
+.progress-step.completed .step-title {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.progress-line {
+    height: 2px;
+    width: 60px;
+    background-color: #dee2e6;
+    margin: 0 10px;
+    margin-top: -20px;
+}
+
+.progress-line.completed {
+    background-color: #28a745;
+}
+
+.form-check-input:checked + .form-check-label .card {
+    border-color: #007bff !important;
+    background-color: #f8f9ff;
+}
+</style>
+{% endblock %}

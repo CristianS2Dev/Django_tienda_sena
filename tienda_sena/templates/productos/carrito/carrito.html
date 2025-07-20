@@ -146,8 +146,10 @@
                         <p>Total: $<span id="total">{{ total|floatformat:2 }}</span></p>
                     </div>
                     {% if request.session.pista %}
-                        <button class="btn btn-primary checkout-btn w-100 mb-3" onclick="window.location.href='{% url 'pagar_carrito' %}'">
-                            Proceder al Pago
+                        <button class="btn btn-primary checkout-btn w-100 mb-3" onclick="window.location.href='{% url 'checkout_paso1_resumen' %}'">
+                            <i class="fas fa-credit-card"></i> Proceder al Checkout
+                        </button>
+                        <small class="text-muted d-block text-center">Proceso seguro paso a paso</small>
                         </button>
                     {% else %}
                         <button class="btn btn-primary checkout-btn w-100 mb-3" onclick="window.location.href='{% url 'login' %}?next={% url 'carrito' %}'">

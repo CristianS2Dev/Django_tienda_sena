@@ -15,6 +15,34 @@
             </ul>
         </div>
     {% endif %}
+    
+    <!-- Mensajes de Django -->
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' or message.tags == 'danger' %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% elif message.tags == 'warning' %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% elif message.tags == 'success' %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% else %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
 <!-- Breadcrumb -->
 {% render_breadcrumbs breadcrumbs %}
     <div class="row">
@@ -27,6 +55,9 @@
 
             <form method="post" class="needs-validation" novalidate>
                 {% csrf_token %}
+                {% if from_checkout %}
+                    <input type="hidden" name="from_checkout" value="true">
+                {% endif %}
                 <div class="mb-3">
                     <label for="direccion" class="form-label">Dirección</label>
                     <input type="text" id="direccion" name="direccion" class="form-control" value="{{ direccion_valor }}" required>
@@ -54,12 +85,18 @@
                 <div class="d-flex justify-content-between">
                     {% if dato %}
                         <button type="submit" class="btn btn-primary">Actualizar</button>
-                        <a href="{% url 'direccion_usuario' %}" class="btn btn-outline-secondary">Cancelar</a>
-
+                        {% if from_checkout %}
+                            <a href="{% url 'checkout_paso2_direccion' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        {% else %}
+                            <a href="{% url 'direccion_usuario' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        {% endif %}
                     {% else %}
-                    <a href="{% url 'direccion_usuario' %}" class="btn btn-outline-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-
+                        {% if from_checkout %}
+                            <a href="{% url 'checkout_paso2_direccion' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        {% else %}
+                            <a href="{% url 'direccion_usuario' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary">Guardar</button>
                     {% endif %}
                 </div>
             </form>

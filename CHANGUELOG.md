@@ -15,6 +15,64 @@
 ---
 
 ### CHANGELOG
+
+## [v1.42.41-alpha.1] - 19-07-2025
+
+### Added
+- **Sistema de Checkout Completo con Proceso de Envío**:
+  - Nueva migración para agregar campos de costo de envío, método de envío, notas y subtotal al modelo de orden
+  - Página de éxito de checkout para mostrar detalles de la orden incluyendo método y costo de envío
+  - Checkout Paso 1: Resumen de orden con alertas de stock y detalles de productos
+  - Checkout Paso 2: Selección de dirección de envío con opciones para agregar nuevas direcciones
+  - Checkout Paso 3: Selección de método de envío con actualizaciones dinámicas de costo basadas en el método seleccionado
+  - Checkout Paso 4: Confirmación de orden mostrando resumen de productos, información de envío y costo total
+- **Gestión de Métodos de Envío**:
+  - Sistema dinámico de cálculo de costos de envío según el método seleccionado
+  - Opciones múltiples de envío (estándar, express, etc.) con precios diferenciados
+  - Validación de stock en tiempo real durante el proceso de checkout
+- **Interfaz de Usuario Mejorada**:
+  - Proceso de checkout paso a paso con navegación intuitiva
+  - Alertas de stock y disponibilidad de productos
+  - Resumen detallado de costos (subtotal + envío = total)
+
+### Changed
+- **Modelo de Orden Ampliado**:
+  - Nuevos campos: `shipping_cost`, `shipping_method`, `notes`, `subtotal`
+  - Mejor estructura de datos para gestión completa de pedidos
+  - Cálculos automáticos de totales incluyendo costos de envío
+- **Flujo de Compra Mejorado**:
+  - Proceso de checkout dividido en 4 pasos claros y organizados
+  - Validaciones mejoradas en cada paso del proceso
+  - Experiencia de usuario optimizada con feedback visual
+
+### Fixed
+- **Validación de Stock**:
+  - Verificación de disponibilidad en tiempo real durante checkout
+  - Prevención de órdenes con productos sin stock
+  - Alertas claras para productos con disponibilidad limitada
+- **Cálculos de Precio**:
+  - Precisión en cálculo de subtotales y totales finales
+  - Actualización dinámica de precios según método de envío seleccionado
+
+### Performance
+- **Proceso de Checkout Optimizado**:
+  - Carga eficiente de información de productos y direcciones
+  - Actualizaciones dinámicas sin recarga de página
+  - Validaciones asíncronas para mejor experiencia de usuario
+
+### Security
+- **Validaciones de Checkout**:
+  - Verificación de datos de usuario en cada paso
+  - Validación de métodos de envío disponibles
+  - Protección contra modificación de precios en el frontend
+
+### Note
+- **Proceso Completo**: El checkout ahora incluye gestión completa de envío y confirmación de orden
+- **Migración Requerida**: Ejecutar migraciones para aplicar nuevos campos al modelo de orden
+- **Experiencia Mejorada**: Proceso de compra más intuitivo y profesional
+
+---
+
 ## [v1.41.40-alpha.1] - 19-07-2025
 
 ### Added

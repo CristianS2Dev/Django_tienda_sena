@@ -52,6 +52,15 @@ urlpatterns = [
                 path('carrito/agregar/<int:id_producto>/', views.agregar_carrito, name='agregar_carrito'),
                 path('carrito/eliminar/<int:id_elemento>/', views.eliminar_del_carrito, name='eliminar_del_carrito'),
                 path('carrito/actualizar/<int:id_elemento>/', views.actualizar_carrito, name='actualizar_carrito'),
+                
+                # Nuevo sistema de checkout paso a paso
+                path('checkout/paso1/', views.checkout_paso1_resumen, name='checkout_paso1_resumen'),
+                path('checkout/paso2/', views.checkout_paso2_direccion, name='checkout_paso2_direccion'),
+                path('checkout/paso3/', views.checkout_paso3_envio, name='checkout_paso3_envio'),
+                path('checkout/paso4/', views.checkout_paso4_confirmacion, name='checkout_paso4_confirmacion'),
+                path('checkout/exito/<int:orden_id>/', views.checkout_exito, name='checkout_exito'),
+                
+                # Mantener la función antigua por compatibilidad
                 path('pagar_carrito/', views.pagar_carrito, name='pagar_carrito'),
     
     # Vista Usuario

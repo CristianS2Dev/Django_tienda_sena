@@ -1,0 +1,179 @@
+{% extends 'bases/base.html' %}
+{% load static humanize %}
+
+{% block titulo %}Checkout - Resumen del Pedido{% endblock %}
+
+{% block main %}
+<div class="container py-5">
+    
+    <!-- Indicador de progreso -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="checkout-progress">
+                <div class="progress-step active">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Resumen</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Dirección</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Envío</div>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Confirmación</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumen de tu Pedido</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Alertas de stock -->
+                    {% if problemas_stock %}
+                        <div class="alert alert-warning">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Problemas de Stock</h6>
+                            <ul class="mb-0">
+                                {% for problema in problemas_stock %}
+                                    <li>{{ problema.producto }}: Solicitaste {{ problema.solicitado }}, pero solo hay {{ problema.disponible }} disponibles.</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="mt-2 mb-0">
+                                <a href="{% url 'carrito' %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i> Ajustar Cantidades
+                                </a>
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Lista de productos -->
+                    {% for elemento in elementos %}
+                        <div class="d-flex align-items-center border-bottom py-3">
+                            <div class="me-3">
+                                {% if elemento.producto.imagenes.first %}
+                                    <img src="{{ elemento.producto.imagenes.first.imagen.url }}" 
+                                         alt="{{ elemento.producto.nombre }}" 
+                                         class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                         style="width: 80px; height: 80px;">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ elemento.producto.nombre }}</h6>
+                                <p class="text-muted mb-1">Cantidad: {{ elemento.cantidad }}</p>
+                                <p class="text-muted mb-0">Precio unitario: ${{ elemento.producto.precio|intcomma }}</p>
+                            </div>
+                            <div class="text-end">
+                                <strong>${{ elemento.subtotal|intcomma }}</strong>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Resumen del Pedido</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span>${{ subtotal|intcomma }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-muted">
+                        <span>Envío:</span>
+                        <span>Se calculará en el siguiente paso</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total estimado:</strong>
+                        <strong>${{ subtotal|intcomma }}+</strong>
+                    </div>
+
+                    {% if not problemas_stock %}
+                        <a href="{% url 'checkout_paso2_direccion' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-arrow-right"></i> Continuar
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary w-100" disabled>
+                            Resolver problemas de stock primero
+                        </button>
+                    {% endif %}
+
+                    <a href="{% url 'carrito' %}" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="fas fa-arrow-left"></i> Volver al Carrito
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.progress-step.active .step-number {
+    background-color: #007bff;
+    color: white;
+}
+
+.step-title {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.progress-step.active .step-title {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.progress-line {
+    height: 2px;
+    width: 60px;
+    background-color: #dee2e6;
+    margin: 0 10px;
+    margin-top: -20px;
+}
+</style>
+{% endblock %}

@@ -301,17 +301,44 @@ class Orden(models.Model):
         creado_en (DateTimeField): Fecha de creación.
         total (DecimalField): Total de la orden.
         estado_pago (CharField): Estado del pago (pendiente, pagado, rechazado).
+        subtotal (DecimalField): Subtotal sin envío.
+        costo_envio (DecimalField): Costo del envío.
+        metodo_envio (CharField): Método de envío seleccionado.
+        notas (TextField): Notas adicionales del cliente.
     """
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
     direccion = models.ForeignKey('Direccion', on_delete=models.SET_NULL, null=True, blank=True)
     creado_en = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Nuevos campos para checkout mejorado
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    costo_envio = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    METODOS_ENVIO = (
+        ('estandar', 'Envío Estándar (3-5 días)'),
+        ('express', 'Envío Express (1-2 días)'),
+        ('recoger', 'Recoger en Tienda'),
+    )
+    metodo_envio = models.CharField(max_length=20, choices=METODOS_ENVIO, default='estandar')
+    notas = models.TextField(blank=True, null=True, help_text="Notas adicionales del cliente")
+    
     ESTADO_PAGO = (
         ('pendiente', 'Pendiente'),
         ('pagado', 'Pagado'),
         ('rechazado', 'Rechazado'),
     )
     estado_pago = models.CharField(max_length=10, choices=ESTADO_PAGO, default='pendiente')
+    
+    def calcular_total(self):
+        """Calcula el total como subtotal + costo de envío"""
+        return self.subtotal + self.costo_envio
+    
+    def save(self, *args, **kwargs):
+        # Calcular total automáticamente
+        if self.subtotal and self.costo_envio is not None:
+            self.total = self.calcular_total()
+        super().save(*args, **kwargs)
 
 
 class OrdenItem(models.Model):
