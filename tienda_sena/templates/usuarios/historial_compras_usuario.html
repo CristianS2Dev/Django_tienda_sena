@@ -8,7 +8,7 @@
 
 {% block main %}
 
-    <style>
+      <style>
         .star-rating {
             font-size: 0;
             white-space: nowrap;
@@ -72,38 +72,76 @@
     <h1 class="text-center mb-4">Historial de Compras</h1>
     <div class="row">
         <div class="col-md-12">
-            {% if ordenes %}
+            {% if items_ordenes %}
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Nombre Producto</th>
-                            <th>Fecha</th>
-                            <th>Total</th>
-                            <th>Estado</th>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Total Item</th>
+                            <th>Fecha Orden</th>
+                            <th>Estado Pago</th>
                             <th>Acciones</th>
-
                         </tr>
                     </thead>
                     <tbody>
-                        {% for compra in ordenes %}
+                        {% for item_data in items_ordenes %}
                             <tr>
-                                <td>{{ compra.producto }}</td>
-                                <td>{{ compra.creado_en }}</td>
-                                <td>${{ compra.total }}</td>
-                                <td>{{ compra.estado_pago }}</td>
-                                <td data-bs-toggle="modal" data-bs-target="#calificarModal"><a href="#">Califica</a></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item_data.producto.imagenes.first %}
+                                            <img src="{{ item_data.producto.imagenes.first.imagen.url }}" 
+                                                 alt="{{ item_data.producto.nombre }}" 
+                                                 class="me-2" 
+                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                        {% else %}
+                                            <div class="me-2 bg-light d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 50px; border-radius: 5px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ item_data.producto.nombre }}</strong><br>
+                                            <small class="text-muted">{{ item_data.producto.get_categoria_display }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item_data.cantidad }}</td>
+                                <td>${{ item_data.precio_unitario|floatformat:2 }}</td>
+                                <td>${{ item_data.total_item|floatformat:2 }}</td>
+                                <td>{{ item_data.orden.creado_en|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if item_data.orden.estado_pago == 'pagado' %}bg-success
+                                        {% elif item_data.orden.estado_pago == 'pendiente' %}bg-warning
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ item_data.orden.get_estado_pago_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#calificarModal"
+                                            data-producto-id="{{ item_data.producto.id }}"
+                                            data-producto-nombre="{{ item_data.producto.nombre }}">
+                                        Calificar
+                                    </button>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             {% else %}
-                <p>No tienes compras registradas.</p>
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                    <p>No tienes compras registradas.</p>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-primary">Ir a Comprar</a>
+                </div>
             {% endif %}
         </div>
     </div>
-    <style>
-        
-    </style>
+
     <div class="modal fade" id="calificarModal" tabindex="-1" aria-labelledby="calificarModal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -140,7 +178,7 @@
             </div>
         </div>
     </div>
-    
+  
 {% endblock %}
 
 

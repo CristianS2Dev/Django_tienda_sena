@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from decimal import Decimal
 from .models import *
 from .utils import *
@@ -18,6 +19,7 @@ from django.db.models import F
 from django.contrib import messages
 from django.db import IntegrityError
 from django.db import models, transaction
+from django.utils import timezone
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.views.decorators.cache import never_cache
@@ -552,7 +554,7 @@ def solicitar_vendedor(request):
                 titulo="Nueva Solicitud de Vendedor",
                 mensaje=f"{usuario.nombre_apellido} ha solicitado ser vendedor. Revisa su certificado.",
                 tipo='vendor_request',
-                url='/administrador/solicitudes_vendedor/'
+                url=reverse('solicitudes_vendedor')
             )
             
             # Notificar al usuario que su solicitud fue enviada
@@ -561,7 +563,7 @@ def solicitar_vendedor(request):
                 titulo="Solicitud Enviada",
                 mensaje="Tu solicitud para ser vendedor ha sido enviada. Un administrador la revisará pronto.",
                 tipo='info',
-                url='/perfil_usuario/'
+                url=reverse('perfil_usuario')
             )
             
             messages.success(request, "Solicitud enviada. Un administrador la revisará.")
@@ -1271,7 +1273,7 @@ def agregar_producto(request):
                     titulo="Producto Publicado",
                     mensaje=f"Tu producto '{producto.nombre}' ha sido publicado exitosamente.",
                     tipo='success',
-                    url=f'/producto/user/{producto.id}/'
+                    url=reverse('detalle_producto', kwargs={'id_producto': producto.id})
                 )
                 
             messages.success(request, f"Producto guardado correctamente con {len(imagenes_procesadas)} imágenes optimizadas!")
@@ -1551,17 +1553,52 @@ def detalle_producto(request, id_producto):
     color_codigo = COLOR_CODES.get(producto.color, "#cccccc")
     color_nombre = dict(Producto.COLORES).get(producto.color, "Ninguno")
 
+    # Obtener comentarios del producto
+    comentarios = CalificacionProducto.objects.filter(producto=producto).select_related('usuario').order_by('-fecha')
+    
+    # Calcular estadísticas de calificaciones
+    total_comentarios = comentarios.count()
+    if total_comentarios > 0:
+        suma_calificaciones = sum(c.calificacion for c in comentarios)
+        promedio_calificacion = suma_calificaciones / total_comentarios
+        
+        # Distribución de calificaciones
+        distribucion = {}
+        for i in range(1, 6):
+            distribucion[i] = comentarios.filter(calificacion=i).count()
+    else:
+        promedio_calificacion = 0
+        distribucion = {i: 0 for i in range(1, 6)}
+    
+    # Verificar si el usuario actual ya comentó
+    usuario_comentario = None
+    usuario_actual = None
+    if request.session.get("pista"):
+        usuario_id = request.session["pista"]["id"]
+        try:
+            usuario_actual = Usuario.objects.get(pk=usuario_id)
+            usuario_comentario = comentarios.filter(usuario_id=usuario_id).first()
+        except Usuario.DoesNotExist:
+            pass
+
     breadcrumbs = [
         ("Inicio", reverse("index")),
         ("Productos", reverse("lista_productos")),
         (producto.nombre, None),
     ]
+    
     contexto = {
         'producto': producto,
         'rango_cantidad': rango_cantidad,
         'color_codigo': color_codigo,
         'color_nombre': color_nombre,
         'breadcrumbs': breadcrumbs,
+        'comentarios': comentarios,
+        'total_comentarios': total_comentarios,
+        'promedio_calificacion': round(promedio_calificacion, 1),
+        'distribucion_calificaciones': distribucion,
+        'usuario_comentario': usuario_comentario,
+        'usuario_actual': usuario_actual,
     }
     return render(request, 'productos/detalle_producto.html', contexto)
 
@@ -1585,20 +1622,38 @@ def historial_compras_usuario(request,):
         return redirect("login")
 
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
-    ordenes = Orden.objects.filter(usuario=usuario).order_by('-creado_en')
-    producto = Producto.objects.all()
+    
+    # Obtener las órdenes con sus items y productos de manera eficiente
+    ordenes = Orden.objects.filter(usuario=usuario).prefetch_related(
+        'items__producto__imagenes'
+    ).order_by('-creado_en')
+    
+    # Crear lista de items con información adicional
+    items_ordenes = []
+    for orden in ordenes:
+        for item in orden.items.all():
+            # Calcular el total del item (precio unitario * cantidad)
+            total_item = item.precio_unitario * item.cantidad
+            items_ordenes.append({
+                'orden': orden,
+                'item': item,
+                'producto': item.producto,
+                'cantidad': item.cantidad,
+                'precio_unitario': item.precio_unitario,
+                'total_item': total_item
+            })
+    
     breadcrumbs = [
         ("Inicio", reverse("index")),
         ("Mi cuenta", reverse("perfil_usuario")),
         ("Historial de Compras", None),
     ]
 
-
     contexto = {
         'usuario': usuario,
         'ordenes': ordenes,
+        'items_ordenes': items_ordenes,
         'breadcrumbs': breadcrumbs,
-        'producto': producto,
     }
 
     return render(request, 'usuarios/historial_compras_usuario.html', contexto )
@@ -1845,7 +1900,7 @@ def aprobar_solicitud_vendedor(request, id_solicitud):
         titulo="¡Solicitud Aprobada!",
         mensaje="¡Tu solicitud para ser vendedor ha sido aprobada! Ya puedes comenzar a vender.",
         tipo='success',
-        url='/perfil_usuario/'
+        url=reverse('perfil_usuario')
     )
     
     # Crear notificaciones de bienvenida para vendedor
@@ -1986,14 +2041,14 @@ def crear_notificaciones_bienvenida(usuario):
             titulo="¡Bienvenido a Tienda SENA!",
             mensaje="Explora nuestros productos y encuentra lo que necesitas.",
             tipo='success',
-            url='/lista_productos/'
+            url=reverse('lista_productos')
         )
         crear_notificacion(
             usuario=usuario,
             titulo="Completa tu perfil",
             mensaje="Completa tu información personal para una mejor experiencia.",
             tipo='info',
-            url='/actualizar_perfil/'
+            url=reverse('actualizar_perfil')
         )
     elif usuario.rol == 3:  # Vendedor
         crear_notificacion(
@@ -2001,7 +2056,7 @@ def crear_notificaciones_bienvenida(usuario):
             titulo="¡Bienvenido vendedor!",
             mensaje="Ya puedes comenzar a publicar tus productos.",
             tipo='success',
-            url='/agregar_producto'
+            url=reverse('agregar_producto')
         )
 
 def crear_notificacion_pedido(usuario, orden_id, estado):
@@ -2067,7 +2122,7 @@ def crear_notificacion_nuevo_usuario(usuario_nuevo):
         titulo="Nuevo Usuario Registrado",
         mensaje=f"El usuario {usuario_nuevo.nombre_apellido} se ha registrado en la plataforma.",
         tipo='new_user',
-        url='/usuarios/'
+        url=reverse('usuarios')
     )
 
 def crear_notificacion_nuevo_producto(producto):
@@ -2078,7 +2133,7 @@ def crear_notificacion_nuevo_producto(producto):
         titulo="Nuevo Producto Publicado",
         mensaje=f"{producto.vendedor.nombre_apellido} ha publicado '{producto.nombre}' en {producto.get_categoria_display()}.",
         tipo='new_product',
-        url=f'/producto/admin/{producto.id}/'
+        url=reverse('detalle_producto_admin', kwargs={'id_producto': producto.id})
     )
 
 @session_rol_permission(1)
@@ -2583,7 +2638,7 @@ def pagar_carrito(request):
                         titulo="¡Producto Vendido!",
                         mensaje=f"Tu producto '{item.producto.nombre}' ha sido vendido (x{item.cantidad}).",
                         tipo='success',
-                        url='/ordenes_vendedor/'
+                        url=reverse('ordenes_vendedor')
                     )
                     vendedores_notificados.add(vendedor.id)
             
@@ -2747,3 +2802,128 @@ def backup(request):
         print("Error al enviar el correo electrónico.")
         messages.error(request, "Error al enviar el correo electrónico.")
         return redirect("panel_admin")
+    
+
+
+
+    #COMENTARIOS
+
+# -----------------------------------------------------
+# SISTEMA DE COMENTARIOS Y CALIFICACIONES
+# -----------------------------------------------------
+
+@session_rol_permission()
+def agregar_comentario(request, id_producto):
+    """Vista para agregar un comentario y calificación a un producto."""
+    if request.method == 'POST':
+        usuario_id = request.session.get("pista", {}).get("id")
+        if not usuario_id:
+            messages.error(request, "Debes iniciar sesión para comentar.")
+            return redirect('login')
+        
+        try:
+            usuario = Usuario.objects.get(pk=usuario_id)
+            producto = get_object_or_404(Producto, id=id_producto)
+            calificacion = int(request.POST.get('calificacion', 1))
+            comentario = request.POST.get('comentario', '').strip()
+            
+            # Validaciones
+            if not 1 <= calificacion <= 5:
+                messages.error(request, "La calificación debe estar entre 1 y 5 estrellas.")
+                return redirect('detalle_producto', id_producto=id_producto)
+            
+            if len(comentario) < 5:
+                messages.error(request, "El comentario debe tener al menos 5 caracteres.")
+                return redirect('detalle_producto', id_producto=id_producto)
+            
+            # Verificar si el usuario ya comentó este producto
+            calificacion_existente = CalificacionProducto.objects.filter(
+                usuario=usuario, 
+                producto=producto
+            ).first()
+            
+            if calificacion_existente:
+                # Actualizar comentario existente
+                calificacion_existente.calificacion = calificacion
+                calificacion_existente.comentario = comentario
+                calificacion_existente.fecha = timezone.now()
+                calificacion_existente.save()
+                messages.success(request, "Tu reseña ha sido actualizada.")
+            else:
+                # Crear nueva calificación
+                CalificacionProducto.objects.create(
+                    usuario=usuario,
+                    producto=producto,
+                    calificacion=calificacion,
+                    comentario=comentario
+                )
+                messages.success(request, "Tu reseña ha sido publicada.")
+                
+                # Notificar al vendedor
+                crear_notificacion(
+                    usuario=producto.vendedor,
+                    titulo="Nueva reseña en tu producto",
+                    mensaje=f"{usuario.nombre_apellido} ha dejado una reseña en '{producto.nombre}'.",
+                    tipo='info',
+                    url=reverse('detalle_producto', kwargs={'id_producto': producto.id})
+                )
+            
+        except ValueError:
+            messages.error(request, "Calificación inválida.")
+        except Exception as e:
+            messages.error(request, f"Error al procesar la reseña: {e}")
+    
+    return redirect('detalle_producto', id_producto=id_producto)
+
+@session_rol_permission()
+def eliminar_comentario(request, id_comentario):
+    """Vista para eliminar un comentario propio."""
+    if request.method == 'POST':
+        usuario_id = request.session.get("pista", {}).get("id")
+        if not usuario_id:
+            messages.error(request, "No tienes permisos para realizar esta acción.")
+            return redirect('login')
+        
+        try:
+            usuario = Usuario.objects.get(pk=usuario_id)
+            comentario = get_object_or_404(CalificacionProducto, id=id_comentario)
+            
+            # Verificar que el usuario sea el dueño del comentario o un administrador
+            if comentario.usuario.id == usuario.id or usuario.rol == 1:
+                producto_id = comentario.producto.id
+                comentario.delete()
+                messages.success(request, "Reseña eliminada correctamente.")
+                return redirect('detalle_producto', id_producto=producto_id)
+            else:
+                messages.error(request, "No tienes permisos para eliminar esta reseña.")
+                
+        except Exception as e:
+            messages.error(request, f"Error al eliminar la reseña: {e}")
+    
+    return redirect('index')
+
+def reportar_comentario(request, id_comentario):
+    """Vista para reportar un comentario inapropiado."""
+    if request.method == 'POST':
+        try:
+            comentario = get_object_or_404(CalificacionProducto, id=id_comentario)
+            motivo = request.POST.get('motivo', 'Contenido inapropiado')
+            
+            # Notificar a administradores
+            notificar_administradores(
+                titulo="Comentario Reportado",
+                mensaje=f"Un usuario ha reportado el comentario #{comentario.id} de {comentario.usuario.nombre_apellido} en '{comentario.producto.nombre}'. Motivo: {motivo}",
+                tipo='warning',
+                url=reverse('detalle_producto', kwargs={'id_producto': comentario.producto.id}) + f'#comentario-{comentario.id}'
+            )
+            
+            messages.success(request, "Reporte enviado. Los administradores revisarán el contenido.")
+            
+        except Exception as e:
+            messages.error(request, f"Error al enviar el reporte: {e}")
+    
+    return redirect('detalle_producto', id_producto=comentario.producto.id if 'comentario' in locals() else 1)
+
+# -----------------------------------------------------
+# FIN SISTEMA DE COMENTARIOS Y CALIFICACIONES
+# -----------------------------------------------------

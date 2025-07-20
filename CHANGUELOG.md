@@ -17,6 +17,53 @@
 ### CHANGELOG
 ---
 
+## [v1.44.43-alpha.1] - 20-07-2025
+
+### Added
+- **Sistema de Comentarios y Calificaciones Completo**:
+  - Nuevo sistema de reseñas y calificaciones para productos con estrellas de 1 a 5
+  - Template `_comentarios.html` para mostrar y gestionar comentarios de forma interactiva
+  - Formulario dinámico para agregar/editar reseñas con calificación por estrellas
+  - Validación completa de comentarios (mínimo 5 caracteres, calificación entre 1-5)
+  - Sistema de promedio de calificaciones y estadísticas de reseñas por producto
+  - Funcionalidad para reportar comentarios inapropiados con múltiples motivos
+  - Navegación directa a comentarios específicos mediante URLs con hash
+  - Interfaz responsive y animada para mejor experiencia de usuario
+
+### Changed
+- **Vista `detalle_producto`**:
+  - Integración completa del sistema de comentarios con estadísticas de calificaciones
+  - Cálculo dinámico del promedio de calificaciones y total de reseñas
+  - Mostrar estrellas dinámicas basadas en calificaciones reales del producto
+  - Verificación de comentarios existentes del usuario para edición
+  - Contexto mejorado con datos de comentarios, promedios y distribución
+- **Vista `historial_compras_usuario`**:
+  - Reestructuración completa para mostrar items individuales de órdenes
+  - Información detallada por item: producto, cantidad, precios y totales
+  - Imágenes de productos en el historial para mejor identificación
+  - Estados de pago visuales con badges de colores diferenciados
+  - Enlaces directos para calificar productos comprados
+- **URLs y Routing**:
+  - Nuevas rutas para sistema de comentarios: `agregar_comentario`, `eliminar_comentario`, `reportar_comentario`
+  - Corrección de ruta `detalle_producto` para mayor consistencia
+  - URLs optimizadas usando `reverse()` para mejor mantenimiento del código
+- **Sistema de Notificaciones Mejorado**:
+  - Textos contextuales para enlaces de comentarios reportados
+  - Mejor diferenciación visual entre tipos de notificaciones
+  - URLs dinámicas usando `reverse()` en lugar de rutas hardcodeadas
+
+### Fixed
+- **Gestión de Comentarios**:
+  - Validación robusta de permisos para eliminar/editar comentarios
+  - Manejo de errores mejorado en todas las operaciones de comentarios
+  - Prevención de comentarios duplicados con sistema de actualización
+- **Sistema de Notificaciones**:
+  - Corrección de URLs hardcodeadas por rutas dinámicas usando `reverse()`
+  - Mejora en la generación de notificaciones para vendedores y administradores
+  - Enlaces contextuales más descriptivos en notificaciones de comentarios reportados
+
+---
+
 ## [v1.43.42-alpha.1] - 20-07-2025
 
 ### Changed

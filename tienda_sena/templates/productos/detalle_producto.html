@@ -52,14 +52,31 @@
             <div class="mb-3">
                 <div class="d-flex align-items-center">
                     <div class="text-warning me-2">
-                        <!-- Poner codigo parara las estrellas  -->
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
+                        <!-- Sistema de estrellas dinámico basado en calificaciones reales -->
+                        {% if total_comentarios > 0 %}
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= promedio_calificacion|floatformat:0 %}
+                                    <i class="fas fa-star"></i>
+                                {% elif forloop.counter == promedio_calificacion|add:1|floatformat:0 and promedio_calificacion|floatformat:1|slice:"-1" != "0" %}
+                                    <i class="fas fa-star-half-alt"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <!-- Si no hay comentarios, mostrar estrellas vacías -->
+                            {% for i in "12345" %}
+                                <i class="far fa-star"></i>
+                            {% endfor %}
+                        {% endif %}
                     </div>
-                    <span class="text-muted">(128 reviews)</span>
+                    <span class="text-muted">
+                        {% if total_comentarios > 0 %}
+                            ({{ promedio_calificacion|floatformat:1 }} - {{ total_comentarios }} reseña{{ total_comentarios|pluralize }})
+                        {% else %}
+                            (Sin reseñas aún)
+                        {% endif %}
+                    </span>
                 </div>
             </div>
             <p class="mb-4">{{ producto.descripcion }}</p>
@@ -122,93 +139,9 @@
     </div>
 </div>
 <!-- Sección de Reseñas -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <h3 class="mb-4 text-center">
-            <i class="fas fa-star text-warning me-2"></i>
-            Reseñas y Opiniones
-        </h3>
-        
-        <div class="row">
-            <div class="col-md-8 mx-auto">
-                <div class="comment-section">
-                    <!-- Nueva Reseña Form -->
-                    <div class="mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title mb-3">
-                                    <i class="fas fa-edit text-primary me-2"></i>
-                                    Escribe tu reseña
-                                </h5>
-                                <div class="d-flex gap-3">
-                                    <img src="https://randomuser.me/api/portraits/women/4.jpg" alt="Avatar Usuario" class="user-avatar">
-                                    <div class="flex-grow-1">
-                                        <div class="mb-3">
-                                            <label class="form-label">Calificación:</label>
-                                            <div class="rating-stars">
-                                                <i class="far fa-star star-rating" data-rating="1"></i>
-                                                <i class="far fa-star star-rating" data-rating="2"></i>
-                                                <i class="far fa-star star-rating" data-rating="3"></i>
-                                                <i class="far fa-star star-rating" data-rating="4"></i>
-                                                <i class="far fa-star star-rating" data-rating="5"></i>
-                                            </div>
-                                        </div>
-                                        <textarea class="form-control comment-input" rows="3" placeholder="Comparte tu experiencia con este producto..."></textarea>
-                                        <div class="mt-3 text-end">
-                                            <button class="btn btn-primary">
-                                                <i class="fas fa-paper-plane me-2"></i>
-                                                Publicar Reseña
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+{% include 'bases/_comentarios.html' with producto=producto %}
 
-                    <!-- Lista de Reseñas -->
-                    <div class="comments-list">
-                        <!-- Reseña 1 -->
-                        <div class="comment-box">
-                            <div class="d-flex gap-3">
-                                <img src="https://randomuser.me/api/portraits/men/34.jpg" alt="Avatar Usuario" class="user-avatar">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <div>
-                                            <h6 class="mb-0">Carlos Rodríguez</h6>
-                                            <div class="text-warning mb-1">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <span class="text-muted ms-2">(5.0)</span>
-                                            </div>
-                                        </div>
-                                        <span class="comment-time">Hace 2 horas</span>
-                                    </div>
-                                    <p class="mb-2">¡Excelente producto! La calidad es excepcional y llegó muy rápido. Definitivamente lo recomiendo. El material se siente muy resistente y el acabado es perfecto.</p>
-                                    <div class="comment-actions">
-                                        <a href="#"><i class="fas fa-thumbs-up me-1"></i> Útil (12)</a>
-                                        <a href="#"><i class="fas fa-reply me-1"></i> Responder</a>
-                                        <a href="#"><i class="fas fa-flag me-1"></i> Reportar</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    
-                    <!-- Botón para ver más reseñas -->
-                    <div class="text-center mt-4">
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-chevron-down me-2"></i>
-                            Ver más reseñas
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section> 
+
 <section class="text-center py-5 bg-light">
     <div class="container">
       <h1 class="display-5 fw-bold text-primary mb-4">Productos Similares</h1>

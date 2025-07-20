@@ -69,8 +69,14 @@ urlpatterns = [
         path('productos/categoria/<int:id_categoria>/', views.lista_productos, name='productos_por_categoria'),
         path('agregar_producto', views.agregar_producto, name='agregar_producto'),
         path('editar_producto/<int:id_producto>/', views.editar_producto, name='editar_producto'),
-        path('producto/user/<int:id_producto>/', views.detalle_producto, name='detalle_producto'),
+        path('detalle_producto/<int:id_producto>/', views.detalle_producto, name='detalle_producto'),
         path('eliminar_producto/<int:id_producto>/', views.eliminar_producto, name='eliminar_producto'),
+        
+        # Sistema de Comentarios y Calificaciones
+        path('producto/<int:id_producto>/comentario/agregar/', views.agregar_comentario, name='agregar_comentario'),
+        path('comentario/<int:id_comentario>/eliminar/', views.eliminar_comentario, name='eliminar_comentario'),
+        path('comentario/<int:id_comentario>/reportar/', views.reportar_comentario, name='reportar_comentario'),
+        
         path('direccion_usuario', views.direccion_usuario, name='direccion_usuario'),
         path('agregar_direccion', views.agregar_direccion, name='agregar_direccion'),
         path('main_address/<int:id_address>/', views.set_primary_address, name='set_primary_address'),

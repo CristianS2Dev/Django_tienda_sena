@@ -87,8 +87,14 @@
                                             {% endif %}
                                             {% if notificacion.url %}
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ notificacion.url }}" onclick="marcarLeida({{ notificacion.id }})">
-                                                        <i class="fas fa-external-link-alt me-2"></i>Ver más
+                                                    <a class="dropdown-item" href="{{ notificacion.url }}" onclick="marcarLeida({{ notificacion.id }})"
+                                                       title="{% if 'Comentario Reportado' in notificacion.titulo %}Ir al comentario reportado{% else %}Ver más información{% endif %}">
+                                                        <i class="fas fa-external-link-alt me-2"></i>
+                                                        {% if 'Comentario Reportado' in notificacion.titulo %}
+                                                            Ir al comentario
+                                                        {% else %}
+                                                            Ver más
+                                                        {% endif %}
                                                     </a>
                                                 </li>
                                             {% endif %}
