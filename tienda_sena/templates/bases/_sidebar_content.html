@@ -155,11 +155,6 @@
             <li class="nav-item">
                 <a class="nav-link text-white position-relative" href="{% url 'listar_notificaciones' %}">
                     <i class="fas fa-bell me-2"></i> Mis Notificaciones
-                    {% if notificaciones_no_leidas > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
-                            {{ notificaciones_no_leidas }}
-                        </span>
-                    {% endif %}
                 </a>
             </li>
             <!-- Banner de publicidad -->
