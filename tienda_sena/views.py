@@ -5,6 +5,7 @@ from django.urls import reverse
 from decimal import Decimal
 from .models import *
 from .utils import *
+from .session_utils import get_user_session_info, has_valid_user_session
 from .image_utils import optimizar_imagen, crear_miniatura, validar_imagen_mejorada, obtener_info_imagen
 import re
 import json
@@ -1024,12 +1025,25 @@ def lista_productos(request, id_categoria=None):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Verificar si existe información de sesión del usuario
+    user_session = get_user_session_info(request)
+    mostrar_boton_agregar = False
+    usuario_logueado = user_session['is_authenticated']
+    
+    if usuario_logueado:
+        # Solo mostrar botón de agregar si es vendedor (rol != 2) o administrador
+        if user_session.get('rol') != 2:
+            mostrar_boton_agregar = True
+
     contexto = {
         'data': page_obj,
         'categoria': categoria_obj,
         'categorias': Producto.CATEGORIAS,
         'colores_disponibles': colores_disponibles,
         'colores_con_codigo': colores_con_codigo,
+        'mostrar_boton_agregar': mostrar_boton_agregar,
+        'usuario_logueado': usuario_logueado,
+        'user_session': user_session,
     }
     return render(request, 'productos/listar_productos.html', contexto)
 
@@ -1038,8 +1052,28 @@ def lista_productos(request, id_categoria=None):
 
 def productos_vendedor(request, id_vendedor):
     """Vista para mostrar los productos de un vendedor específico."""
+    # Validar que el id_vendedor sea válido
+    try:
+        id_vendedor = int(id_vendedor)
+        if id_vendedor <= 0:
+            messages.error(request, "ID de vendedor inválido.")
+            return redirect('lista_productos')
+    except (ValueError, TypeError):
+        messages.error(request, "ID de vendedor inválido.")
+        return redirect('lista_productos')
+    
+    # Verificar que el vendedor existe
+    try:
+        vendedor = Usuario.objects.get(id=id_vendedor)
+    except Usuario.DoesNotExist:
+        messages.error(request, "El vendedor no existe.")
+        return redirect('lista_productos')
+    
     productos = Producto.objects.filter(vendedor_id=id_vendedor)
-    contexto = {'data': productos}
+    contexto = {
+        'data': productos,
+        'vendedor': vendedor
+    }
     return render(request, 'productos/listar_productos_vendedor.html', contexto)
 
 def detalle_producto_admin(request, id_producto):
