@@ -152,7 +152,7 @@ class Producto(models.Model):
     en_oferta = models.BooleanField(default=False)
     precio_original = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-
+    activo = models.BooleanField(default=True, help_text="Indica si el producto está activo o deshabilitado")
     def clean(self):
         """
         Validaciones personalizadas para el modelo Producto.

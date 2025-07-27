@@ -83,7 +83,7 @@ urlpatterns = [
         path('editar_direccion/<int:id_direccion>/', views.editar_direccion, name='editar_direccion'),
         path('eliminar_direccion/<int:id>/', views.eliminar_direccion, name='eliminar_direccion'),
 
-        # ...existing code...
+      
             # Vendedor
             path('productos/vendedor/<int:id_vendedor>/', views.productos_vendedor, name='productos_vendedor'),
             path('ordenes_vendedor/', views.ordenes_vendedor, name='ordenes_vendedor'),

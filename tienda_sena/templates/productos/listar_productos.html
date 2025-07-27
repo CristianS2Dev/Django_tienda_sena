@@ -60,6 +60,7 @@
                 <a class="btn btn-warning" href="{% url 'actualizar_perfil' %}">Quiero Vender</a>
             {% else %}    
                 <a class="btn btn-success" href="{% url 'agregar_producto' %}">agregar productos</a>
+                <a class="btn btn-warning" href="{% url 'productos_vendedor' request.session.pista.id %}">Mis productos</a>
             {% endif %}
             
             <!-- Filtros de ordenamiento básicos -->
@@ -89,7 +90,7 @@
                         No hay productos disponibles que coincidan con los filtros aplicados.
                     </div>
                 {% endif %}
-                <a class="btn btn-success" href="{% url 'agregar_producto' %}">agregar productos</a>
+                
             </div>
             <!-- Paginación -->
             <div class="d-flex justify-content-center mt-4">

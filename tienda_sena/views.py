@@ -1040,7 +1040,7 @@ def productos_vendedor(request, id_vendedor):
     """Vista para mostrar los productos de un vendedor específico."""
     productos = Producto.objects.filter(vendedor_id=id_vendedor)
     contexto = {'data': productos}
-    return render(request, 'productos/listar_productos.html', contexto)
+    return render(request, 'productos/listar_productos_vendedor.html', contexto)
 
 def detalle_producto_admin(request, id_producto):
     """Vista para mostrar los detalles de un producto específico."""
@@ -1116,8 +1116,8 @@ def agregar_producto(request):
                 messages.error(request, "El precio original debe ser mayor que 0.")
                 return redirect("agregar_producto")
             
-            if precio_original_decimal > 999999:
-                messages.error(request, "El precio original no puede exceder $999,999.")
+            if precio_original_decimal > 9999999:
+                messages.error(request, "El precio original no puede exceder $9999999.")
                 return redirect("agregar_producto")
             
             if precio_original_decimal < 0:
@@ -1602,13 +1602,27 @@ def detalle_producto(request, id_producto):
     }
     return render(request, 'productos/detalle_producto.html', contexto)
 
+
 @session_rol_permission(1, 3)
 def eliminar_producto(request, id_producto):
-    """Vista para eliminar un producto."""
+    """Vista para eliminar o deshabilitar un producto."""
     try:
-        q = Producto.objects.get(pk=id_producto)
-        q.delete()
-        messages.success(request, 'Producto eliminado Correctamente...')
+        producto = Producto.objects.get(pk=id_producto)
+        
+        # Verificar si el producto tiene ventas asociadas
+        tiene_ventas = OrdenItem.objects.filter(producto=producto).exists()
+        
+        if tiene_ventas:
+            # Si tiene ventas, deshabilitar en lugar de eliminar
+            producto.activo = False
+            producto.save()
+            messages.warning(request, f'El producto "{producto.nombre}" tiene ventas asociadas, se ha deshabilitado en lugar de eliminarse.')
+        else:
+            # Si no tiene ventas, eliminar completamente
+            nombre_producto = producto.nombre
+            producto.delete()
+            messages.success(request, f'Producto "{nombre_producto}" eliminado correctamente.')
+            
     except Producto.DoesNotExist:
         messages.warning(request, "Error: El producto no existe")
     except Exception as e:

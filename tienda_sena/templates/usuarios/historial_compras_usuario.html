@@ -8,7 +8,7 @@
 
 {% block main %}
 
-      <style>
+    <style>
         .star-rating {
             font-size: 0;
             white-space: nowrap;
@@ -67,8 +67,9 @@
             width: 100%;
         }
     </style>
-
-<div class="container mt-5">
+<div class="d-flex" style="min-height: 100vh;">
+    {% include 'bases/_sidebar_usuario.html' %}
+    <div class="container mt-5">
     <h1 class="text-center mb-4">Historial de Compras</h1>
     <div class="row">
         <div class="col-md-12">
@@ -178,6 +179,8 @@
             </div>
         </div>
     </div>
+</div>
+
   
 {% endblock %}
 
