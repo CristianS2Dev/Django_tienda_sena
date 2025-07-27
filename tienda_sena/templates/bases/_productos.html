@@ -48,6 +48,20 @@
                       ${{ producto.precio|floatformat:0|intcomma|replace_comma }}
                     </p>
                   {% endif %}
+                  
+                  {% comment %} Botones para el vendedor dueño del producto {% endcomment %}
+                  {% if request.session.pista.rol == 3 and producto.vendedor.id == request.session.pista.id %}
+                    <div class="mt-auto">
+                      <div class="d-flex gap-2">
+                        <a href="{% url 'editar_producto' producto.id %}" class="btn btn-outline-primary btn-sm flex-fill py-1" style="font-size: 0.75rem; padding-top: 0.25rem; padding-bottom: 0.25rem;">
+                          <i class="fas fa-edit me-1"></i>Editar
+                        </a>
+                        <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-outline-danger btn-sm flex-fill py-1" style="font-size: 0.75rem; padding-top: 0.25rem; padding-bottom: 0.25rem;">
+                          <i class="fas fa-ban me-1"></i>Deshabilitar
+                        </a>
+                      </div>
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -55,3 +69,37 @@
           </div>
     </div>
 </div>
+
+<script>
+function deshabilitarProducto(productoId) {
+    // Mostrar confirmación antes de deshabilitar
+    if (confirm('¿Estás seguro de que quieres deshabilitar este producto?')) {
+        // Aquí puedes agregar la lógica para enviar la petición al servidor
+        // Por ejemplo, usando fetch API:
+        /*
+        fetch(`/deshabilitar_producto/${productoId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Recargar la página para mostrar los cambios
+            } else {
+                alert('Error al deshabilitar el producto');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al deshabilitar el producto');
+        });
+        */
+        
+        // Por ahora solo muestra un mensaje
+        alert(`Producto ${productoId} será deshabilitado (funcionalidad pendiente de implementar en el backend)`);
+    }
+}
+</script>

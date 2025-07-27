@@ -1,0 +1,72 @@
+{% extends 'bases/base.html' %}
+{% load static humanize %}
+
+{% block titulo %}Tienda Sena{% endblock %}
+
+{% block main %}
+<div class="d-flex" style="min-height: 100vh;">
+    {% include 'bases/_sidebar_usuario.html' %}
+    <div class="container-fluid py-5">
+        <div id="notificaciones">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+                {% endfor %}
+            {% endif %}
+    
+    <div class="row">
+    
+
+        <!-- Grid de productos -->
+        <div class="col-md-9 container">
+
+                <a class="btn btn-success" href="{% url 'agregar_producto' %}">agregar productos</a>
+            
+            
+            <!-- Filtros de ordenamiento básicos -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold">
+                    {% if request.GET.nombre %}
+                        Resultados para "{{ request.GET.nombre }}"
+                    {% elif categoria %}
+                        {{ categoria }}
+                    {% else %}
+                        Todos los productos
+                    {% endif %}
+                </h4>
+
+            </div>
+            <div class="row g-4">
+                {% if data %}
+                    {% include 'bases/_productos.html' %}
+                {% else %}
+                    <div class="alert alert-info text-center w-100">
+                        No hay productos disponibles que coincidan con los filtros aplicados.
+                    </div>
+                {% endif %}
+                
+            </div>
+            <!-- Paginación -->
+            <div class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination pagination-sm">
+                        {% if data.has_previous %}
+                            <li class="page-item"><a class="page-link" href="?page={{ data.previous_page_number }}">«</a></li>
+                        {% endif %}
+                        {% for num in data.paginator.page_range %}
+                            <li class="page-item {% if data.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+                        {% if data.has_next %}
+                            <li class="page-item"><a class="page-link" href="?page={{ data.next_page_number }}">»</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
