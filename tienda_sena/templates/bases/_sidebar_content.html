@@ -1,3 +1,4 @@
+{% load custom_filters %}
 <ul class="nav flex-column" id="sidebarMenu">
     <!-- Ítem con submenú: Mi Cuenta -->
     {% if request.session.pista.rol == 1 %}
@@ -113,7 +114,9 @@
                     <i class="fas fa-chevron-down"></i>
                 </a>
                 <ul class="collapse list-unstyled" id="ventasCollapse">
-                    <li><a class="nav-link text-white ms-4" href="{% url 'productos_vendedor' request.session.pista.id %}">Publicaciones</a></li>
+                    {% if request.session.pista.id|default:'' != '' %}
+                        <li><a class="nav-link text-white ms-4" href="{% url 'productos_vendedor' request.session.pista.id %}">Publicaciones</a></li>
+                    {% endif %}
                     <li><a class="nav-link text-white ms-4" href="{% url 'ordenes_vendedor' %}">Ordenes</a></li>
                     
                     

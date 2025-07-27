@@ -44,3 +44,14 @@ def mul(value, arg):
         return float(result)
     except (ValueError, TypeError, InvalidOperation):
         return 0
+
+@register.filter
+def has_user_id(session_pista):
+    """Verifica si la sesión tiene un ID de usuario válido."""
+    if session_pista and hasattr(session_pista, 'get'):
+        user_id = session_pista.get('id')
+        return user_id is not None and str(user_id).strip() != ''
+    elif session_pista and isinstance(session_pista, dict):
+        user_id = session_pista.get('id')
+        return user_id is not None and str(user_id).strip() != ''
+    return False

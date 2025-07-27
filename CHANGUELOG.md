@@ -19,39 +19,11 @@
 
 ## [v1.45.44-alpha.1] - 27-07-2025
 
-### Added
-- **Sistema de Gestión Avanzada de Productos**:
-  - Nuevo campo `activo` en el modelo Producto para control de estado
-  - Migración 0027 para agregar campo de estado activo/deshabilitado
-  - Template `listar_productos_vendedor.html` especializado para vendedores
-  - Botones de edición y deshabilitación directamente en las tarjetas de productos
-  - Sistema inteligente de eliminación vs deshabilitación según si el producto tiene ventas
-- **Interfaz de Usuario Mejorada para Vendedores**:
-  - Botón "Mis productos" en la lista general de productos para vendedores
-  - Integración del sidebar de usuario en páginas de historial y órdenes
-  - Navegación mejorada entre vistas de vendedor
-  - Simplificación del menú lateral con opciones más relevantes
-
 ### Changed
-- **Vista `eliminar_producto`**:
-  - Lógica inteligente: deshabilita productos con ventas, elimina productos sin ventas
-  - Mensajes informativos diferenciados según la acción realizada
-  - Preservación de datos históricos de ventas
-- **Vista `productos_vendedor`**:
-  - Ahora utiliza template especializado `listar_productos_vendedor.html`
-  - Mejor experiencia de usuario para gestión de productos propios
-- **Validaciones de Precios**:
-  - Límite máximo de precio aumentado a $9,999,999 para productos de alta gama
-- **Templates de Usuario**:
-  - `historial_compras_usuario.html` ahora incluye sidebar lateral
-  - `ordenes_vendedor.html` mejorado con navegación lateral
-  - Mejor estructura visual y organización de contenido
-- **Sidebar de Usuario**:
-  - Simplificación del menú "Mi Cuenta" con acceso directo a compras
-  - Eliminación de opciones no implementadas (Favoritos, Preguntas, Configuración)
-  - Enlaces corregidos y actualizados a vistas existentes
----
+- **Error NoReverseMatch en URL `productos_vendedor`**:
+  - Resolución del error causado por `request.session.pista.id` vacío
 
+---
 ## [v1.44.43-alpha.1] - 20-07-2025
 
 ### Added
