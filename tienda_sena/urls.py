@@ -1,11 +1,18 @@
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, include
 from . import views 
 from . import views_imagenes
 from django.conf import settings
+from rest_framework import routers
 
+# Rutas apis
+apis = routers.DefaultRouter()
+apis.register(r'usuarios', views.UsuarioViewSet)
 
 urlpatterns = [
+    path('api/1.0/', include(apis.urls)),
+    path('api/1.0/auth/', include('rest_framework.urls')),
+
     #URLS de la aplicacion
         path('', views.index, name='index'),
         path('login/', views.login, name='login'),
@@ -18,7 +25,7 @@ urlpatterns = [
         path('sobre_nosotros', views.sobre_nosotros, name='sobre_nosotros'),
 
     #Perfil Administrador
-        path('panel_admin/', views.panel_admin, name='panel_admin'),
+
         path('administrador/solicitudes_vendedor/', views.solicitudes_vendedor, name='solicitudes_vendedor'),
         path('administrador/solicitudes_vendedor/aprobar/<int:id_solicitud>/', views.aprobar_solicitud_vendedor, name='aprobar_solicitud_vendedor'),
         path('administrador/solicitudes_vendedor/rechazar/<int:id_solicitud>/', views.rechazar_solicitud_vendedor, name='rechazar_solicitud_vendedor'),

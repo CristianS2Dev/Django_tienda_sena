@@ -1,4 +1,4 @@
-{% load static humanize custom_filters breadcrumbs %}
+{% load static humanize custom_filters breadcrumbs cloudinary_tags %}
 <div class="container p-3">
     {% if mostrar_boton_agregar %}
         {% if request.session.pista.rol == 3 or request.session.pista.rol == 1 %}
@@ -23,10 +23,21 @@
                   {% else %}
                     <a href="#" onclick="return false;">
                   {% endif %}
-                      {% if producto.imagenes.all %}
-                        <img src="{{ producto.imagenes.all.0.imagen.url }}" class="w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" alt="{{ producto.nombre }}">
+                      {% comment %}Imagen optimizada con Cloudinary{% endcomment %}
+                      {% if producto.imagen_principal.usa_cloudinary %}
+                          <img src="{{ producto.imagen_principal|cloudinary_responsive:'medium' }}" 
+                               srcset="{{ producto.imagen_principal|cloudinary_srcset }}"
+                               class="w-100" 
+                               style="aspect-ratio: 1 / 1; object-fit: cover;" 
+                               alt="{{ producto.nombre }}"
+                               loading="lazy"
+                               sizes="(max-width: 576px) 100vw, (max-width: 768px) 50vw, 33vw">
                       {% else %}
-                        <img src="{% static 'assets/product.png' %}" class="w-100" style="aspect-ratio: 1 / 1; object-fit: cover;" alt="Imagen no disponible">
+                          <img src="{% producto_imagen_thumbnail producto 400 400 %}" 
+                               class="w-100" 
+                               style="aspect-ratio: 1 / 1; object-fit: cover;" 
+                               alt="{{ producto.nombre }}"
+                               loading="lazy">
                       {% endif %}
                     </a>
                 </div>

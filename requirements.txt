@@ -1,17 +1,10 @@
 
 Django==5.1.1
 django-allauth==65.9.0
-PyJWT==2.10.1
-cryptography==45.0.5
 Pillow>=10.0.0
 pytest==8.1.1
 pytest-django==4.11.1
-python-apt==2.4.0+ubuntu4
-python-dateutil==2.8.1
-python-debian==0.1.43+ubuntu1.1
-python-gnupg==0.4.8
-python-magic==0.4.24
-python-xlib==0.29
-python3-openid==3.2.0
+rest_framework
+cloudinary
+python-magic
 sqlparse==0.4.4
-zipp==1.0.0

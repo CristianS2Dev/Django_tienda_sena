@@ -4,6 +4,9 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from django.utils.text import slugify
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
+from cloudinary.models import CloudinaryField
+
 
 # Create your models here.
 
@@ -187,33 +190,78 @@ class Producto(models.Model):
             return round(self.precio_original - (self.precio_original * self.descuento / Decimal(100)), 2)
         return self.precio_original
 
+    @property
+    def imagen_principal(self):
+        """
+        Obtiene la imagen principal del producto de manera segura.
+        
+        Returns:
+            ImagenProducto or None: La imagen principal o None si no existe
+        """
+        return self.imagenes.filter(es_principal=True).first() or self.imagenes.first()
+    
+    def get_imagen_principal_url(self, transformacion=None):
+        """
+        Obtiene la URL de la imagen principal de manera segura.
+        
+        Args:
+            transformacion (dict): Transformaciones para Cloudinary
+            
+        Returns:
+            str: URL de la imagen o URL por defecto
+        """
+        imagen = self.imagen_principal
+        if imagen:
+            url = imagen.get_imagen_url(transformacion)
+            if url:
+                return url
+        
+        # URL por defecto si no hay imagen
+        from django.templatetags.static import static
+        return static('assets/product.png')
+
     def __str__(self):
         return f"{self.nombre} - ({self.stock} unidades)"
     
 
 class ImagenProducto(models.Model):
     """
-    Modelo para las imágenes de los productos.
+    Modelo para las imágenes de los productos con integración de Cloudinary.
 
     :model:`tienda_sena.ImagenProducto`
 
     Campos:
         producto (ForeignKey): Producto al que pertenece la imagen.
-        imagen (ImageField): Archivo de imagen optimizada.
-        imagen_original (ImageField): Imagen original sin procesar.
-        miniatura (ImageField): Miniatura de la imagen.
+        imagen_cloudinary (CloudinaryField): Imagen almacenada en Cloudinary.
+        cloudinary_public_id (CharField): ID público en Cloudinary.
+        cloudinary_version (CharField): Versión de la imagen en Cloudinary.
+        imagen (ImageField): Imagen local (backup/compatibilidad).
+        imagen_original (ImageField): Imagen original sin procesar (backup).
+        miniatura (ImageField): Miniatura local (backup).
         es_principal (BooleanField): Si es la imagen principal del producto.
         orden (IntegerField): Orden de visualización de la imagen.
     """
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='imagenes')
-    imagen = models.ImageField(upload_to='productos/optimizadas/', help_text="Imagen optimizada en WebP")
-    imagen_original = models.ImageField(upload_to='productos/originales/', null=True, blank=True, help_text="Imagen original")
-    miniatura = models.ImageField(upload_to='productos/miniaturas/', null=True, blank=True, help_text="Miniatura 300x300")
+    
+    # Campos de Cloudinary
+    imagen_cloudinary = CloudinaryField('image', null=True, blank=True, help_text="Imagen almacenada en Cloudinary")
+    cloudinary_public_id = models.CharField(max_length=255, null=True, blank=True, help_text="ID público en Cloudinary")
+    cloudinary_version = models.CharField(max_length=50, null=True, blank=True, help_text="Versión en Cloudinary")
+    
+    # Campos locales (para compatibilidad/backup)
+    imagen = models.ImageField(upload_to='productos/optimizadas/', null=True, blank=True, help_text="Imagen optimizada local")
+    imagen_original = models.ImageField(upload_to='productos/originales/', null=True, blank=True, help_text="Imagen original local")
+    miniatura = models.ImageField(upload_to='productos/miniaturas/', null=True, blank=True, help_text="Miniatura local")
+    
+    # Campos de control
     es_principal = models.BooleanField(default=False, help_text="Imagen principal del producto")
     orden = models.PositiveIntegerField(default=0, help_text="Orden de visualización")
+    usa_cloudinary = models.BooleanField(default=True, help_text="Si usa Cloudinary o almacenamiento local")
     
     class Meta:
         ordering = ['orden', 'id']
+        verbose_name = 'Imagen de Producto'
+        verbose_name_plural = 'Imágenes de Productos'
     
     def save(self, *args, **kwargs):
         # Si es la primera imagen del producto, hacerla principal
@@ -228,9 +276,126 @@ class ImagenProducto(models.Model):
             ).exclude(id=self.id).update(es_principal=False)
         
         super().save(*args, **kwargs)
+    
+    def get_imagen_url(self, transformacion=None):
+        """
+        Obtiene la URL de la imagen, priorizando Cloudinary.
+        
+        Args:
+            transformacion (dict): Transformaciones específicas para Cloudinary
+        
+        Returns:
+            str: URL de la imagen
+        """
+        if self.usa_cloudinary and self.cloudinary_public_id:
+            if transformacion:
+                from cloudinary import CloudinaryImage
+                return CloudinaryImage(self.cloudinary_public_id).build_url(**transformacion)
+            return self.imagen_cloudinary.url if self.imagen_cloudinary else None
+        
+        # Fallback a imagen local solo si existe
+        if self.imagen and hasattr(self.imagen, 'url'):
+            try:
+                return self.imagen.url
+            except ValueError:
+                # El archivo no existe físicamente
+                return None
+        
+        return None
+    
+    def get_thumbnail_url(self):
+        """Obtiene URL de la miniatura optimizada."""
+        return self.get_imagen_url({
+            'width': 300, 
+            'height': 300, 
+            'crop': 'fill',
+            'quality': 'auto',
+            'fetch_format': 'auto'
+        })
+    
+    def get_banner_url(self):
+        """Obtiene URL para banner (listado de productos)."""
+        return self.get_imagen_url({
+            'width': 1200, 
+            'height': 400, 
+            'crop': 'fill',
+            'quality': 'auto',
+            'fetch_format': 'auto'
+        })
+    
+    def get_zoom_url(self):
+        """Obtiene URL para zoom (detalle de producto)."""
+        return self.get_imagen_url({
+            'width': 1500, 
+            'height': 1500, 
+            'crop': 'limit',
+            'quality': 'auto',
+            'fetch_format': 'auto'
+        })
+    
+    def get_optimizada_url(self):
+        """Obtiene URL de la imagen optimizada estándar."""
+        return self.get_imagen_url({
+            'width': 800, 
+            'height': 800, 
+            'crop': 'limit',
+            'quality': 'auto',
+            'fetch_format': 'auto'
+        })
+    
+    def eliminar_de_cloudinary(self):
+        """
+        Elimina la imagen de Cloudinary.
+        
+        Returns:
+            bool: True si se eliminó correctamente
+        """
+        if self.cloudinary_public_id:
+            try:
+                from .cloudinary_utils import cloudinary_manager
+                return cloudinary_manager.eliminar_imagen(self.cloudinary_public_id)
+            except Exception:
+                return False
+        return False
+    
+    def migrar_a_cloudinary(self):
+        """
+        Migra una imagen local a Cloudinary.
+        
+        Returns:
+            bool: True si la migración fue exitosa
+        """
+        if self.imagen and not self.cloudinary_public_id:
+            try:
+                from .cloudinary_utils import cloudinary_manager
+                resultado = cloudinary_manager.subir_imagen_producto(
+                    self.imagen, 
+                    self.producto.id, 
+                    self.es_principal
+                )
+                
+                if resultado['success']:
+                    self.cloudinary_public_id = resultado['public_id']
+                    self.cloudinary_version = str(resultado['version'])
+                    self.usa_cloudinary = True
+                    self.save()
+                    return True
+            except Exception:
+                pass
+        return False
+    
+    def delete(self, *args, **kwargs):
+        """Sobrescribe delete para eliminar también de Cloudinary."""
+        # Eliminar de Cloudinary si existe
+        if self.cloudinary_public_id:
+            self.eliminar_de_cloudinary()
+        
+        # Llamar al delete original
+        super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"Imagen de {self.producto.nombre} {'(Principal)' if self.es_principal else ''}"
+        tipo = "Cloudinary" if self.usa_cloudinary else "Local"
+        return f"Imagen {tipo} de {self.producto.nombre} {'(Principal)' if self.es_principal else ''}"
 
 
 class Carrito(models.Model):

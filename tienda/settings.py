@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,8 +51,10 @@ INSTALLED_APPS = [
     # Django Allauth
     'allauth',
     'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
+    
+    # Cloudinary para gestión de imágenes
+    'cloudinary',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -153,19 +158,10 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Configuración de Google OAuth
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
-        'OAUTH_PKCE_ENABLED': True,
-    }
-}
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 # URLs de redirección después del login/logout
 LOGIN_REDIRECT_URL = '/'
@@ -177,15 +173,6 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Sin verificación de email para desarrollo
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-
-# Configuración para social login
-SOCIALACCOUNT_LOGIN_ON_GET = True  # Permite login directo sin confirmación
-SOCIALACCOUNT_AUTO_SIGNUP = True  # Registro automático para nuevos usuarios
-SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'  # Sin verificación de email para cuentas sociales
-
-# Variables de entorno para Google OAuth (agregar a un archivo .env)
-# GOOGLE_OAUTH2_CLIENT_ID = 'tu-client-id-aqui'
-# GOOGLE_OAUTH2_CLIENT_SECRET = 'tu-client-secret-aqui'
 #EMAIL SETTINGS
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -229,4 +216,16 @@ CUSTOM_ALLAUTH_MESSAGES = {
     'SUCCESSFULLY_SIGNED_IN': 'Sesión iniciada correctamente como {user}',
     'SIGNED_OUT': 'Has cerrado sesión correctamente',
     'EMAIL_CONFIRMATION_SENT': 'Se ha enviado un correo de confirmación',
+}
+
+cloudinary.config(
+    cloud_name = "dif6i4khb",
+    api_key = "291422216311541",
+    api_secret = "84FytJgJAD1_YNJLHhX_Hc5gtNM"
+)
+
+REST_FRAMEWORK = {
+'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.IsAuthenticated'
+]
 }

@@ -1,0 +1,32 @@
+<!-- Template para imagen de Cloudinary con fallback -->
+{% if imagen_producto %}
+    {% if usa_cloudinary and cloudinary_url %}
+        <!-- Imagen de Cloudinary optimizada -->
+        <img src="{{ cloudinary_url }}" 
+             alt="{{ alt_text|default:imagen_producto.producto.nombre }}" 
+             class="{{ css_class }}"
+             loading="lazy"
+             data-cloudinary="true">
+    {% elif local_url %}
+        <!-- Fallback a imagen local -->
+        <img src="{{ local_url }}" 
+             alt="{{ alt_text|default:imagen_producto.producto.nombre }}" 
+             class="{{ css_class }}"
+             loading="lazy"
+             data-cloudinary="false">
+    {% else %}
+        <!-- Imagen por defecto si no hay ninguna -->
+        <img src="/static/img/no-image.png" 
+             alt="Sin imagen" 
+             class="{{ css_class }}"
+             loading="lazy"
+             data-cloudinary="fallback">
+    {% endif %}
+{% else %}
+    <!-- Imagen por defecto si no se proporciona imagen_producto -->
+    <img src="/static/img/no-image.png" 
+         alt="Sin imagen" 
+         class="{{ css_class }}"
+         loading="lazy"
+         data-cloudinary="default">
+{% endif %}

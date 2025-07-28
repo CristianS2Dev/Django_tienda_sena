@@ -7,6 +7,7 @@ from .models import *
 from .utils import *
 from .session_utils import get_user_session_info, has_valid_user_session
 from .image_utils import optimizar_imagen, crear_miniatura, validar_imagen_mejorada, obtener_info_imagen
+from .cloudinary_views import procesar_imagenes_cloudinary, crear_imagenes_producto_cloudinary, procesar_imagen_perfil_cloudinary
 import re
 import json
 import random
@@ -27,7 +28,11 @@ from django.views.decorators.cache import never_cache
 import random
 import os, time
 import mimetypes
-
+import cloudinary.uploader
+from .serializador import *
+from rest_framework import viewsets
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 def validar_archivo_pdf(archivo):
@@ -1377,22 +1382,9 @@ def agregar_producto(request):
                     messages.error(request, f"La imagen {imagen.name} es demasiado pequeña (mínimo 10KB).")
                     return redirect("agregar_producto")
 
-            # Procesar y validar imágenes
-            imagenes_procesadas = []
-            for i, imagen in enumerate(imagenes):
-                resultado = procesar_imagen_producto(imagen)
-                if not resultado['success']:
-                    messages.error(request, f"Error en imagen {i+1}: {resultado['error']}")
-                    return redirect("agregar_producto")
-                imagenes_procesadas.append(resultado)
-
-            # Validar que al menos una imagen sea marcada como principal (automático para la primera)
-            if not any(img.get('es_principal', False) for img in imagenes_procesadas):
-                imagenes_procesadas[0]['es_principal'] = True
-
-            # ===== CREAR PRODUCTO CON TRANSACCIÓN =====
+            # Procesar y validar imágenes con Cloudinary
             with transaction.atomic():
-                # Crear el producto
+                # Crear el producto primero
                 producto = Producto(
                     nombre=nombre.strip(),
                     descripcion=descripcion.strip(),
@@ -1407,17 +1399,24 @@ def agregar_producto(request):
                 producto.full_clean()
                 producto.save()
 
-                # Guardar imágenes procesadas
-                for i, resultado in enumerate(imagenes_procesadas):
-                    imagen_producto = ImagenProducto(
-                        producto=producto,
-                        imagen_original=imagenes[i],
-                        imagen=resultado['imagen_optimizada'],
-                        miniatura=resultado['miniatura'],
-                        es_principal=(i == 0),  # Primera imagen es principal
-                        orden=i
-                    )
-                    imagen_producto.save()
+                # Procesar imágenes con Cloudinary
+                resultado_imagenes = procesar_imagenes_cloudinary(imagenes, producto.id)
+                
+                if not resultado_imagenes['success']:
+                    # Si hay errores, mostrar el primero y hacer rollback
+                    error_msg = resultado_imagenes['errores'][0] if resultado_imagenes['errores'] else "Error procesando imágenes"
+                    messages.error(request, f"Error en imágenes: {error_msg}")
+                    return redirect("agregar_producto")
+                
+                # Crear objetos ImagenProducto con información de Cloudinary
+                imagenes_creadas = crear_imagenes_producto_cloudinary(
+                    resultado_imagenes['resultados'], 
+                    producto
+                )
+                
+                if len(imagenes_creadas) == 0:
+                    messages.error(request, "No se pudo guardar ninguna imagen.")
+                    return redirect("agregar_producto")
                 
                 # Notificar a administradores sobre el nuevo producto
                 crear_notificacion_nuevo_producto(producto)
@@ -1431,14 +1430,19 @@ def agregar_producto(request):
                     url=reverse('detalle_producto', kwargs={'id_producto': producto.id})
                 )
                 
-            messages.success(request, f"Producto guardado correctamente con {len(imagenes_procesadas)} imágenes optimizadas!")
+            # Obtener estadísticas de optimización
+            stats = resultado_imagenes['estadisticas']
             
-            # Mostrar información de optimización
-            total_original = sum(img.size for img in imagenes) / (1024*1024)
-            total_optimizado = sum(r['imagen_optimizada'].size for r in imagenes_procesadas) / (1024*1024)
-            ahorro = ((total_original - total_optimizado) / total_original * 100) if total_original > 0 else 0
+            messages.success(request, 
+                f"Producto guardado correctamente con {stats['imagenes_procesadas']} imágenes optimizadas en Cloudinary!"
+            )
             
-            messages.info(request, f"Optimización: {total_original:.2f}MB → {total_optimizado:.2f}MB (Ahorro: {ahorro:.1f}%)")
+            # Mostrar información de optimización de Cloudinary
+            messages.info(request, 
+                f"Optimización Cloudinary: {stats['mb_original']:.2f}MB → {stats['mb_optimizado']:.2f}MB "
+                f"(Ahorro estimado: {stats['ahorro_porcentaje']:.1f}%)"
+            )
+            
             return redirect("lista_productos")
             
         except ValueError as e:
@@ -1839,16 +1843,7 @@ def historial_compras_usuario(request,):
 # -----------------------------------------------------
                 #ADMINISTRADOR
 # -----------------------------------------------------
-@session_rol_permission(1)
-def panel_admin(request):
-    """Vista para el panel de administración."""
-    breadcrumbs = [
-        ("Inicio Admin", None),
-    ]
-    contexto = {
-        "breadcrumbs": breadcrumbs,
-    }
-    return render(request, 'administrador/panel_admin.html', contexto)
+
 
 #-----------------------------------------------------
     # USUARIOS ADMINISTRADOR
@@ -3100,4 +3095,17 @@ def reportar_comentario(request, id_comentario):
 
 # -----------------------------------------------------
 # FIN SISTEMA DE COMENTARIOS Y CALIFICACIONES
+# -----------------------------------------------------
+
+
+# -----------------------------------------------------
+    # INICIO APIS
+# -----------------------------------------------------
+
+class UsuarioViewSet(viewsets.ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+
+# -----------------------------------------------------
+    # FIN APIS
 # -----------------------------------------------------

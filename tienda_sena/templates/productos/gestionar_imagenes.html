@@ -18,8 +18,17 @@
                     <div class="row">
                         <div class="col-md-2">
                             {% if producto.imagenes.all %}
-                                <img src="{{ producto.imagenes.all.0.imagen.url }}" 
-                                     class="img-fluid rounded" alt="{{ producto.nombre }}">
+                                {% with primera_imagen=producto.imagenes.all.0 %}
+                                    {% if primera_imagen.imagen|has_file %}
+                                        <img src="{{ primera_imagen.imagen|safe_file_url }}" 
+                                             class="img-fluid rounded" alt="{{ producto.nombre }}">
+                                    {% else %}
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                             style="height: 100px;">
+                                            <i class="bi bi-image text-muted fs-1"></i>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
                             {% else %}
                                 <div class="bg-light rounded d-flex align-items-center justify-content-center" 
                                      style="height: 100px;">
@@ -62,10 +71,17 @@
                             <div class="card imagen-card h-100">
                                 <div class="position-relative">
                                     <!-- Imagen -->
-                                    <img src="{{ imagen.imagen.url }}" 
-                                         class="card-img-top" 
-                                         style="height: 200px; object-fit: cover;" 
-                                         alt="Imagen {{ forloop.counter }}">
+                                    {% if imagen.imagen|has_file %}
+                                        <img src="{{ imagen.imagen|safe_file_url }}" 
+                                             class="card-img-top" 
+                                             style="height: 200px; object-fit: cover;" 
+                                             alt="Imagen {{ forloop.counter }}">
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                             style="height: 200px;">
+                                            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                        </div>
+                                    {% endif %}
                                     
                                     <!-- Badge principal -->
                                     {% if imagen.es_principal %}
@@ -90,12 +106,12 @@
                                     <div class="row g-1 mb-2">
                                         <div class="col-6">
                                             <small class="text-muted d-block">Optimizada:</small>
-                                            <small>{{ imagen.imagen.size|filesizeformat }}</small>
+                                            <small>{{ imagen.imagen|safe_file_size|filesizeformat }}</small>
                                         </div>
-                                        {% if imagen.imagen_original %}
+                                        {% if imagen.imagen_original|has_file %}
                                         <div class="col-6">
                                             <small class="text-muted d-block">Original:</small>
-                                            <small>{{ imagen.imagen_original.size|filesizeformat }}</small>
+                                            <small>{{ imagen.imagen_original|safe_file_size|filesizeformat }}</small>
                                         </div>
                                         {% endif %}
                                     </div>
@@ -143,7 +159,14 @@
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <img src="{{ imagen.imagen.url }}" class="img-fluid rounded" alt="Imagen">
+                                                {% if imagen.imagen|has_file %}
+                                                    <img src="{{ imagen.imagen|safe_file_url }}" class="img-fluid rounded" alt="Imagen">
+                                                {% else %}
+                                                    <div class="bg-light d-flex align-items-center justify-content-center rounded" 
+                                                         style="height: 300px;">
+                                                        <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                                                    </div>
+                                                {% endif %}
                                             </div>
                                             <div class="col-md-6">
                                                 <h6>Información:</h6>
@@ -156,22 +179,30 @@
                                                             <span class="badge bg-secondary">No</span>
                                                         {% endif %}
                                                     </li>
-                                                    <li><strong>Tamaño optimizado:</strong> {{ imagen.imagen.size|filesizeformat }}</li>
-                                                    {% if imagen.imagen_original %}
-                                                    <li><strong>Tamaño original:</strong> {{ imagen.imagen_original.size|filesizeformat }}</li>
+                                                    {% if imagen.imagen|has_file %}
+                                                        <li><strong>Tamaño optimizado:</strong> {{ imagen.imagen|safe_file_size|filesizeformat }}</li>
+                                                    {% endif %}
+                                                    {% if imagen.imagen_original|has_file %}
+                                                    <li><strong>Tamaño original:</strong> {{ imagen.imagen_original|safe_file_size|filesizeformat }}</li>
+                                                    {% if imagen.imagen|has_file %}
                                                     <li><strong>Ahorro:</strong> 
-                                                        {% with ahorro=imagen.imagen_original.size|sub:imagen.imagen.size %}
-                                                        {% with porcentaje=ahorro|mul:100|div:imagen.imagen_original.size %}
+                                                        {% with tamaño_original=imagen.imagen_original|safe_file_size %}
+                                                        {% with tamaño_optimizado=imagen.imagen|safe_file_size %}
+                                                        {% with ahorro=tamaño_original|sub:tamaño_optimizado %}
+                                                        {% with porcentaje=ahorro|mul:100|div:tamaño_original %}
                                                         {{ porcentaje|floatformat:1 }}% ({{ ahorro|filesizeformat }})
+                                                        {% endwith %}
+                                                        {% endwith %}
                                                         {% endwith %}
                                                         {% endwith %}
                                                     </li>
                                                     {% endif %}
+                                                    {% endif %}
                                                 </ul>
                                                 
-                                                {% if imagen.miniatura %}
+                                                {% if imagen.miniatura|has_file %}
                                                 <h6 class="mt-3">Miniatura:</h6>
-                                                <img src="{{ imagen.miniatura.url }}" class="img-thumbnail" style="max-width: 150px;" alt="Miniatura">
+                                                <img src="{{ imagen.miniatura|safe_file_url }}" class="img-thumbnail" style="max-width: 150px;" alt="Miniatura">
                                                 {% endif %}
                                             </div>
                                         </div>
