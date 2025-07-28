@@ -17,6 +17,22 @@
 ### CHANGELOG
 ---
 
+---
+
+## [v1.47.46-alpha.1] - 28-07-2025
+
+### Changed
+- **Refactorización de Estructura de Código**:
+  - Reestructuración del código para mejorar la legibilidad y mantenibilidad
+  - Organización mejorada de módulos y funciones para facilitar el desarrollo
+  - Optimización de la arquitectura del código para mejor escalabilidad
+  - Mejoras en la documentación interna del código
+  - Separación de responsabilidades para mayor claridad en el desarrollo
+
+
+
+---
+
 ## [v1.46.45-alpha.1] - 27-07-2025
 
 ### Added

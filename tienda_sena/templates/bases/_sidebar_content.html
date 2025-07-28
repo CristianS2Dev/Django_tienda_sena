@@ -14,16 +14,6 @@
             </li>
             <!-- Ítem con submenú: Mi Cuenta -->
             <li class="nav-item">
-            <!-- Botón que despliega el colapso -->
-            <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                data-bs-toggle="collapse" 
-                href="#miCuentaCollapse" 
-                role="button" 
-                aria-expanded="false" 
-                aria-controls="miCuentaCollapse">
-                <span><i class="fas fa-user me-2"></i> Pedidos</span>
-                <i class="fas fa-chevron-down"></i>
-            </a>
     
             <!-- Submenú colapsable -->
             <ul class="collapse list-unstyled" id="miCuentaCollapse">
@@ -35,11 +25,6 @@
             
             <!-- Ítems sin submenú -->
     
-            <li class="nav-item">
-            <a class="nav-link text-white" href="#">
-                <i class="fas fa-cog me-2"></i> Categorias
-            </a>
-            </li>
             <li class="nav-item">
                 <a class="nav-link text-white d-flex justify-content-between align-items-center"
                    data-bs-toggle="collapse" 
@@ -62,16 +47,9 @@
                     <li><a class="nav-link text-white ms-4" href="{% url 'productos_admnin' %}">
                         <i class="fas fa-box me-2"></i> Productos
                     </a></li>
-                    <li><a class="nav-link text-white ms-4" href="#">
-                        <i class="fas fa-tools me-2"></i> Sistema
-                    </a></li>
                 </ul>
             </li>
-            <li class="nav-item">
-            <a class="nav-link text-white" href="#">
-                <i class="fas fa-cog me-2"></i> Configuracion Personal
-            </a>
-            </li>            
+           
             <!-- Panel de Notificaciones Admin -->
             <li class="nav-item">
                 <a class="nav-link text-white position-relative" href="{% url 'notificaciones_admin' %}">
