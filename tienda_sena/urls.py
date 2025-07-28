@@ -86,6 +86,9 @@ urlpatterns = [
       
             # Vendedor
             path('productos/vendedor/<int:id_vendedor>/', views.productos_vendedor, name='productos_vendedor'),
+            path('productos/vendedor/<int:id_vendedor>/deshabilitados/', views.productos_vendedor_deshabilitados, name='productos_vendedor_deshabilitados'),
+            path('producto/<int:id_producto>/deshabilitar/', views.deshabilitar_producto, name='deshabilitar_producto'),
+            path('producto/<int:id_producto>/rehabilitar/', views.rehabilitar_producto, name='rehabilitar_producto'),
             path('ordenes_vendedor/', views.ordenes_vendedor, name='ordenes_vendedor'),
             # Usuario
             path("actualizar_perfil/", views.actualizar_perfil, name="actualizar_perfil"),

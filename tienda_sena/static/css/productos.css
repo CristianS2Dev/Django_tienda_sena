@@ -1,0 +1,269 @@
+/**
+ * Estilos para la gestión de productos
+ * Proyecto: Django Tienda Sena
+ * Archivo: productos.css
+ */
+
+/* ========================================
+   BOTONES DE PRODUCTOS
+   ======================================== */
+
+.product-btn {
+    border-width: 1.5px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+    border-radius: 6px !important;
+    padding: 10px 16px !important;
+    font-size: 0.85rem !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+}
+
+.product-btn:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-1px) !important;
+    text-decoration: none !important;
+}
+
+.product-btn i {
+    font-size: 1rem !important;
+}
+
+/* Estados específicos de botones */
+.product-btn.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+}
+
+.product-btn.btn-success:hover {
+    background-color: #157347 !important;
+    border-color: #146c43 !important;
+    color: white !important;
+}
+
+.btn-edit-product:hover {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-disable-product:hover {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+    border-color: #ffc107 !important;
+}
+
+.btn-enable-product:hover {
+    background-color: #198754 !important;
+    color: white !important;
+    border-color: #198754 !important;
+}
+
+/* ========================================
+   CARDS Y LAYOUT DE PRODUCTOS
+   ======================================== */
+
+.product-card-actions {
+    padding-top: 0.5rem;
+    border-top: 1px solid #e9ecef;
+    margin-top: 0.5rem;
+}
+
+.product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   BOTONES DE NAVEGACIÓN
+   ======================================== */
+
+.nav-btn-add-product {
+    padding: 12px 20px;
+    font-weight: 500;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.nav-btn-add-product:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.nav-btn-add-product i {
+    font-size: 1.1rem;
+}
+
+.btn-group-products {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group-products .btn {
+    font-weight: 500;
+    padding: 10px 16px;
+}
+
+.btn-group-products .btn:first-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   BADGES Y CONTADORES
+   ======================================== */
+
+.counter-badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+/* ========================================
+   PRODUCTOS DESHABILITADOS
+   ======================================== */
+
+.disabled-product-overlay {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 250px;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 2;
+}
+
+.disabled-product-badge {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.disabled-product-card {
+    opacity: 0.8;
+}
+
+/* ========================================
+   ENCABEZADOS Y TÍTULOS
+   ======================================== */
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    margin-left: 3rem;
+    font-size: 0.9rem;
+}
+
+.section-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+/* ========================================
+   PAGINACIÓN
+   ======================================== */
+
+.pagination-container {
+    margin-top: 2rem;
+}
+
+.pagination-sm .page-link {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 768px) {
+    .product-btn {
+        font-size: 0.75rem !important;
+        padding: 6px 10px !important;
+    }
+    
+    .nav-btn-add-product {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-group-products .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .counter-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-card-actions {
+        padding-top: 0.75rem;
+    }
+    
+    .product-btn {
+        font-size: 0.7rem !important;
+        padding: 5px 8px !important;
+    }
+    
+    .product-btn i {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
+
+.shadow-custom {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.border-radius-custom {
+    border-radius: 8px;
+}
+
+.transition-all {
+    transition: all 0.3s ease;
+}

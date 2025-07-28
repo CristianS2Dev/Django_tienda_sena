@@ -34,6 +34,10 @@
     overflow: hidden;
     transition: all 0.3s ease;
     box-shadow: 0 4px 24px -1px rgba(240, 30, 30, 0.05);
+    /* Asegurar que todas las tarjetas tengan la misma altura */
+    min-height: 450px;
+    display: flex;
+    flex-direction: column;
 }
 
 .team-card:hover {
@@ -41,9 +45,37 @@
     box-shadow: 0 8px 32px -1px rgba(219, 23, 23, 0.1);
 }
 
+/* Contenedor de imagen con altura fija para uniformidad */
+.team-image-container {
+    height: 280px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+/* Estilos para las imágenes del equipo */
+.team-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: all 0.3s ease;
+    filter: grayscale(20%);
+}
 
 .team-card:hover .team-image {
     filter: grayscale(0%);
+    transform: scale(1.05);
+}
+
+/* Asegurar que el contenido de la tarjeta use el espacio restante */
+.team-card .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .role-tag {
@@ -85,12 +117,47 @@
 
 .social-link {
     color: #495057;
-    font-size: 1.25rem;
-    transition: color 0.3s ease;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background-color: rgba(13, 110, 253, 0.1);
 }
 
 .social-link:hover {
     color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Estilos específicos para iconos de redes sociales */
+.social-link i {
+    margin-right: 6px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+/* Colores específicos para cada red social al hacer hover */
+.social-link:hover i.bi-linkedin {
+    color: #0077B5;
+}
+
+.social-link:hover i.bi-twitter {
+    color: #1DA1F2;
+}
+
+.social-link:hover i.bi-facebook {
+    color: #1877F2;
+}
+
+.social-link:hover i.bi-github {
+    color: #333;
+}
+
+.social-link:hover i.bi-dribbble {
+    color: #EA4C89;
 }
 

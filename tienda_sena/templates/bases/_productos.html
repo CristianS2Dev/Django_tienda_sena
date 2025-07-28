@@ -51,14 +51,43 @@
                   
                   {% comment %} Botones para el vendedor dueño del producto {% endcomment %}
                   {% if request.session.pista.rol == 3 and producto.vendedor.id == request.session.pista.id %}
-                    <div class="mt-auto">
+                    <div class="mt-auto product-card-actions">
                       <div class="d-flex gap-2">
-                        <a href="{% url 'editar_producto' producto.id %}" class="btn btn-outline-primary btn-sm flex-fill py-1" style="font-size: 0.75rem; padding-top: 0.25rem; padding-bottom: 0.25rem;">
-                          <i class="fas fa-edit me-1"></i>Editar
+                        <!-- Botón Editar mejorado -->
+                        <a href="{% url 'editar_producto' producto.id %}" 
+                           class="btn btn-outline-primary btn-sm flex-fill d-flex align-items-center justify-content-center product-btn btn-edit-product" 
+                           style="padding: 8px 12px; font-size: 0.8rem; border-radius: 6px; transition: all 0.3s ease;">
+                          <i class="fas fa-edit me-2"></i>
+                          <span>Editar</span>
                         </a>
-                        <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-outline-danger btn-sm flex-fill py-1" style="font-size: 0.75rem; padding-top: 0.25rem; padding-bottom: 0.25rem;">
-                          <i class="fas fa-ban me-1"></i>Deshabilitar
-                        </a>
+                        
+                        {% if producto.activo %}
+                          <!-- Botón Deshabilitar mejorado -->
+                          <form method="post" action="{% url 'deshabilitar_producto' producto.id %}" 
+                                style="flex: 1;" 
+                                onsubmit="return confirm('¿Estás seguro de que quieres deshabilitar el producto &quot;{{ producto.nombre|escapejs }}&quot;?\n\nEl producto dejará de aparecer en las búsquedas y no podrá ser comprado.');">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn btn-outline-warning btn-sm w-100 d-flex align-items-center justify-content-center product-btn btn-disable-product" 
+                                    style="padding: 8px 12px; font-size: 0.8rem; border-radius: 6px; transition: all 0.3s ease;">
+                              <i class="fas fa-ban me-2"></i>
+                              <span>Deshabilitar</span>
+                            </button>
+                          </form>
+                        {% else %}
+                          <!-- Botón Rehabilitar mejorado -->
+                          <form method="post" action="{% url 'rehabilitar_producto' producto.id %}" 
+                                style="flex: 1;" 
+                                onsubmit="return confirm('¿Estás seguro de que quieres rehabilitar el producto &quot;{{ producto.nombre|escapejs }}&quot;?\n\nEl producto volverá a aparecer en las búsquedas y podrá ser comprado nuevamente.');">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn btn-outline-success btn-sm w-100 d-flex align-items-center justify-content-center product-btn btn-enable-product" 
+                                    style="padding: 8px 12px; font-size: 0.8rem; border-radius: 6px; transition: all 0.3s ease;">
+                              <i class="fas fa-check me-2"></i>
+                              <span>Rehabilitar</span>
+                            </button>
+                          </form>
+                        {% endif %}
                       </div>
                     </div>
                   {% endif %}
@@ -71,35 +100,56 @@
 </div>
 
 <script>
-function deshabilitarProducto(productoId) {
-    // Mostrar confirmación antes de deshabilitar
-    if (confirm('¿Estás seguro de que quieres deshabilitar este producto?')) {
-        // Aquí puedes agregar la lógica para enviar la petición al servidor
-        // Por ejemplo, usando fetch API:
-        /*
-        fetch(`/deshabilitar_producto/${productoId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload(); // Recargar la página para mostrar los cambios
-            } else {
-                alert('Error al deshabilitar el producto');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al deshabilitar el producto');
-        });
-        */
+// Script simplificado para productos - las acciones ahora usan formularios tradicionales
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Template de productos cargado correctamente');
+    
+    // Verificar formularios de productos
+    const formularios = document.querySelectorAll('form[action*="deshabilitar"], form[action*="rehabilitar"]');
+    console.log(`Se encontraron ${formularios.length} formularios de producto`);
+});
+
+/**
+ * Función legacy para deshabilitar un producto (mantenida por compatibilidad)
+ * @param {number} productoId - ID del producto a deshabilitar
+ * @param {string} nombreProducto - Nombre del producto para mostrar en la confirmación
+ */
+function deshabilitarProducto(productoId, nombreProducto) {
+    if (confirm(`¿Estás seguro de que quieres deshabilitar el producto "${nombreProducto}"?\n\nEl producto dejará de aparecer en las búsquedas y no podrá ser comprado.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/producto/${productoId}/deshabilitar/`;
         
-        // Por ahora solo muestra un mensaje
-        alert(`Producto ${productoId} será deshabilitado (funcionalidad pendiente de implementar en el backend)`);
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+/**
+ * Función legacy para rehabilitar un producto (mantenida por compatibilidad)
+ * @param {number} productoId - ID del producto a rehabilitar
+ * @param {string} nombreProducto - Nombre del producto para mostrar en la confirmación
+ */
+function rehabilitarProducto(productoId, nombreProducto) {
+    if (confirm(`¿Estás seguro de que quieres rehabilitar el producto "${nombreProducto}"?\n\nEl producto volverá a aparecer en las búsquedas y podrá ser comprado nuevamente.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/producto/${productoId}/rehabilitar/`;
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
     }
 }
 </script>
