@@ -60,7 +60,7 @@
                 {% if request.session.pista.rol == 2 %}
                     <a class="btn btn-warning" href="{% url 'actualizar_perfil' %}">Quiero Vender</a>
                 {% elif mostrar_boton_agregar %}    
-                    <a class="btn btn-success" href="{% url 'agregar_producto' %}">agregar productos</a>
+                    <a class="btn btn-success" href="{% url 'agregar_producto' %}">Agregar productos</a>
                     {% if user_session.is_authenticated and user_session.id %}
                         <a class="btn btn-warning" href="{% url 'productos_vendedor' user_session.id %}">Mis productos</a>
                     {% endif %}

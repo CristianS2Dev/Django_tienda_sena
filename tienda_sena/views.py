@@ -65,19 +65,20 @@ def validar_archivo_pdf(archivo):
 # Create your views here.
 def index(request):
     """Vista principal de la tienda."""
-    q = Producto.objects.all()[:12]
+    # Filtrar solo productos activos de vendedores activos para la página principal
+    q = Producto.objects.filter(activo=True, vendedor__activo=True)[:12]
     pendientes = 0
     if request.session.get("pista",{}).get("rol") == 1:
         # Si el usuario es administrador, contar las solicitudes pendientes
         pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
     
-    # Obtener categorías principales y contar productos por categoría
+    # Obtener categorías principales y contar productos por categoría (solo productos activos)
     categorias_con_productos = []
     
     for key, value in Producto.CATEGORIAS:
         if key != 0:  # Excluir "Ninguna"
-            count = Producto.objects.filter(categoria=key, vendedor__activo=True).count()
-            if count > 0:  # Solo incluir categorías que tienen productos
+            count = Producto.objects.filter(categoria=key, activo=True, vendedor__activo=True).count()
+            if count > 0:  # Solo incluir categorías que tienen productos activos
                 categorias_con_productos.append({
                     'id': key,
                     'nombre': value,
@@ -926,8 +927,10 @@ def lista_productos(request, id_categoria=None):
     """
     Vista para mostrar la lista de productos con filtros opcionales.
     Si se proporciona una categoría, filtra los productos por esa categoría.
+    Solo muestra productos activos de vendedores activos.
     """
-    productos = Producto.objects.all()
+    # Filtrar solo productos activos de vendedores activos
+    productos = Producto.objects.filter(activo=True, vendedor__activo=True)
 
     # Obtener colores y categorías disponibles del modelo
     colores_disponibles = Producto.COLORES
@@ -1047,11 +1050,9 @@ def lista_productos(request, id_categoria=None):
     }
     return render(request, 'productos/listar_productos.html', contexto)
 
-
-
-
+@session_rol_permission(1, 3)
 def productos_vendedor(request, id_vendedor):
-    """Vista para mostrar los productos de un vendedor específico."""
+    """Vista para mostrar los productos activos de un vendedor específico."""
     # Validar que el id_vendedor sea válido
     try:
         id_vendedor = int(id_vendedor)
@@ -1069,12 +1070,132 @@ def productos_vendedor(request, id_vendedor):
         messages.error(request, "El vendedor no existe.")
         return redirect('lista_productos')
     
-    productos = Producto.objects.filter(vendedor_id=id_vendedor)
+    # Filtrar solo productos activos y aplicar paginación
+    from django.core.paginator import Paginator
+    productos_query = Producto.objects.filter(vendedor_id=id_vendedor, activo=True).order_by('-id')
+    
+    # Configurar paginación
+    paginator = Paginator(productos_query, 12)  # 12 productos por página
+    page_number = request.GET.get('page')
+    productos = paginator.get_page(page_number)
+    
     contexto = {
         'data': productos,
-        'vendedor': vendedor
+        'vendedor': vendedor,
+        'total_productos_activos': productos_query.count(),
+        'total_productos_deshabilitados': Producto.objects.filter(vendedor_id=id_vendedor, activo=False).count()
     }
     return render(request, 'productos/listar_productos_vendedor.html', contexto)
+
+@session_rol_permission(1, 3)
+def productos_vendedor_deshabilitados(request, id_vendedor):
+    """Vista para mostrar los productos deshabilitados de un vendedor específico."""
+    # Validar que el id_vendedor sea válido
+    try:
+        id_vendedor = int(id_vendedor)
+        if id_vendedor <= 0:
+            messages.error(request, "ID de vendedor inválido.")
+            return redirect('lista_productos')
+    except (ValueError, TypeError):
+        messages.error(request, "ID de vendedor inválido.")
+        return redirect('lista_productos')
+    
+    # Verificar que el vendedor existe
+    try:
+        vendedor = Usuario.objects.get(id=id_vendedor)
+    except Usuario.DoesNotExist:
+        messages.error(request, "El vendedor no existe.")
+        return redirect('lista_productos')
+    
+    # Verificar permisos: solo el mismo vendedor o administrador pueden ver productos deshabilitados
+    user_session = request.session.get("pista")
+    if user_session["rol"] == 3 and user_session["id"] != id_vendedor:
+        messages.error(request, "No tienes permisos para ver los productos deshabilitados de otro vendedor.")
+        return redirect('lista_productos')
+    
+    # Filtrar solo productos deshabilitados y aplicar paginación
+    from django.core.paginator import Paginator
+    productos_query = Producto.objects.filter(vendedor_id=id_vendedor, activo=False).order_by('-id')
+    
+    # Configurar paginación
+    paginator = Paginator(productos_query, 12)  # 12 productos por página
+    page_number = request.GET.get('page')
+    productos = paginator.get_page(page_number)
+    
+    contexto = {
+        'data': productos,
+        'vendedor': vendedor,
+        'productos_deshabilitados': True,  # Flag para indicar que son productos deshabilitados
+        'total_productos_activos': Producto.objects.filter(vendedor_id=id_vendedor, activo=True).count(),
+        'total_productos_deshabilitados': productos_query.count()
+    }
+    return render(request, 'productos/listar_productos_vendedor_deshabilitados.html', contexto)
+
+@session_rol_permission(1, 3)
+def deshabilitar_producto(request, id_producto):
+    """Vista para deshabilitar un producto específico."""
+    if request.method != 'POST':
+        messages.error(request, "Método no permitido.")
+        return redirect('lista_productos')
+    
+    try:
+        producto = Producto.objects.get(pk=id_producto)
+        
+        # Verificar permisos: solo el vendedor dueño del producto o administrador pueden deshabilitarlo
+        user_session = request.session.get("pista")
+        if user_session["rol"] == 3 and producto.vendedor.id != user_session["id"]:
+            messages.error(request, "No tienes permisos para deshabilitar productos de otros vendedores.")
+            return redirect('lista_productos')
+        
+        # Verificar si el producto ya está deshabilitado
+        if not producto.activo:
+            messages.warning(request, f'El producto "{producto.nombre}" ya está deshabilitado.')
+        else:
+            # Deshabilitar el producto
+            producto.activo = False
+            producto.save()
+            messages.success(request, f'Producto "{producto.nombre}" deshabilitado correctamente.')
+            
+    except Producto.DoesNotExist:
+        messages.error(request, "Error: El producto no existe.")
+    except Exception as e:
+        messages.error(request, f"Error al deshabilitar el producto: {e}")
+    
+    # Redirigir de vuelta a la página de productos del vendedor
+    return redirect('productos_vendedor', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
+
+@session_rol_permission(1, 3)
+def rehabilitar_producto(request, id_producto):
+    """Vista para rehabilitar (reactivar) un producto específico."""
+    if request.method != 'POST':
+        messages.error(request, "Método no permitido.")
+        return redirect('lista_productos')
+    
+    try:
+        producto = Producto.objects.get(pk=id_producto)
+        
+        # Verificar permisos: solo el vendedor dueño del producto o administrador pueden rehabilitarlo
+        user_session = request.session.get("pista")
+        if user_session["rol"] == 3 and producto.vendedor.id != user_session["id"]:
+            messages.error(request, "No tienes permisos para rehabilitar productos de otros vendedores.")
+            return redirect('lista_productos')
+        
+        # Verificar si el producto ya está activo
+        if producto.activo:
+            messages.warning(request, f'El producto "{producto.nombre}" ya está activo.')
+        else:
+            # Rehabilitar el producto
+            producto.activo = True
+            producto.save()
+            messages.success(request, f'Producto "{producto.nombre}" rehabilitado correctamente.')
+            
+    except Producto.DoesNotExist:
+        messages.error(request, "Error: El producto no existe.")
+    except Exception as e:
+        messages.error(request, f"Error al rehabilitar el producto: {e}")
+    
+    # Redirigir de vuelta a la página de productos deshabilitados del vendedor
+    return redirect('productos_vendedor_deshabilitados', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
 
 def detalle_producto_admin(request, id_producto):
     """Vista para mostrar los detalles de un producto específico."""
@@ -2725,9 +2846,14 @@ def combinar_carritos(request):
 
 
 def buscar_productos(request):
-    """Vista para buscar productos por nombre."""
+    """Vista para buscar productos por nombre. Solo muestra productos activos de vendedores activos."""
     query = request.GET.get('q', '')  # Obtén el término de búsqueda
-    resultados = Producto.objects.filter(nombre__icontains=query) if query else []
+    # Filtrar solo productos activos de vendedores activos en las búsquedas
+    resultados = Producto.objects.filter(
+        nombre__icontains=query, 
+        activo=True, 
+        vendedor__activo=True
+    ) if query else []
     contexto = {
         'data': resultados,  # Pasar los productos encontrados
         'query': query,

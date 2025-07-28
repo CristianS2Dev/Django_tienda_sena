@@ -17,6 +17,64 @@
 ### CHANGELOG
 ---
 
+## [v1.46.45-alpha.1] - 27-07-2025
+
+### Added
+- **Sistema de Gestión de Productos Activos/Inactivos**:
+  - Nueva funcionalidad para deshabilitar productos individualmente por vendedores y administradores
+  - Nueva funcionalidad para rehabilitar productos deshabilitados
+  - Vista `productos_vendedor_deshabilitados` para mostrar productos inactivos por vendedor
+  - Template `listar_productos_vendedor_deshabilitados.html` para interfaz de productos deshabilitados
+  - Funciones `deshabilitar_producto` y `rehabilitar_producto` con validaciones de permisos
+- **Mejoras en el Equipo de Desarrollo**:
+  - Nuevos perfiles del equipo con imágenes: Andrés, Camilo y Cristian
+  - Archivo `GUIDE_TEAM_CARDS.md` con guía para tarjetas del equipo
+  - Nuevos estilos CSS en `productos.css` para mejor presentación
+
+### Changed
+- **Filtrado de Productos**:
+  - Todas las vistas públicas ahora muestran únicamente productos activos de vendedores activos
+  - Vista `index` actualizada para filtrar productos activos en página principal
+  - Vista `lista_productos` filtrada para mostrar solo productos disponibles
+  - Vista `buscar_productos` limitada a productos activos para búsquedas
+  - Vista `productos_vendedor` con paginación mejorada y filtros de productos activos
+- **URLs y Routing**:
+  - Nuevas rutas: `productos_vendedor_deshabilitados`, `deshabilitar_producto`, `rehabilitar_producto`
+  - Configuración de URLs para gestión completa de estado de productos
+- **Experiencia de Usuario Mejorada**:
+  - Contadores de productos activos y deshabilitados en vistas de vendedor
+  - Paginación implementada en listados de productos por vendedor (12 productos por página)
+  - Mejores validaciones y mensajes de feedback para operaciones de productos
+
+### Fixed
+- **Validaciones de Permisos**:
+  - Solo vendedores propietarios y administradores pueden deshabilitar/rehabilitar productos
+  - Verificación de permisos mejorada para acceso a productos deshabilitados
+  - Protección contra acceso no autorizado a funciones de gestión de productos
+- **Optimización de Consultas**:
+  - Filtros de base de datos optimizados para mejorar rendimiento
+  - Consultas eficientes para conteo de productos por estado
+  - Mejor organización de listados con orden descendente por ID
+
+### Security
+- **Control de Acceso**:
+  - Decoradores `@session_rol_permission` aplicados a todas las vistas sensibles
+  - Validación estricta de IDs de vendedor y producto
+  - Protección contra modificación de productos de otros vendedores
+  - Verificación de métodos HTTP (solo POST para operaciones críticas)
+
+### Performance
+- **Optimización de Listados**:
+  - Paginación implementada para reducir carga de datos
+  - Filtros a nivel de base de datos para consultas más eficientes
+  - Reducción de consultas innecesarias mediante filtros tempranos
+
+### Note
+- **Productos Inactivos**: Los productos deshabilitados no aparecen en vistas públicas pero se conservan en el sistema
+- **Gestión Mejorada**: Vendedores pueden gestionar el estado de sus productos de forma autónoma
+- **Migración No Requerida**: Los cambios utilizan el campo `activo` existente en el modelo Producto
+
+---
 ## [v1.45.44-alpha.1] - 27-07-2025
 
 ### Changed
