@@ -6,9 +6,6 @@
 {% if request.session.pista %}
     <div class="container justify-content-center"> 
         <div class="container justify-content-center"> 
-            {% if messages %}
-            {% for message in messages %} 
-                <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
         </div>
         {% if dato %}
         <h1>Actualizar Producto {{ dato }}</h1>

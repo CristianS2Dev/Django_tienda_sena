@@ -2,11 +2,6 @@
 {% load static breadcrumbs %}
 {% block main %}
 <div class="container">
-  <div id="notificaciones">
-    {% if messages %}
-        {% for message in messages %} 
-            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
-</div>
     <div class="card shadow-sm border-0 my-5">
         <div class="card-body p-4">
           <h2 class="card-title mb-4 text-center">Editar Perfil</h2>

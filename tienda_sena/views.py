@@ -586,16 +586,68 @@ def solicitar_vendedor(request):
     return render(request, "usuarios/solicitar_vendedor.html")
 
 
+@session_rol_permission(1, 3)  # Administradores y vendedores
 def ordenes_vendedor(request):
-    """Vista para mostrar las órdenes de los productos vendidos por el vendedor autenticado."""
+    """Vista para mostrar las órdenes de los productos vendidos por el vendedor autenticado, o todas las órdenes si es admin."""
     usuario = Usuario.objects.get(pk=request.session["pista"]["id"])
-    # Buscar los items vendidos por este vendedor
-    items_vendidos = OrdenItem.objects.filter(producto__vendedor=usuario).select_related('orden', 'producto')
-    # Obtener las órdenes únicas
-    ordenes = Orden.objects.filter(id__in=items_vendidos.values_list('orden_id', flat=True)).distinct().order_by('-creado_en')
+    
+    # Si es administrador, mostrar todas las órdenes del sistema
+    if usuario.rol == 1:  # Administrador
+        # Obtener todas las órdenes del sistema
+        ordenes = Orden.objects.all().select_related('usuario').order_by('-creado_en')
+        
+        # Obtener todos los items vendidos
+        items_vendidos = OrdenItem.objects.all().select_related(
+            'orden', 
+            'producto', 
+            'producto__vendedor'
+        ).order_by('-orden__creado_en')
+        
+        # Calcular estadísticas generales del sistema
+        total_ventas = sum(orden.total for orden in ordenes)
+        total_productos_vendidos = sum(item.cantidad for item in items_vendidos)
+        total_ordenes = ordenes.count()
+        
+    else:  # Vendedor
+        # Buscar los items vendidos por este vendedor con optimización de consultas
+        items_vendidos = OrdenItem.objects.filter(
+            producto__vendedor=usuario
+        ).select_related(
+            'orden', 
+            'producto', 
+            'orden__usuario'
+        ).order_by('-orden__creado_en')
+        
+        # Obtener las órdenes únicas con información agregada
+        ordenes_ids = items_vendidos.values_list('orden_id', flat=True).distinct()
+        ordenes = Orden.objects.filter(id__in=ordenes_ids).order_by('-creado_en')
+        
+        # Calcular estadísticas del vendedor
+        total_ventas = sum(item.cantidad * item.precio_unitario for item in items_vendidos)
+        total_productos_vendidos = sum(item.cantidad for item in items_vendidos)
+        total_ordenes = ordenes.count()
+    
+    # Agrupar items por orden para mejor rendimiento en template (común para ambos)
+    items_por_orden = {}
+    total_por_orden = {}
+    
+    for item in items_vendidos:
+        orden_id = item.orden.id
+        if orden_id not in items_por_orden:
+            items_por_orden[orden_id] = []
+            total_por_orden[orden_id] = 0
+        
+        items_por_orden[orden_id].append(item)
+        total_por_orden[orden_id] += item.cantidad * item.precio_unitario
+    
     return render(request, "usuarios/ordenes_vendedor.html", {
         "ordenes": ordenes,
-        "items_vendidos": items_vendidos,
+        "items_por_orden": items_por_orden,
+        "total_por_orden": total_por_orden,
+        "total_ventas": total_ventas,
+        "total_productos_vendidos": total_productos_vendidos,
+        "total_ordenes": total_ordenes,
+        "es_admin": usuario.rol == 1,  # Para usar en el template
     })
 
 # -----------------------------------------------------
@@ -916,7 +968,7 @@ def validar_direccion(direccion, ciudad, estado, codigo_postal, pais):
     """Valida los campos de una dirección."""
     if not all([direccion, ciudad, estado, codigo_postal, pais]):
         raise ValidationError("Todos los campos son obligatorios.")
-    if not codigo_postal.isdigit() or len(codigo_postal) != 6:
+    if not codigo_postal.isdigit() or len(codigo_postal) != 5:
         raise ValidationError("El código postal debe ser un número de 5 dígitos.")
 
 # -----------------------------------------------------
@@ -1167,7 +1219,10 @@ def deshabilitar_producto(request, id_producto):
         messages.error(request, f"Error al deshabilitar el producto: {e}")
     
     # Redirigir de vuelta a la página de productos del vendedor
-    return redirect('productos_vendedor', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
+    if user_session["rol"] == 1:
+        return redirect('productos_admnin')
+    else:
+        return redirect('productos_vendedor', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
 
 @session_rol_permission(1, 3)
 def rehabilitar_producto(request, id_producto):
@@ -1200,7 +1255,10 @@ def rehabilitar_producto(request, id_producto):
         messages.error(request, f"Error al rehabilitar el producto: {e}")
     
     # Redirigir de vuelta a la página de productos deshabilitados del vendedor
-    return redirect('productos_vendedor_deshabilitados', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
+    if user_session["rol"] == 1:
+        return redirect('productos_admnin')
+    else:
+        return redirect('productos_vendedor_deshabilitados', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
 
 def detalle_producto_admin(request, id_producto):
     """Vista para mostrar los detalles de un producto específico."""
@@ -1844,6 +1902,36 @@ def historial_compras_usuario(request,):
                 #ADMINISTRADOR
 # -----------------------------------------------------
 
+@session_rol_permission(1)
+def panel_admin(request):
+    """Vista principal del panel de administración."""
+    # Obtener estadísticas básicas para el dashboard
+    total_usuarios = Usuario.objects.count()
+    usuarios_activos = Usuario.objects.filter(activo=True).count()
+    usuarios_deshabilitados = Usuario.objects.filter(activo=False).count()
+    
+    total_productos = Producto.objects.count()
+    productos_activos = Producto.objects.filter(activo=True).count()
+    productos_deshabilitados = Producto.objects.filter(activo=False).count()
+    
+    solicitudes_pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
+    
+    breadcrumbs = [
+        ("Inicio Admin", None),
+    ]
+    
+    contexto = {
+        'breadcrumbs': breadcrumbs,
+        'total_usuarios': total_usuarios,
+        'usuarios_activos': usuarios_activos,
+        'usuarios_deshabilitados': usuarios_deshabilitados,
+        'total_productos': total_productos,
+        'productos_activos': productos_activos,
+        'productos_deshabilitados': productos_deshabilitados,
+        'solicitudes_pendientes': solicitudes_pendientes,
+    }
+    
+    return render(request, 'administrador/panel_admin.html', contexto)
 
 #-----------------------------------------------------
     # USUARIOS ADMINISTRADOR
@@ -2035,11 +2123,14 @@ def rechazar_solicitud_vendedor(request, id_solicitud):
 @session_rol_permission(1)
 def productos_admnin(request):
     """Vista para mostrar la lista de productos."""
-    q = Producto.objects.all()
+    ver_deshabilitados = request.GET.get('ver_deshabilitados')
+    if ver_deshabilitados == '1':
+        q = Producto.objects.filter(activo=False)
+    else:
+        q = Producto.objects.filter(activo=True)
     breadcrumbs = [
         ("Inicio Admin", reverse("panel_admin")),
         ("lista de productos", reverse("productos_admnin")),
-        
     ]
     contexto = { "data": q,
                 'breadcrumbs': breadcrumbs,
@@ -2694,6 +2785,20 @@ def checkout_paso4_confirmacion(request):
                     tipo='pedido',
                     url=f'/panel_admin/'
                 )
+                
+                # Notificar a vendedores sobre sus productos vendidos
+                vendedores_notificados = set()
+                for elemento in elementos:
+                    vendedor = elemento.producto.vendedor
+                    if vendedor.id not in vendedores_notificados:
+                        crear_notificacion(
+                            usuario=vendedor,
+                            titulo="¡Producto Vendido!",
+                            mensaje=f"Tu producto '{elemento.producto.nombre}' ha sido vendido (x{elemento.cantidad}).",
+                            tipo='success',
+                            url=reverse('ordenes_vendedor')
+                        )
+                        vendedores_notificados.add(vendedor.id)
                 
                 messages.success(request, f"¡Pedido #{orden.id} creado exitosamente!")
                 return redirect('checkout_exito', orden_id=orden.id)

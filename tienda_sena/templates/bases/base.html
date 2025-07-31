@@ -14,6 +14,37 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
   
   <style>
+    /* Estilos para mensajes globales */
+    #global-messages {
+      position: relative;
+      z-index: 1030;
+    }
+    
+    #global-messages .alert {
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    /* Auto-hide messages after 5 seconds (except errors) */
+    #global-messages .alert:not(.alert-danger) {
+      animation: slideDown 0.3s ease-out, fadeOut 0.5s ease-in 4.5s forwards;
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
     /* Mega menú para categorías */
     .mega-menu {
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -256,6 +287,29 @@
     </nav>
   </header>
   
+  <!-- Mensajes globales -->
+  <div id="global-messages" class="container-fluid p-0">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags }}{% else %}danger{% endif %} alert-dismissible fade show mb-0" 
+             role="alert" 
+             style="border-radius: 0; border: none; border-bottom: 1px solid rgba(0,0,0,0.1);">
+          <div class="container">
+            <div class="d-flex align-items-center">
+              <i class="fas 
+                {% if message.tags == 'success' %}fa-check-circle text-success
+                {% elif message.tags == 'warning' %}fa-exclamation-triangle text-warning
+                {% elif message.tags == 'info' %}fa-info-circle text-info
+                {% else %}fa-times-circle text-danger{% endif %} me-2"></i>
+              {{ message }}
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
     <main>
       {% block main %} {% endblock %}
     </main>
@@ -426,6 +480,19 @@
                 window.location.href = url;
             }
         }
+
+        // Auto-ocultar mensajes después de 5 segundos (excepto errores)
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('#global-messages .alert:not(.alert-danger)');
+            messages.forEach(function(message) {
+                setTimeout(function() {
+                    if (message.parentNode) {
+                        const alert = new bootstrap.Alert(message);
+                        alert.close();
+                    }
+                }, 5000);
+            });
+        });
     </script>
 
 </body>

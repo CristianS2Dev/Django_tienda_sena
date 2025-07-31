@@ -5,11 +5,6 @@
 {% block titulo %}Detalle del Producto{% endblock %}
 
 {% block main %}
-<div id="notificaciones">
-    {% if messages %}
-        {% for message in messages %} 
-            <div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
-</div>
 <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 <div class="container py-5">
     <div class="row">
@@ -17,54 +12,32 @@
             {% render_breadcrumbs breadcrumbs %}
 
             <div class="">
-                <!-- Contenedor solo para imagen principal -->
-                <div class="main-image-container">
-                    {% if producto.imagenes.all|length > 0 %}
-                        {% with imagen_principal=producto.imagenes.all.0 %}
-                            <!-- Imagen principal optimizada con nuevo sistema Cloudinary -->
-                            {% if imagen_principal.usa_cloudinary %}
-                                {% cloudinary_picture imagen_principal producto.nombre "card-img-top img-fluid mb-3 zoomable-image" "mainImage" %}
-                            {% else %}
-                                <img id="mainImage" 
-                                     src="{{ imagen_principal.imagen.url }}" 
-                                     data-zoom="{{ imagen_principal.imagen.url }}"
-                                     class="card-img-top img-fluid mb-3"
-                                     alt="{{ producto.nombre }}"
-                                     loading="lazy">
-                            {% endif %}
-                        {% endwith %}
-                    {% else %}
-                    <img id="mainImage" src="{% static 'images/product.jpg' %}" class="card-img-top img-fluid"
-                        alt="Imagen no disponible">
-                    {% endif %}
-                </div>
-                
-                <!-- Contenedor separado para miniaturas -->
+                {% if producto.imagenes.all|length > 0 %}
+                    {% with imagen_principal=producto.imagenes.all.0 %}
+                        <!-- Imagen principal con Cloudinary optimizada para zoom -->
+                        <img id="mainImage" 
+                             src="{% if imagen_principal.usa_cloudinary and imagen_principal.cloudinary_public_id %}{% cloudinary_url imagen_principal.cloudinary_public_id width=800 height=600 crop="limit" quality="auto" fetch_format="auto" %}{% else %}{{ imagen_principal.imagen.url }}{% endif %}" 
+                             data-zoom="{% if imagen_principal.usa_cloudinary and imagen_principal.cloudinary_public_id %}{% cloudinary_url imagen_principal.cloudinary_public_id width=1500 height=1500 crop="limit" quality="auto" fetch_format="auto" %}{% else %}{{ imagen_principal.imagen.url }}{% endif %}"
+                             class="card-img-top img-fluid mb-3"
+                             alt="{{ producto.nombre }}"
+                             loading="lazy">
+                    {% endwith %}
+                {% else %}
+                <img id="mainImage" src="{% static 'images/product.jpg' %}" class="card-img-top img-fluid"
+                    alt="Imagen no disponible">
+                {% endif %}
                 <div class="card-body">
                     <div class="row g-2 justify-content-center">
                         {% for imagen in producto.imagenes.all %}
                         <div class="col-3 col-md-2">
-                            <!-- Miniatura optimizada con nuevos filtros -->
-                            {% if imagen.usa_cloudinary %}
-                                <img src="{{ imagen|cloudinary_responsive:'thumbnail' }}" 
-                                     class="img-thumbnail thumbnail"
-                                     alt="Thumbnail {{ forloop.counter }}"
-                                     data-main-image="{{ imagen|cloudinary_responsive:'large' }}"
-                                     data-zoom-image="{{ imagen|cloudinary_zoom }}"
-                                     data-webp-image="{{ imagen|cloudinary_webp:600 }}"
-                                     data-cloudinary="true"
-                                     onclick="changeMainImageCloudinary(this)"
-                                     loading="lazy">
-                            {% else %}
-                                <img src="{{ imagen.imagen.url }}" 
-                                     class="img-thumbnail thumbnail"
-                                     alt="Thumbnail {{ forloop.counter }}"
-                                     data-main-image="{{ imagen.imagen.url }}"
-                                     data-zoom-image="{{ imagen.imagen.url }}"
-                                     data-cloudinary="false"
-                                     onclick="changeMainImageCloudinary(this)"
-                                     loading="lazy">
-                            {% endif %}
+                            <!-- Miniatura con Cloudinary optimizada -->
+                            <img src="{% if imagen.usa_cloudinary and imagen.cloudinary_public_id %}{% cloudinary_thumbnail imagen.cloudinary_public_id 150 150 %}{% else %}{{ imagen.imagen.url }}{% endif %}" 
+                                 class="img-thumbnail thumbnail"
+                                 alt="Thumbnail {{ forloop.counter }}"
+                                 data-main-image="{% if imagen.usa_cloudinary and imagen.cloudinary_public_id %}{% cloudinary_url imagen.cloudinary_public_id width=800 height=600 crop="limit" quality="auto" fetch_format="auto" %}{% else %}{{ imagen.imagen.url }}{% endif %}"
+                                 data-zoom-image="{% if imagen.usa_cloudinary and imagen.cloudinary_public_id %}{% cloudinary_url imagen.cloudinary_public_id width=1500 height=1500 crop="limit" quality="auto" fetch_format="auto" %}{% else %}{{ imagen.imagen.url }}{% endif %}"
+                                 onclick="changeMainImageCloudinary(this)"
+                                 loading="lazy">
                         </div>
                         {% endfor %}
                     </div>
@@ -190,173 +163,31 @@
 
 <script>
 /**
- * Función para cambiar imagen principal
- * Maneja correctamente elementos <picture> y <img>
+ * Función mejorada para cambiar imagen principal con soporte para Cloudinary
+ * Maneja tanto imágenes de Cloudinary como locales
  */
 function changeMainImageCloudinary(thumbnailElement) {
-    const isCloudinary = thumbnailElement.getAttribute('data-cloudinary') === 'true';
+    const mainImage = document.getElementById('mainImage');
     const mainImageUrl = thumbnailElement.getAttribute('data-main-image');
     const zoomImageUrl = thumbnailElement.getAttribute('data-zoom-image');
-    const webpImageUrl = thumbnailElement.getAttribute('data-webp-image');
     
-    if (!mainImageUrl) {
-        console.error('❌ No se encontró URL de imagen principal');
-        return;
-    }
-    
-    // Buscar SOLO el contenedor de la imagen principal (no las miniaturas)
-    const imageContainer = document.querySelector('.main-image-container');
-    
-    if (!imageContainer) {
-        console.error('❌ No se encontró contenedor de imagen principal');
-        return;
-    }
-    
-    // Obtener alt text actual
-    const currentImg = imageContainer.querySelector('img');
-    const altText = currentImg ? currentImg.getAttribute('alt') || 'Producto' : 'Producto';
-    
-    let newHTML = '';
-    
-    if (isCloudinary && webpImageUrl) {
-        // Crear HTML para Cloudinary con picture
-        newHTML = `
-            <picture>
-                <source srcset="${webpImageUrl}" type="image/webp">
-                <img src="${mainImageUrl}" 
-                     alt="${altText}" 
-                     class="card-img-top img-fluid mb-3 zoomable-image" 
-                     loading="lazy" 
-                     id="mainImage" 
-                     data-zoom="${zoomImageUrl}"
-                     style="cursor: zoom-in;">
-            </picture>
-        `;
-    } else {
-        // Crear HTML para imagen local
-        newHTML = `
-            <img id="mainImage" 
-                 src="${mainImageUrl}" 
-                 data-zoom="${zoomImageUrl || mainImageUrl}"
-                 class="card-img-top img-fluid mb-3"
-                 alt="${altText}"
-                 loading="lazy"
-                 style="cursor: zoom-in;">
-        `;
-    }
-    
-    // Reemplazar SOLO el contenido de la imagen principal (las miniaturas quedan intactas)
-    imageContainer.innerHTML = newHTML;
-    
-    // Actualizar estados de miniaturas
-    document.querySelectorAll('.thumbnail').forEach(thumb => {
-        thumb.classList.remove('active-thumbnail');
-    });
-    thumbnailElement.classList.add('active-thumbnail');
-    
-    // Agregar evento de zoom a la nueva imagen
-    setTimeout(() => {
-        const newMainImage = document.getElementById('mainImage');
-        if (newMainImage) {
-            newMainImage.addEventListener('click', function() {
-                const zoomUrl = this.getAttribute('data-zoom');
-                if (zoomUrl) {
-                    window.open(zoomUrl, '_blank');
-                }
-            });
+    if (mainImage && mainImageUrl) {
+        // Cambiar imagen principal
+        mainImage.src = mainImageUrl;
+        
+        // Actualizar datos de zoom si existe
+        if (zoomImageUrl) {
+            mainImage.setAttribute('data-zoom', zoomImageUrl);
         }
-    }, 50);
-}
-
-/**
- * Función simplificada para cambiar imagen principal
- * Versión más robusta y directa
- */
-function changeMainImageCloudinary(thumbnailElement) {
-    console.log('🔧 Cambiando imagen principal...');
-    
-    const isCloudinary = thumbnailElement.getAttribute('data-cloudinary') === 'true';
-    const mainImageUrl = thumbnailElement.getAttribute('data-main-image');
-    const zoomImageUrl = thumbnailElement.getAttribute('data-zoom-image');
-    const webpImageUrl = thumbnailElement.getAttribute('data-webp-image');
-    
-    console.log('📋 Datos:', { isCloudinary, mainImageUrl, webpImageUrl });
-    
-    if (!mainImageUrl) {
-        console.error('❌ No se encontró URL de imagen principal');
-        return;
+        
+        // Remover clase activa de todas las miniaturas
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.classList.remove('active-thumbnail');
+        });
+        
+        // Agregar clase activa a la miniatura seleccionada
+        thumbnailElement.classList.add('active-thumbnail');
     }
-    
-    // Buscar SOLO el contenedor de la imagen principal (no las miniaturas)
-    const imageContainer = document.querySelector('.main-image-container');
-    
-    if (!imageContainer) {
-        console.error('❌ No se encontró contenedor de imagen principal');
-        return;
-    }
-    
-    console.log('✅ Contenedor de imagen principal encontrado');
-    
-    // Obtener alt text actual
-    const currentImg = imageContainer.querySelector('img');
-    const altText = currentImg ? currentImg.getAttribute('alt') || 'Producto' : 'Producto';
-    
-    let newHTML = '';
-    
-    if (isCloudinary && webpImageUrl) {
-        // Crear HTML para Cloudinary con picture
-        newHTML = `
-            <picture>
-                <source srcset="${webpImageUrl}" type="image/webp">
-                <img src="${mainImageUrl}" 
-                     alt="${altText}" 
-                     class="card-img-top img-fluid mb-3 zoomable-image" 
-                     loading="lazy" 
-                     id="mainImage" 
-                     data-zoom="${zoomImageUrl}"
-                     style="cursor: zoom-in;">
-            </picture>
-        `;
-        console.log('🖼️ Creando elemento picture para Cloudinary');
-    } else {
-        // Crear HTML para imagen local
-        newHTML = `
-            <img id="mainImage" 
-                 src="${mainImageUrl}" 
-                 data-zoom="${zoomImageUrl || mainImageUrl}"
-                 class="card-img-top img-fluid mb-3"
-                 alt="${altText}"
-                 loading="lazy"
-                 style="cursor: zoom-in;">
-        `;
-        console.log('🖼️ Creando elemento img para imagen local');
-    }
-    
-    // Reemplazar SOLO el contenido de la imagen principal (las miniaturas quedan intactas)
-    imageContainer.innerHTML = newHTML;
-    console.log('✅ Solo imagen principal reemplazada - miniaturas intactas');
-    
-    // Actualizar estados de miniaturas
-    document.querySelectorAll('.thumbnail').forEach(thumb => {
-        thumb.classList.remove('active-thumbnail');
-    });
-    thumbnailElement.classList.add('active-thumbnail');
-    console.log('✅ Estados de miniaturas actualizados');
-    
-    // Agregar evento de zoom a la nueva imagen
-    setTimeout(() => {
-        const newMainImage = document.getElementById('mainImage');
-        if (newMainImage) {
-            newMainImage.addEventListener('click', function() {
-                const zoomUrl = this.getAttribute('data-zoom');
-                if (zoomUrl) {
-                    console.log('🔍 Abriendo zoom:', zoomUrl);
-                    window.open(zoomUrl, '_blank');
-                }
-            });
-            console.log('✅ Evento de zoom agregado');
-        }
-    }, 50);
 }
 
 /**
@@ -371,33 +202,33 @@ function changeMainImage(url) {
 }
 
 /**
- * Inicialización de funcionalidad de imágenes
+ * Inicializar zoom en imagen principal (si tienes librería de zoom)
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Marcar primera miniatura como activa
-    const firstThumbnail = document.querySelector('.thumbnail');
-    if (firstThumbnail) {
-        firstThumbnail.classList.add('active-thumbnail');
-    }
-    
-    // Agregar evento de zoom a imagen principal inicial
-    function addZoomToMainImage() {
-        const mainImage = document.getElementById('mainImage') || 
-                         document.querySelector('picture img') || 
-                         document.querySelector('.card-img-top');
-        
-        if (mainImage) {
-            mainImage.style.cursor = 'zoom-in';
-            mainImage.addEventListener('click', function() {
-                const zoomUrl = this.getAttribute('data-zoom');
-                if (zoomUrl) {
-                    window.open(zoomUrl, '_blank');
-                }
-            });
+    const mainImage = document.getElementById('mainImage');
+    if (mainImage) {
+        // Marcar primera miniatura como activa
+        const firstThumbnail = document.querySelector('.thumbnail');
+        if (firstThumbnail) {
+            firstThumbnail.classList.add('active-thumbnail');
         }
+        
+        // Agregar efecto hover para indicar que se puede hacer zoom
+        mainImage.addEventListener('mouseenter', function() {
+            this.style.cursor = 'zoom-in';
+        });
+        
+        // Click para zoom (puedes integrar una librería de zoom aquí)
+        mainImage.addEventListener('click', function() {
+            const zoomUrl = this.getAttribute('data-zoom');
+            if (zoomUrl) {
+                // Aquí puedes integrar una librería de zoom como PhotoSwipe o similar
+                console.log('Zoom URL:', zoomUrl);
+                // Por ahora, abrimos en nueva ventana
+                window.open(zoomUrl, '_blank');
+            }
+        });
     }
-    
-    addZoomToMainImage();
 });
 </script>
 
@@ -405,15 +236,13 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Estilos para miniaturas activas */
 .thumbnail.active-thumbnail {
     border: 3px solid #007bff !important;
-    transform: scale(1.05) !important;
-    opacity: 1 !important;
+    transform: scale(1.05);
     transition: all 0.3s ease;
 }
 
 .thumbnail {
     transition: all 0.3s ease;
     cursor: pointer;
-    border: 2px solid transparent;
 }
 
 .thumbnail:hover {
@@ -421,40 +250,13 @@ document.addEventListener('DOMContentLoaded', function() {
     opacity: 0.8;
 }
 
-/* Estilos para imagen principal */
-#mainImage, picture img {
+/* Cursor para imagen principal */
+#mainImage {
     transition: transform 0.3s ease;
-    cursor: zoom-in;
 }
 
-#mainImage:hover, picture img:hover {
+#mainImage:hover {
     transform: scale(1.02);
-}
-
-/* Asegurar que picture no interfiera con el layout */
-picture {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
-picture img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* Placeholder para imágenes que no cargan */
-.placeholder-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-    color: #6c757d;
-    font-size: 2rem;
-    min-height: 200px;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
 }
 </style>
 

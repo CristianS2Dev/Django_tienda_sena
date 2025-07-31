@@ -131,3 +131,10 @@ def has_file(field):
         return field and hasattr(field, 'name') and field.name and bool(field.name.strip())
     except (ValueError, AttributeError):
         return False
+
+@register.filter
+def get_item(dictionary, key):
+    """Obtiene un item de un diccionario usando la clave."""
+    if isinstance(dictionary, dict):
+        return dictionary.get(key)
+    return None
