@@ -1539,11 +1539,13 @@ def agregar_producto(request):
         user = request.session.get("pista")
         roles = dict(Usuario.ROLES).get(user["rol"], "Desconocido")
         categorias = Producto.CATEGORIAS
+        colores = Producto.COLORES
 
         return render(request, "productos/agregar_productos.html", {
             'user': user,
             'roles': roles,
             'categorias': categorias,
+            'colores': colores,
         })
     
 
@@ -1566,40 +1568,75 @@ def editar_producto(request, id_producto):
         try:
             # Obtener el producto a editar
             producto = Producto.objects.get(pk=id_producto)
-            
+            # Si solo se suben imágenes y no se modifican los campos principales, permitir la subida
+            solo_imagenes = (
+                nombre == producto.nombre and
+                descripcion == producto.descripcion and
+                str(precio_original) == str(producto.precio_original) and
+                str(descuento) == str(producto.descuento) and
+                en_oferta == producto.en_oferta and
+                str(stock) == str(producto.stock) and
+                str(vendedor) == str(producto.vendedor_id) and
+                str(categoria) == str(producto.categoria) and
+                str(color) == str(producto.color)
+            )
+            if imagenes and solo_imagenes:
+                # Procesar solo las imágenes nuevas
+                if len(imagenes) > 5:
+                    messages.error(request, "Solo puedes subir hasta 5 imágenes por producto.")
+                    return redirect("editar_producto", id_producto=id_producto)
+                formatos_permitidos = ['jpg', 'jpeg', 'png', 'webp']
+                for imagen in imagenes:
+                    if not imagen.name.lower().split('.')[-1] in formatos_permitidos:
+                        messages.error(request, f"Formato de imagen no permitido: {imagen.name}")
+                        return redirect("editar_producto", id_producto=id_producto)
+                    if imagen.size < 10000:
+                        messages.error(request, f"La imagen {imagen.name} es demasiado pequeña (mínimo 10KB).")
+                        return redirect("editar_producto", id_producto=id_producto)
+                imagenes_procesadas = []
+                for i, imagen in enumerate(imagenes):
+                    resultado = procesar_imagen_producto(imagen)
+                    if not resultado['success']:
+                        messages.error(request, f"Error en imagen {i+1}: {resultado['error']}")
+                        return redirect("editar_producto", id_producto=id_producto)
+                    imagenes_procesadas.append(resultado)
+                ultimo_orden = ImagenProducto.objects.filter(producto=producto).aggregate(
+                    max_orden=models.Max('orden'))['max_orden'] or 0
+                for i, resultado in enumerate(imagenes_procesadas):
+                    imagen_producto = ImagenProducto(
+                        producto=producto,
+                        imagen_original=imagenes[i],
+                        imagen=resultado['imagen_optimizada'],
+                        miniatura=resultado['miniatura'],
+                        es_principal=False,
+                        orden=ultimo_orden + i + 1
+                    )
+                    imagen_producto.save()
+                messages.success(request, f"Se agregaron {len(imagenes_procesadas)} imágenes optimizadas.")
+                return redirect("gestionar_imagenes_producto", id_producto=id_producto)
+            # ...validaciones normales si se modifican otros campos...
             # Validar que el vendedor es el mismo que el del producto
             if rol == 3 and producto.vendedor_id != request.session.get("pista")["id"]:
                 messages.error(request, "No puedes editar productos de otros vendedores.")
                 return redirect("editar_producto", id_producto=id_producto)
-            
-            # Validaciones de campos obligatorios
             if not nombre or not nombre.strip():
                 messages.error(request, "El nombre del producto es obligatorio.")
                 return redirect("editar_producto", id_producto=id_producto)
-            
             if not descripcion or not descripcion.strip():
                 messages.error(request, "La descripción del producto es obligatoria.")
                 return redirect("editar_producto", id_producto=id_producto)
-            
-            # Validar que el nombre no contenga números
             if re.search(r'\d', nombre):
                 messages.error(request, "El nombre del producto no puede contener números.")
                 return redirect("editar_producto", id_producto=id_producto)
-            
-            # Validar longitud del nombre
             if len(nombre.strip()) < 3:
                 messages.error(request, "El nombre del producto debe tener al menos 3 caracteres.")
                 return redirect("editar_producto", id_producto=id_producto)
-            
             if len(nombre.strip()) > 100:
                 messages.error(request, "El nombre del producto no puede exceder 100 caracteres.")
                 return redirect("editar_producto", id_producto=id_producto)
-            
-            # Validar longitud de la descripción
             if len(descripcion.strip()) < 10:
                 messages.error(request, "La descripción debe tener al menos 10 caracteres.")
                 return redirect("editar_producto", id_producto=id_producto)
-            
             if len(descripcion.strip()) > 1000:
                 messages.error(request, "La descripción no puede exceder 1000 caracteres.")
                 return redirect("editar_producto", id_producto=id_producto)
@@ -1732,6 +1769,7 @@ def editar_producto(request, id_producto):
                             messages.error(request, f"La imagen {imagen.name} es demasiado pequeña (mínimo 10KB).")
                             return redirect("editar_producto", id_producto=id_producto)
 
+                    # Procesar imágenes con Cloudinary (como en agregar_producto)
                     # Procesar y validar nuevas imágenes
                     imagenes_procesadas = []
                     for i, imagen in enumerate(imagenes):
@@ -1779,7 +1817,18 @@ def editar_producto(request, id_producto):
             return redirect("editar_producto", id_producto=id_producto)
     else:
         producto = Producto.objects.get(pk=id_producto)
-        return render(request, "productos/agregar_productos.html", {"dato": producto})
+        user = request.session.get("pista")
+        roles = dict(Usuario.ROLES).get(user["rol"], "Desconocido")
+        categorias = Producto.CATEGORIAS
+        colores = Producto.COLORES
+        
+        return render(request, "productos/agregar_productos.html", {
+            "dato": producto,
+            'user': user,
+            'roles': roles,
+            'categorias': categorias,
+            'colores': colores,
+        })
 
 def detalle_producto(request, id_producto):
     """Vista para mostrar los detalles de un producto específico."""
