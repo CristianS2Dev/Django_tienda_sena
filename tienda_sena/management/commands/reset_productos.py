@@ -21,8 +21,21 @@ except ImportError as e:
 class Command(BaseCommand):
     help = 'Elimina todos los productos existentes y crea productos realistas'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--skip-cloudinary',
+            action='store_true',
+            help='Omitir completamente el uso de Cloudinary (solo almacenamiento local)'
+        )
+
     def handle(self, *args, **options):
+        skip_cloudinary = options.get('skip_cloudinary', False)
         self.stdout.write(self.style.SUCCESS('Iniciando limpieza de productos...'))
+        
+        if skip_cloudinary:
+            self.stdout.write(
+                self.style.WARNING('⚠ Modo sin Cloudinary activado - solo se usará almacenamiento local')
+            )
         
         # 1. Eliminar todas las imágenes de productos del media
         media_productos_path = os.path.join(settings.MEDIA_ROOT, 'productos')
@@ -47,12 +60,36 @@ class Command(BaseCommand):
             os.makedirs(imagenes_dir, exist_ok=True)
             self.stdout.write(f'Directorio creado: {imagenes_dir}')
         
-        # 3. Inicializar CloudinaryManager si está disponible
+        # 3. Detectar entorno PythonAnywhere
+        is_pythonanywhere = 'pythonanywhere' in os.environ.get('SERVER_SOFTWARE', '').lower() or \
+                           'pythonanywhere' in os.environ.get('HOSTNAME', '').lower() or \
+                           os.path.exists('/home')  # Estructura típica de PythonAnywhere
+        
+        if is_pythonanywhere:
+            self.stdout.write(
+                self.style.WARNING('⚠ Detectado entorno PythonAnywhere')
+            )
+            self.stdout.write(
+                self.style.WARNING('  Las conexiones externas pueden estar limitadas')
+            )
+            self.stdout.write(
+                self.style.WARNING('  Cloudinary podría no funcionar correctamente')
+            )
+        
+        # 4. Inicializar CloudinaryManager si está disponible
         cloudinary_manager = None
-        if CLOUDINARY_AVAILABLE:
+        if skip_cloudinary:
+            self.stdout.write(
+                self.style.WARNING('⚠ Cloudinary omitido por parámetro --skip-cloudinary')
+            )
+        elif CLOUDINARY_AVAILABLE:
             try:
                 cloudinary_manager = CloudinaryManager()
                 self.stdout.write(self.style.SUCCESS('✓ CloudinaryManager inicializado'))
+                if is_pythonanywhere:
+                    self.stdout.write(
+                        self.style.WARNING('  Nota: Cloudinary puede fallar debido a restricciones de red')
+                    )
             except Exception as e:
                 self.stdout.write(
                     self.style.WARNING(f'⚠ Error al inicializar CloudinaryManager: {e}')
@@ -62,7 +99,7 @@ class Command(BaseCommand):
                 self.style.WARNING('⚠ CloudinaryManager no disponible - solo se usará almacenamiento local')
             )
         
-        # 4. Limpiar datos existentes
+        # 5. Limpiar datos existentes
         ImagenProducto.objects.all().delete()
         Producto.objects.all().delete()
         self.stdout.write(self.style.SUCCESS('Productos eliminados de la base de datos'))
@@ -404,9 +441,9 @@ class Command(BaseCommand):
                                 es_principal=(orden == 0)
                             )
                             
-                            # Intentar subir a Cloudinary primero (si está disponible)
+                            # Intentar subir a Cloudinary primero (si está disponible y no omitido)
                             cloudinary_success = False
-                            if cloudinary_manager:
+                            if cloudinary_manager and not skip_cloudinary:
                                 try:
                                     # Crear un objeto File de Django a partir del archivo local
                                     with open(imagen_path, 'rb') as img_file:
@@ -435,11 +472,33 @@ class Command(BaseCommand):
                                         
                                 except Exception as cloudinary_error:
                                     errores_cloudinary += 1
-                                    self.stdout.write(
-                                        self.style.WARNING(
-                                            f'  ⚠ Error Cloudinary para {imagen_nombre}: {str(cloudinary_error)}'
+                                    error_str = str(cloudinary_error)
+                                    
+                                    # Detectar si es un error de conectividad de red
+                                    if any(keyword in error_str.lower() for keyword in 
+                                           ['connection refused', 'max retries exceeded', 'connection error', 
+                                            'timeout', 'network', 'dns', 'host']):
+                                        self.stdout.write(
+                                            self.style.WARNING(
+                                                f'  ⚠ Error de conectividad con Cloudinary para {imagen_nombre}'
+                                            )
                                         )
-                                    )
+                                        self.stdout.write(
+                                            self.style.WARNING(
+                                                f'      Esto puede ser debido a restricciones de red en PythonAnywhere'
+                                            )
+                                        )
+                                        self.stdout.write(
+                                            self.style.WARNING(
+                                                f'      La imagen se guardará solo localmente'
+                                            )
+                                        )
+                                    else:
+                                        self.stdout.write(
+                                            self.style.WARNING(
+                                                f'  ⚠ Error Cloudinary para {imagen_nombre}: {error_str}'
+                                            )
+                                        )
                             else:
                                 self.stdout.write(
                                     self.style.WARNING(
@@ -501,6 +560,8 @@ class Command(BaseCommand):
         self.stdout.write(f'✓ Imágenes procesadas: {imagenes_creadas}')
         if errores_cloudinary > 0:
             self.stdout.write(f'⚠ Errores de Cloudinary: {errores_cloudinary}')
+        if skip_cloudinary:
+            self.stdout.write(f'📋 Cloudinary omitido intencionalmente')
         
         # Resumen de base de datos
         self.stdout.write('\n--- RESUMEN DE BASE DE DATOS ---')
@@ -513,6 +574,12 @@ class Command(BaseCommand):
         self.stdout.write(f'Productos en oferta: {productos_oferta}')
         self.stdout.write(f'Total de imágenes: {total_imagenes}')
         self.stdout.write(f'Imágenes en Cloudinary: {imagenes_cloudinary}')
+        
+        if skip_cloudinary:
+            self.stdout.write('📋 Todas las imágenes se guardaron solo localmente')
+        elif is_pythonanywhere and errores_cloudinary > 0:
+            self.stdout.write('⚠ Errores de Cloudinary probablemente debidos a restricciones de red de PythonAnywhere')
+            self.stdout.write('💡 Considera usar --skip-cloudinary para evitar estos errores')
         
         # Mostrar distribución por categorías
         self.stdout.write('\n--- DISTRIBUCIÓN POR CATEGORÍAS ---')
