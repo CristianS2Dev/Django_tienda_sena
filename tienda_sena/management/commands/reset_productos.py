@@ -408,10 +408,11 @@ class Command(BaseCommand):
                             cloudinary_success = False
                             if cloudinary_manager:
                                 try:
-                                    # Abrir el archivo para pasarlo al método
+                                    # Crear un objeto File de Django a partir del archivo local
                                     with open(imagen_path, 'rb') as img_file:
+                                        django_file = File(img_file, name=imagen_nombre)
                                         result = cloudinary_manager.subir_imagen_producto(
-                                            img_file,
+                                            django_file,
                                             producto.id,
                                             es_principal=(orden == 0)
                                         )
