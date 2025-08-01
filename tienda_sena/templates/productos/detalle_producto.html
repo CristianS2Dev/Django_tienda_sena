@@ -146,18 +146,6 @@
 {% include 'bases/_comentarios.html' with producto=producto %}
 
 
-<section class="text-center py-5 bg-light">
-    <div class="container">
-      <h1 class="display-5 fw-bold text-primary mb-4">Productos Similares</h1>
-      <div class="row">
-        {% include 'bases/_productos.html' %}
-       </div>
-       <a href="{% url 'lista_productos' %}" class="btn btn-outline-primary btn-lg mt-4">
-           <i class="bi bi-box-arrow-right"></i> Ver más Productos
-       </a>
-     </div>
- </section>
-
 <script>
 /**
  * Función mejorada para cambiar imagen principal con soporte para Cloudinary
