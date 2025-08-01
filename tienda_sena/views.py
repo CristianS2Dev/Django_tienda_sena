@@ -90,10 +90,27 @@ def index(request):
                     'count': count,
                 })
     
+    # Obtener vendedores destacados (solo activos y con productos)
+    from django.db.models import Count, Q
+    comentarios_usuario = CalificacionProducto.objects.filter(comentario__isnull=False).values('usuario').annotate(
+        total_comentarios=Count('comentario')
+    )
+    vendedores_destacados = Usuario.objects.filter(
+        rol=3,  # Solo vendedores
+        activo=True,  # Solo activos
+        producto__activo=True  # Que tengan productos activos
+    ).annotate(
+        total_productos=Count('producto', filter=Q(producto__activo=True))
+    ).filter(
+        total_productos__gt=0  # Al menos un producto
+    ).order_by('-total_productos')[:3]  # Top 3 vendedores por cantidad de productos
+    
     contexto = {'data': q,
                 'mostrar_boton_agregar': False,
                 "pendientes_solicitudes_vendedor": pendientes,
                 'categorias_index': categorias_con_productos,
+                'vendedores_destacados': vendedores_destacados,
+                'comentarios_usuario': comentarios_usuario,
     }
     return render(request, 'index.html', contexto)
 
@@ -989,6 +1006,15 @@ def lista_productos(request, id_categoria=None):
     nombre = request.GET.get('nombre')
     if nombre:
         productos = productos.filter(nombre__icontains=nombre)
+
+    # Filtrar por vendedor si se especifica
+    vendedor_id = request.GET.get('vendedor')
+    if vendedor_id:
+        try:
+            vendedor_id = int(vendedor_id)
+            productos = productos.filter(vendedor_id=vendedor_id)
+        except (ValueError, TypeError):
+            pass
 
     precio_min = request.GET.get('precio_min')
     precio_max = request.GET.get('precio_max')

@@ -298,6 +298,209 @@
     }
 }
 
+/* ============= ESTILOS PARA VENDEDORES DESTACADOS ============= */
+.seller-card {
+    transition: all 0.4s ease;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.seller-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.seller-card .card-header {
+    border-radius: 20px 20px 0 0;
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.seller-card .card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+}
+
+.seller-card:hover .card-header::before {
+    opacity: 1;
+    animation: shimmer 1.5s ease-in-out;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.seller-avatar {
+    transition: all 0.3s ease;
+}
+
+.seller-card:hover .seller-avatar img,
+.seller-card:hover .seller-avatar div {
+    transform: scale(1.1);
+}
+
+.seller-stat {
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.seller-card:hover .seller-stat {
+    transform: scale(1.05);
+}
+
+.seller-description {
+    position: relative;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.seller-description::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #32ffa6, #32a8ff);
+    border-radius: 10px 10px 0 0;
+}
+
+.seller-contact {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    border-left: 3px solid #32a8ff;
+}
+
+.seller-badge {
+    z-index: 10;
+}
+
+.seller-badge .badge {
+    animation: pulse 2s infinite;
+    font-size: 0.75rem;
+    padding: 8px 12px;
+    border-radius: 20px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.empty-state {
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 20px;
+    margin: 20px;
+}
+
+.empty-state i {
+    opacity: 0.7;
+    margin-bottom: 20px;
+}
+
+/* Animaciones de entrada para las tarjetas */
+.seller-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.seller-card:nth-child(1) { animation-delay: 0.1s; }
+.seller-card:nth-child(2) { animation-delay: 0.2s; }
+.seller-card:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive para vendedores */
+@media (max-width: 768px) {
+    .seller-card .card-header {
+        padding: 20px;
+    }
+    
+    .seller-avatar img,
+    .seller-avatar div {
+        width: 60px !important;
+        height: 60px !important;
+    }
+    
+    .seller-description {
+        padding: 10px;
+    }
+    
+    .seller-stat h4 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .seller-card {
+        margin-bottom: 20px;
+    }
+    
+    .seller-card .card-header {
+        padding: 15px;
+    }
+}
+/* ============= FIN ESTILOS VENDEDORES DESTACADOS ============= */
+
+/* ============= BOTONES CON GRADIENTE DEL PROYECTO ============= */
+.btn-gradient-project {
+    background: linear-gradient(45deg, #32ffa6, #32a8ff) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: bold !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.btn-gradient-project::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.2), transparent);
+    transition: all 0.5s ease;
+}
+
+.btn-gradient-project:hover::before {
+    left: 100%;
+}
+
+.btn-gradient-project:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(50, 255, 166, 0.3);
+    color: white !important;
+}
+
+.btn-gradient-project:active {
+    transform: translateY(0);
+}
+/* ============= FIN BOTONES CON GRADIENTE ============= */
+
 /* Estilos para el sidebar - Solo correcciones específicas */
 .offcanvas {
     max-width: 280px !important;

@@ -57,10 +57,9 @@
       </a>
   </div>
 </section>
-<section class="w-100 text-center p-3 sect_2">
+<section class="w-100 text-center p-3 sect_2" style="background-color: rgb(255, 247, 238);">
   <div class="">
       <div class="text-center">
-        <h5>Despliega tu creatividad</h5>
         <h1>Impulsa tu proyecto</h1>
         <p>Explora nuestras soluciones innovadoras para cubrir las necesidades de tu emprendimiento</p>
       </div>
@@ -131,41 +130,111 @@
       
   </div>
 </section>
-<section class="sect4 " style="background-color: rgb(255, 247, 238);">
-    <div class="w-100 text-center p-3">
-        <div class="text-center">
-            <H2>Confiado por Emprendedores de Todo el Mundo</H2>
-            <p>Nuestro compromiso con la excelencia se refleja en la confianza y satisfación de nuestros clientes.</p>
+<section class="sect4" style="background-color: rgb(248, 237, 225);">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">Nuestros Vendedores Destacados</h2>
+            <p class="lead text-muted">Conoce a los emprendedores más exitosos de nuestra comunidad SENA</p>
         </div>
-          <div class="card-group container gap-2 ">
-              <div class="card text-white card_sect4">
-                <img src="{% static 'assets/moda.jpg' %}"  alt="Fondo de tarjeta">
-                <div class="card_img_overlay">
-                  <h5 class="card-title ">Título de la tarjeta</h5>
-                  <p class="card-text">Este es el párrafo dentro de la imagen de fondo.</p>
+        
+        <div class="row g-4 justify-content-center">
+            {% for vendedor in vendedores_destacados %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-lg border-0 overflow-hidden seller-card">
+                    <!-- Header con gradiente -->
+                    <div class="card-header bg-primary text-white text-center position-relative" style="background: linear-gradient(135deg, #32ffa6 0%, #32a8ff 100%);">
+                        <div class="seller-badge position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star"></i> Destacado
+                            </span>
+                        </div>
+                        <!-- Imagen del vendedor -->
+                        <div class="seller-avatar mb-3">
+                            {% if vendedor.imagen_perfil %}
+                                <img src="{{ vendedor.imagen_perfil.url }}" 
+                                     class="rounded-circle border border-3 border-white shadow" 
+                                     alt="{{ vendedor.nombre_apellido }}"
+                                     style="width: 80px; height: 80px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle border border-3 border-white shadow d-flex align-items-center justify-content-center"
+                                     style="width: 80px; height: 80px; background: linear-gradient(45deg, #749b8a, #8a9daa);">
+                                    <i class="fas fa-user fa-2x text-white"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <h5 class="card-title mb-0 fw-bold">{{ vendedor.nombre_apellido }}</h5>
+                        <small class="text-white-50">
+                            <i class="fas fa-store me-1"></i>Emprendedor SENA
+                        </small>
+                    </div>
+                    
+                    <!-- Cuerpo de la tarjeta -->
+                    <div class="card-body d-flex flex-column">
+                        <!-- Estadísticas del vendedor -->
+                        <div class="row mb-3">
+                            <div class="col-6 text-center">
+                                <div class="seller-stat">
+                                    <h4 class="text-primary mb-0">{{ vendedor.total_productos }}</h4>
+                                    <small class="text-muted">Producto{{ vendedor.total_productos|pluralize }}</small>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center border-start">
+                                <div class="seller-stat">
+                                    <h4 class="text-success mb-0">
+                                        <i class="fas fa-medal"></i>
+                                    </h4>
+                                    <small class="text-muted">Certificado</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones de acción -->
+                        <div class="mt-auto">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'lista_productos' %}?vendedor={{ vendedor.id }}" 
+                                   class="btn btn-gradient-project rounded-pill">
+                                    <i class="fas fa-shopping-bag me-2"></i>
+                                    Ver Productos
+                                </a>   
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer con decoración -->
+                    <div class="card-footer bg-light border-0 text-center">
+                        <small class="text-muted d-flex align-items-center justify-content-center">
+                            <i class="fas fa-graduation-cap me-1 text-warning"></i>
+                            Formación SENA
+                        </small>
+                    </div>
                 </div>
-              </div>
-              <div class="card text-white card_sect4">
-                <img src="{% static 'assets/moda.jpg' %}"  alt="Fondo de tarjeta">
-                <div class="card_img_overlay">
-                  <h5 class="card-title">Título de la tarjeta</h5>
-                  <p class="card-text">Este es el párrafo dentro de la imagen de fondo.</p>
+            </div>
+            {% empty %}
+            <!-- Si no hay vendedores -->
+            <div class="col-12 text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-store fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Próximamente</h4>
+                    <p class="text-muted">Estamos preparando una increíble selección de vendedores destacados</p>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-gradient-project rounded-pill">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Explorar Productos
+                    </a>
                 </div>
-              </div>
-              <div class="card text-white card_sect4">
-                <img src="{% static 'assets/moda.jpg' %}" alt="Fondo de tarjeta">
-                <div class="card_img_overlay">
-                  <h5 class="card-title">Título de la tarjeta</h5>
-                  <p class="card-text">Este es el párrafo dentro de la imagen de fondo.</p>
-                </div>
-              </div>
-              
-          </div>
-          </div>  
-          <div class="text-center">
-            <h3><a class="text-decoration-none pt-3" href="#">Ver todas las opiniones de nuestros clientes</a></h3>
-          </div>
-
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Botón para ver todos los vendedores -->
+        {% if vendedores_destacados %}
+        <div class="text-center mt-5">
+            <a href="{% url 'lista_productos' %}" class="btn btn-gradient-project btn-lg rounded-pill px-4">
+                <i class="fas fa-users me-2"></i>
+                Ver Todos los Emprendedores
+            </a>
+        </div>
+        {% endif %}
+    </div>
 </section>
 <section class="text-center p-3 sect5 fondo-animado">
     <div class="row justify-content-around">
