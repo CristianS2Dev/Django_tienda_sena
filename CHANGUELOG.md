@@ -16,7 +16,7 @@
 
 ### CHANGELOG
 ---
-## [v1.51.50-alpha.1] - 01-08-2025
+## [v1.52.51-alpha.1] - 01-08-2025
 ### Changed
 - se valida el correo al registrarse
 
