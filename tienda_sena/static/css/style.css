@@ -521,3 +521,72 @@
     }
     
 }
+
+/* ============= ESTILOS PARA TARJETAS DE CATEGORÍAS COMPACTAS ============= */
+.category-card {
+    transition: all 0.3s ease;
+    min-height: 280px;
+    max-height: 320px;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.category-card .card-header {
+    min-height: 120px;
+}
+
+.category-card .category-avatar {
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover .category-avatar {
+    transform: scale(1.1);
+}
+
+.category-card .category-stat h5 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.category-card .btn-sm {
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Responsive para tarjetas de categorías */
+@media (max-width: 576px) {
+    .category-card {
+        min-height: 260px;
+        max-height: 300px;
+    }
+    
+    .category-card .card-header {
+        min-height: 100px;
+        padding: 0.75rem;
+    }
+    
+    .category-card .category-avatar div,
+    .category-card .category-avatar img {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .category-card .category-avatar i {
+        font-size: 1rem !important;
+    }
+    
+    .category-card h6 {
+        font-size: 0.875rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .category-card {
+        max-height: 350px;
+    }
+}
+/* ============= FIN ESTILOS TARJETAS DE CATEGORÍAS ============= */

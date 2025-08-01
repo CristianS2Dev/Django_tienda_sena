@@ -105,10 +105,11 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="d-flex align-items-center gap-2">
-                                        <button class="quantity-btn" onclick="updateQuantity({{ elemento.id }}, -1)">-</button>
-                                        <input type="number" class="quantity-input" id="quantity-{{ elemento.id }}" value="{{ elemento.cantidad }}" min="1" max="{{ elemento.producto.stock }}" readonly>
-                                        <button class="quantity-btn" onclick="updateQuantity({{ elemento.id }}, 1)">+</button>
+                                        <button class="quantity-btn" onclick="updateQuantity({{ elemento.id }}, -1)" type="button">-</button>
+                                        <input type="number" class="quantity-input" id="quantity-{{ elemento.id }}" value="{{ elemento.cantidad }}" min="1" max="{{ elemento.producto.stock }}" data-original="{{ elemento.cantidad }}">
+                                        <button class="quantity-btn" onclick="updateQuantity({{ elemento.id }}, 1)" type="button">+</button>
                                     </div>
+                                    <small class="text-muted">Stock: {{ elemento.producto.stock }}</small>
                                 </div>
                                 <div class="col-md-2">
                                     <p><span id="subtotal-{{ elemento.id }}">{{ elemento.subtotal|floatformat:2 }}</span></p>
@@ -153,41 +154,204 @@
 </div>
 
 <script>
-    function updateQuantity(elementId, change) {
-        const input = document.getElementById(`quantity-${elementId}`);
-        let newQuantity = parseInt(input.value) + change;
+    // Variables globales para el manejo del carrito
+    let isUpdating = false;
 
-        if (newQuantity > parseInt(input.max)) {
-            alert('La cantidad excede el stock disponible.');
+    function formatPrice(price) {
+        return price.toLocaleString('es-CO', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function updateQuantity(elementId, change) {
+        // Prevenir múltiples actualizaciones simultáneas
+        if (isUpdating) {
             return;
         }
 
-        if (newQuantity >= 1) {
-            input.value = newQuantity;
+        const input = document.getElementById(`quantity-${elementId}`);
+        const currentQuantity = parseInt(input.value);
+        const maxStock = parseInt(input.max);
+        let newQuantity = currentQuantity + change;
 
-            fetch(`/carrito/actualizar/${elementId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `cantidad=${newQuantity}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.subtotal !== undefined) {
-                    if (data.subtotal === 0) {
-                        document.getElementById(`product-card-${elementId}`).remove();
-                    } else {
-                        document.getElementById(`subtotal-${elementId}`).innerText = `$${data.subtotal.toFixed(2).replace('.', ',')}`;
+        // Validaciones antes de enviar al servidor
+        if (newQuantity < 1) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+                newQuantity = 0;
+            } else {
+                return;
+            }
+        }
+
+        if (newQuantity > maxStock && newQuantity > 0) {
+            alert(`La cantidad excede el stock disponible (${maxStock} unidades).`);
+            return;
+        }
+
+        // Actualizar UI inmediatamente para mejor UX
+        if (newQuantity > 0) {
+            input.value = newQuantity;
+        }
+
+        // Mostrar indicador de carga
+        showLoadingIndicator(elementId);
+        isUpdating = true;
+
+        // Enviar petición al servidor
+        fetch(`/carrito/actualizar/${elementId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `cantidad=${newQuantity}`
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                if (data.eliminated) {
+                    // Eliminar elemento del DOM con animación
+                    removeProductCard(elementId);
+                } else {
+                    // Actualizar subtotal y cantidad
+                    const subtotalElement = document.getElementById(`subtotal-${elementId}`);
+                    const quantityElement = document.getElementById(`quantity-${elementId}`);
+                    
+                    if (subtotalElement) {
+                        subtotalElement.textContent = `$${formatPrice(data.subtotal)}`;
                     }
-                    document.getElementById('total').innerText = `$${data.total.toFixed(2).replace('.', ',')}`;
-                } else if (data.error) {
-                    alert(data.error);
+                    if (quantityElement) {
+                        quantityElement.value = data.quantity;
+                    }
                 }
-            })
-            .catch(error => console.error('Error:', error));
+                
+                // Actualizar total del carrito
+                updateCartTotal(data.total);
+                
+                // Actualizar contador de items en el header si existe
+                updateCartItemsCount();
+                
+            } else if (data.error) {
+                alert(data.error);
+                // Revertir cambio en caso de error
+                input.value = currentQuantity;
+            }
+        })
+        .catch(error => {
+            console.error('Error al actualizar carrito:', error);
+            alert('Error al actualizar el carrito. Por favor, inténtalo de nuevo.');
+            // Revertir cambio en caso de error
+            input.value = currentQuantity;
+        })
+        .finally(() => {
+            hideLoadingIndicator(elementId);
+            isUpdating = false;
+        });
+    }
+
+    function removeProductCard(elementId) {
+        const productCard = document.getElementById(`product-card-${elementId}`);
+        if (productCard) {
+            // Animación de desvanecimiento
+            productCard.style.transition = 'all 0.3s ease-out';
+            productCard.style.opacity = '0';
+            productCard.style.transform = 'translateX(-100%)';
+            
+            setTimeout(() => {
+                productCard.remove();
+                checkEmptyCart();
+            }, 300);
         }
     }
+
+    function updateCartTotal(total) {
+        const totalElement = document.getElementById('total');
+        if (totalElement) {
+            totalElement.textContent = formatPrice(total);
+        }
+    }
+
+    function updateCartItemsCount() {
+        const productCards = document.querySelectorAll('[id^="product-card-"]');
+        const itemsCountElement = document.querySelector('.text-muted');
+        
+        if (itemsCountElement && itemsCountElement.textContent.includes('items')) {
+            const count = productCards.length;
+            itemsCountElement.textContent = `${count} items`;
+        }
+    }
+
+    function checkEmptyCart() {
+        const productCards = document.querySelectorAll('[id^="product-card-"]');
+        if (productCards.length === 0) {
+            const cartSection = document.querySelector('.col-lg-8');
+            if (cartSection) {
+                cartSection.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-cart-x display-1 text-muted"></i>
+                        <h4 class="mt-3">Tu carrito está vacío</h4>
+                        <p class="text-muted">Agrega algunos productos para continuar</p>
+                        <a href="{% url 'lista_productos' %}" class="btn btn-primary">
+                            <i class="bi bi-shop"></i> Ir a la Tienda
+                        </a>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function showLoadingIndicator(elementId) {
+        const quantityContainer = document.querySelector(`#quantity-${elementId}`).parentElement;
+        const spinner = document.createElement('div');
+        spinner.id = `loading-${elementId}`;
+        spinner.className = 'spinner-border spinner-border-sm text-primary ms-2';
+        spinner.style.width = '1rem';
+        spinner.style.height = '1rem';
+        quantityContainer.appendChild(spinner);
+    }
+
+    function hideLoadingIndicator(elementId) {
+        const spinner = document.getElementById(`loading-${elementId}`);
+        if (spinner) {
+            spinner.remove();
+        }
+    }
+
+    // Manejo de input directo en el campo de cantidad
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityInputs = document.querySelectorAll('[id^="quantity-"]');
+        
+        quantityInputs.forEach(input => {
+            const elementId = input.id.replace('quantity-', '');
+            let timeoutId;
+            
+            input.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                
+                // Debounce para evitar múltiples peticiones
+                timeoutId = setTimeout(() => {
+                    const newQuantity = parseInt(this.value);
+                    const maxStock = parseInt(this.max);
+                    
+                    if (newQuantity < 1 || newQuantity > maxStock) {
+                        return;
+                    }
+                    
+                    // Simular cambio con diferencia
+                    const currentQuantity = parseInt(this.getAttribute('data-original') || this.value);
+                    const change = newQuantity - currentQuantity;
+                    
+                    this.setAttribute('data-original', newQuantity);
+                    updateQuantity(elementId, change);
+                }, 500);
+            });
+        });
+    });
 </script>
 {% endblock %}

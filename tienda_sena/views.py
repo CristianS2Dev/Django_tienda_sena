@@ -117,18 +117,19 @@ def index(request):
         # Si el usuario es administrador, contar las solicitudes pendientes
         pendientes = SolicitudVendedor.objects.filter(estado="pendiente").count()
     
-    # Obtener categorías principales y contar productos por categoría (solo productos activos)
+    # Obtener categorías principales y contar productos por categoría (mostrar 4 categorías fijas)
     categorias_con_productos = []
     
-    for key, value in Producto.CATEGORIAS:
-        if key != 0:  # Excluir "Ninguna"
-            count = Producto.objects.filter(categoria=key, activo=True, vendedor__activo=True).count()
-            if count > 0:  # Solo incluir categorías que tienen productos activos
-                categorias_con_productos.append({
-                    'id': key,
-                    'nombre': value,
-                    'count': count,
-                })
+    # Mostrar las primeras 4 categorías (excluyendo "Ninguna")
+    categorias_a_mostrar = [cat for cat in Producto.CATEGORIAS if cat[0] != 0][:4]
+    
+    for key, value in categorias_a_mostrar:
+        count = Producto.objects.filter(categoria=key, activo=True, vendedor__activo=True).count()
+        categorias_con_productos.append({
+            'id': key,
+            'nombre': value,
+            'count': count,
+        })
     
     # Obtener vendedores destacados (solo activos y con productos)
     from django.db.models import Count, Q
@@ -2822,29 +2823,59 @@ def eliminar_del_carrito(request, id_elemento):
 def actualizar_carrito(request, id_elemento):
     """Actualiza la cantidad de un producto en el carrito."""
     if request.method == 'POST':
-        carrito = obtener_carrito(request)
-        elemento = get_object_or_404(ElementoCarrito, id=id_elemento, carrito=carrito)
-        nueva_cantidad = int(request.POST.get('cantidad', 1))
+        try:
+            carrito = obtener_carrito(request)
+            elemento = get_object_or_404(ElementoCarrito, id=id_elemento, carrito=carrito)
+            nueva_cantidad = int(request.POST.get('cantidad', 1))
 
-        if nueva_cantidad <= 0:
-            elemento.delete()
-            return JsonResponse({'subtotal': 0, 'total': carrito.total()})
+            # Validar que la cantidad sea positiva
+            if nueva_cantidad <= 0:
+                elemento.delete()
+                # Recalcular total después de eliminar
+                total_carrito = carrito.total()
+                return JsonResponse({
+                    'subtotal': 0, 
+                    'total': float(total_carrito),
+                    'eliminated': True,
+                    'success': True
+                })
 
-        if nueva_cantidad > elemento.producto.stock:
-            return JsonResponse({'error': 'Cantidad excede el stock disponible'}, status=400)
+            # Validar stock disponible
+            if nueva_cantidad > elemento.producto.stock:
+                return JsonResponse({
+                    'error': f'Cantidad excede el stock disponible. Stock: {elemento.producto.stock}',
+                    'success': False
+                }, status=400)
 
-        # Recalcular el subtotal en el servidor
-        elemento.cantidad = nueva_cantidad
-        elemento.save()
-        subtotal = elemento.producto.precio * elemento.cantidad
-        total = sum(
-            e.producto.precio * e.cantidad for e in carrito.elementos.all()
-        )
-        return JsonResponse({
-            'subtotal': subtotal,
-            'total': total
-        })
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
+            # Actualizar cantidad y recalcular
+            elemento.cantidad = nueva_cantidad
+            elemento.save()
+            
+            # Calcular subtotal del elemento
+            subtotal = float(elemento.subtotal())
+            
+            # Calcular total del carrito
+            total_carrito = float(carrito.total())
+            
+            return JsonResponse({
+                'subtotal': subtotal,
+                'total': total_carrito,
+                'success': True,
+                'quantity': nueva_cantidad
+            })
+            
+        except ValueError:
+            return JsonResponse({
+                'error': 'Cantidad inválida',
+                'success': False
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'error': f'Error inesperado: {str(e)}',
+                'success': False
+            }, status=500)
+            
+    return JsonResponse({'error': 'Método no permitido', 'success': False}, status=405)
 
 def checkout_paso1_resumen(request):
     """Paso 1: Resumen del carrito antes del checkout"""
@@ -3075,7 +3106,7 @@ def checkout_paso4_confirmacion(request):
                     titulo="Nuevo Pedido Realizado",
                     mensaje=f"{carrito.usuario.nombre_apellido} ha realizado un pedido por ${total:,.0f}.",
                     tipo='pedido',
-                    url=f'/panel_admin/'
+                    url=reverse('ordenes_vendedor')
                 )
                 
                 # Notificar a vendedores sobre sus productos vendidos
@@ -3186,7 +3217,7 @@ def pagar_carrito(request):
                 titulo="Nuevo Pedido Realizado",
                 mensaje=f"{usuario.nombre_apellido} ha realizado un pedido por ${total:,.0f}.",
                 tipo='pedido',
-                url=f'/panel_admin/'
+                url=reverse('ordenes_vendedor')
             )
             
             # Notificar a vendedores sobre sus productos vendidos

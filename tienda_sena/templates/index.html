@@ -255,70 +255,82 @@
                 <i class="fas fa-th-large me-2"></i>VER TODOS LOS PRODUCTOS
             </a>
         </div>
-        <div class="row g-4 justify-content-center">
+        <div class="row g-3 justify-content-center">
             {% for categoria in categorias_index %}
-            <div class="col-lg-4 col-md-6">
-                <div class="card h-100 shadow-lg border-0 overflow-hidden category-card">
-                    <!-- Header con gradiente -->
-                    <div class="card-header bg-primary text-white text-center position-relative" style="background: linear-gradient(135deg, #32ffa6 0%, #32a8ff 100%);">
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card h-100 shadow border-0 overflow-hidden category-card">
+                    <!-- Header con gradiente más compacto -->
+                    <div class="card-header bg-primary text-white text-center position-relative py-3" style="background: linear-gradient(135deg, #32ffa6 0%, #32a8ff 100%);">
                         <div class="category-badge position-absolute top-0 end-0 m-2">
                             {% if categoria.count > 0 %}
                                 <span class="badge bg-warning text-dark">
-                                    <i class="fas fa-star"></i> {{ categoria.count }}
+                                    {{ categoria.count }}
                                 </span>
                             {% endif %}
                         </div>
                         
-                        <!-- Imagen de la categoría -->
-                        <div class="category-avatar mb-3">
+                        <!-- Imagen de la categoría más pequeña -->
+                        <div class="category-avatar mb-2">
                             {% if categoria.imagen %}
                                 <img src="{{ categoria.imagen }}" 
-                                     class="rounded-circle border border-3 border-white shadow" 
+                                     class="rounded-circle border border-2 border-white shadow" 
                                      alt="{{ categoria.nombre }}"
-                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                     style="width: 50px; height: 50px; object-fit: cover;">
                             {% else %}
-                                <div class="rounded-circle border border-3 border-white shadow d-flex align-items-center justify-content-center"
-                                     style="width: 80px; height: 80px; background: linear-gradient(45deg, #749b8a, #8a9daa);">
-                                    {% if "Tecnología" in categoria.nombre %}
-                                        <i class="fas fa-laptop fa-2x text-white"></i>
-                                    {% elif "Moda" in categoria.nombre or "Belleza" in categoria.nombre %}
-                                        <i class="fas fa-tshirt fa-2x text-white"></i>
-                                    {% elif "Artesanía" in categoria.nombre or "Hogar" in categoria.nombre %}
-                                        <i class="fas fa-palette fa-2x text-white"></i>
-                                    {% elif "Electrohogar" in categoria.nombre or "Muebles" in categoria.nombre %}
-                                        <i class="fas fa-couch fa-2x text-white"></i>
+                                <div class="rounded-circle border border-2 border-white shadow d-flex align-items-center justify-content-center"
+                                     style="width: 50px; height: 50px; background: linear-gradient(45deg, #749b8a, #8a9daa);">
+                                    {% if "Electrónicos" in categoria.nombre %}
+                                        <i class="fas fa-laptop fa-lg text-white"></i>
+                                    {% elif "Ropa" in categoria.nombre %}
+                                        <i class="fas fa-tshirt fa-lg text-white"></i>
+                                    {% elif "Hogar" in categoria.nombre %}
+                                        <i class="fas fa-home fa-lg text-white"></i>
+                                    {% elif "Deportes" in categoria.nombre %}
+                                        <i class="fas fa-dumbbell fa-lg text-white"></i>
+                                    {% elif "Libros" in categoria.nombre %}
+                                        <i class="fas fa-book fa-lg text-white"></i>
+                                    {% elif "Juguetes" in categoria.nombre %}
+                                        <i class="fas fa-gamepad fa-lg text-white"></i>
+                                    {% elif "Automotriz" in categoria.nombre %}
+                                        <i class="fas fa-car fa-lg text-white"></i>
+                                    {% elif "Salud y Belleza" in categoria.nombre %}
+                                        <i class="fas fa-heart fa-lg text-white"></i>
+                                    {% elif "Jardín" in categoria.nombre %}
+                                        <i class="fas fa-leaf fa-lg text-white"></i>
+                                    {% elif "Herramientas" in categoria.nombre %}
+                                        <i class="fas fa-tools fa-lg text-white"></i>
                                     {% else %}
-                                        <i class="fas fa-cube fa-2x text-white"></i>
+                                        <i class="fas fa-cube fa-lg text-white"></i>
                                     {% endif %}
                                 </div>
                             {% endif %}
                         </div>
                         
-                        <h5 class="card-title mb-0 fw-bold">{{ categoria.nombre }}</h5>
+                        <h6 class="card-title mb-0 fw-bold">{{ categoria.nombre }}</h6>
                         <small class="text-white-50">
                             <i class="fas fa-folder-open me-1"></i>Categoría SENA
                         </small>
                     </div>
                     
-                    <!-- Cuerpo de la tarjeta -->
-                    <div class="card-body d-flex flex-column">
+                    <!-- Cuerpo de la tarjeta más compacto -->
+                    <div class="card-body d-flex flex-column py-3">
                         <!-- Estadísticas de la categoría -->
-                        <div class="row mb-3">
+                        <div class="row mb-2">
                             <div class="col-6 text-center">
                                 <div class="category-stat">
-                                    <h4 class="text-primary mb-0">{{ categoria.count }}</h4>
+                                    <h5 class="text-primary mb-0">{{ categoria.count }}</h5>
                                     <small class="text-muted">Producto{{ categoria.count|pluralize }}</small>
                                 </div>
                             </div>
                             <div class="col-6 text-center border-start">
                                 <div class="category-stat">
-                                    <h4 class="text-success mb-0">
+                                    <h5 class="mb-0">
                                         {% if categoria.count > 0 %}
-                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-check-circle text-success"></i>
                                         {% else %}
                                             <i class="fas fa-clock text-muted"></i>
                                         {% endif %}
-                                    </h4>
+                                    </h5>
                                     <small class="text-muted">
                                         {% if categoria.count > 0 %}Disponible{% else %}Próximamente{% endif %}
                                     </small>
@@ -326,31 +338,39 @@
                             </div>
                         </div>
                         
-                        <!-- Descripción adicional -->
+                        <!-- Descripción adicional más compacta -->
                         {% if categoria.count > 0 %}
-                            <p class="card-text text-muted text-center mb-3">
-                                <i class="fas fa-star text-warning me-1"></i>
-                                <small>Productos disponibles ahora</small>
+                            <p class="card-text text-muted text-center mb-2">
+                                <small><i class="fas fa-star text-warning me-1"></i>Disponible ahora</small>
+                            </p>
+                        {% else %}
+                            <p class="card-text text-muted text-center mb-2">
+                                <small><i class="fas fa-plus text-info me-1"></i>Próximamente</small>
                             </p>
                         {% endif %}
                         
-                        <!-- Botones de acción -->
+                        <!-- Botones de acción más compactos -->
                         <div class="mt-auto">
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'productos_por_categoria' categoria.id %}" 
-                                   class="btn btn-gradient-project rounded-pill">
-                                    <i class="fas fa-shopping-bag me-2"></i>
-                                    Ver Productos
-                                </a>   
+                            <div class="d-grid">
+                                {% if categoria.count > 0 %}
+                                    <a href="{% url 'productos_por_categoria' categoria.id %}" 
+                                       class="btn btn-gradient-project btn-sm rounded-pill">
+                                        <i class="fas fa-eye me-1"></i>Ver
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-outline-secondary btn-sm rounded-pill" disabled>
+                                        <i class="fas fa-clock me-1"></i>Próximamente
+                                    </button>
+                                {% endif %}   
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Footer con decoración -->
-                    <div class="card-footer bg-light border-0 text-center">
-                        <small class="text-muted d-flex align-items-center justify-content-center">
+                    <!-- Footer más compacto -->
+                    <div class="card-footer bg-light border-0 text-center py-2">
+                        <small class="text-muted">
                             <i class="fas fa-graduation-cap me-1 text-warning"></i>
-                            Calidad SENA
+                            SENA
                         </small>
                     </div>
                 </div>

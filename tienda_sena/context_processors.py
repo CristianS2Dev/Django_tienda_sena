@@ -12,12 +12,10 @@ def colores(request):
 
 def notificaciones_usuario(request):
     """
-    Context processor mejorado para notificaciones.
-    Funciona para todos los roles de usuario.
+    Context processor para notificaciones de usuario.
     """
     if request.session.get("pista"):
         usuario_id = request.session["pista"]["id"]
-        usuario_rol = request.session["pista"]["rol"]
         try:
             usuario = Usuario.objects.get(pk=usuario_id)
             # Obtener el queryset base de notificaciones
@@ -29,25 +27,13 @@ def notificaciones_usuario(request):
             # Obtener las últimas 20 notificaciones para mostrar
             notificaciones = notificaciones_queryset[:20]
             
-            context = {
+            return {
                 "notificaciones_usuario": notificaciones,
-                "notificaciones_no_leidas": no_leidas,
-                "notificaciones_admin_pendientes": 0
+                "notificaciones_no_leidas": no_leidas
             }
-            
-            # Si es administrador, contar notificaciones admin pendientes
-            if usuario_rol == 1:  # Es administrador
-                admin_notifications = Notificacion.objects.filter(
-                    tipo__in=['vendor_request', 'new_user', 'new_product', 'new_order'],
-                    fecha_leida=None
-                ).count()
-                context['notificaciones_admin_pendientes'] = admin_notifications
-            
-            return context
         except Usuario.DoesNotExist:
             pass
     return {
         "notificaciones_usuario": [],
-        "notificaciones_no_leidas": 0,
-        "notificaciones_admin_pendientes": 0
+        "notificaciones_no_leidas": 0
     }
