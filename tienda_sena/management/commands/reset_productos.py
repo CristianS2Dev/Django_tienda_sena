@@ -408,13 +408,15 @@ class Command(BaseCommand):
                             cloudinary_success = False
                             if cloudinary_manager:
                                 try:
-                                    result = cloudinary_manager.upload_image(
-                                        imagen_path,
-                                        folder='productos',
-                                        public_id=f'producto_{producto.id}_{orden}_{int(time.time())}'
-                                    )
+                                    # Abrir el archivo para pasarlo al método
+                                    with open(imagen_path, 'rb') as img_file:
+                                        result = cloudinary_manager.subir_imagen_producto(
+                                            img_file,
+                                            producto.id,
+                                            es_principal=(orden == 0)
+                                        )
                                     
-                                    if result and result.get('public_id'):
+                                    if result and result.get('success') and result.get('public_id'):
                                         imagen_producto.cloudinary_public_id = result['public_id']
                                         cloudinary_success = True
                                         self.stdout.write(
