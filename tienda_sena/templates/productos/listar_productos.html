@@ -73,13 +73,6 @@
                         Todos los productos
                     {% endif %}
                 </h4>
-                <div class="mb-2 w-auto">
-                    <select name="orden" class="form-select" onchange="this.form.submit()">
-                        <option value="popular" {% if request.GET.orden == 'popular' or not request.GET.orden %}selected{% endif %}>Más populares</option>
-                        <option value="barato" {% if request.GET.orden == 'barato' %}selected{% endif %}>Más baratos</option>
-                        <option value="caro" {% if request.GET.orden == 'caro' %}selected{% endif %}>Más caros</option>
-                    </select>
-                </div>
             </div>
             <div class="row g-4">
                 {% if data %}

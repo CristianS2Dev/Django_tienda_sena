@@ -61,10 +61,10 @@
                     <div class="text-warning me-2">
                         <!-- Sistema de estrellas dinámico basado en calificaciones reales -->
                         {% if total_comentarios > 0 %}
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= promedio_calificacion|floatformat:0 %}
+                            {% for star in promedio_calificacion|star_range %}
+                                {% if star.type == 'full' %}
                                     <i class="fas fa-star"></i>
-                                {% elif forloop.counter == promedio_calificacion|add:1|floatformat:0 and promedio_calificacion|floatformat:1|slice:"-1" != "0" %}
+                                {% elif star.type == 'half' %}
                                     <i class="fas fa-star-half-alt"></i>
                                 {% else %}
                                     <i class="far fa-star"></i>
@@ -124,9 +124,6 @@
                 {% else %}
                     <button class="btn btn-secondary" type="button" disabled>Producto agotado</button>
                 {% endif %}
-                <button class="btn btn-outline-secondary" type="button">
-                    <i class="far fa-heart me-2"></i>Añadir a favoritos
-                </button>
             </div>
             <div class="mt-4">
                 <div class="d-flex align-items-center mb-2">
@@ -139,7 +136,7 @@
                 </div>
                 <div class="d-flex align-items-center">
                     <i class="fas fa-shield-alt text-primary me-2"></i>
-                    <span>Garantía de 2 años</span>
+                    <span>Garantía de 6 meses</span>
                 </div>
             </div>
         </div>

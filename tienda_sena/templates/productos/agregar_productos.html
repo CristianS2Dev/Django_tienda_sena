@@ -26,7 +26,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <label class="mb-2" for="precioProducto">Precio Original</label>
-                        <input type="number" class="form-control" id="precioProducto" name="precio_original" min="0" step="0.01" placeholder="Ingrese precio" value="{{ dato.precio_original|default:'' }}" required>
+                        <input type="number" class="form-control" id="precioProducto" name="precio_original" min="0" step="0.01" placeholder="Ingrese precio" value="{{ dato.precio_original|decimal_or_empty }}" required>
                     </div>
                     <div class="form-group mb-3">
                         <label for="enOferta">En Oferta</label>
@@ -34,7 +34,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <label class="mb-2" for="precioDescuento">Descuento (%)</label>
-                        <input type="number" class="form-control" id="precioDescuento" name="descuento" min="0" placeholder="Ingrese descuento" value="{{ dato.descuento|default:'0' }}">
+                        <input type="number" class="form-control" id="precioDescuento" name="descuento" min="0" placeholder="Ingrese descuento" value="{{ dato.descuento|decimal_or_zero }}">
                     </div>
                     <div class="form-group mb-3">
                         <label class="mb-2" for="stockProducto">Stock</label>
@@ -70,7 +70,7 @@
                             <small>📐 <strong>Recomendado:</strong> Imágenes cuadradas de al menos 800x800px para mejor visualización.</small>
                         </div>
                     </div>
-                    <div class="form-group mb-2">
+                    <div class="form-group mb-2" style="display: none;">
                         <label for="vendedor">Vendedor</label>
                         {% if dato %}
                         <input type="hidden" name="vendedor" value="{{ dato.vendedor.id }}">
@@ -98,16 +98,7 @@
                     </div>
                     </div>
                 </form>
-            </div>
-            <!-- Banner de publicidad -->
-            <!-- <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050; width: 300px; height: 300px;">
-                <div class="card text-center shadow" style="height: 100%;">
-                    <div class="card-body">
-                        <p class="mb-0">Banner</p>
-                    </div>
-                </div>
-            </div> -->
-           
+            </div>           
         </div>
     </div>
 {% else %}

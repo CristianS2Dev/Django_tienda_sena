@@ -138,3 +138,39 @@ def get_item(dictionary, key):
     if isinstance(dictionary, dict):
         return dictionary.get(key)
     return None
+
+@register.filter
+def decimal_or_empty(value):
+    """Convierte un valor decimal a string o devuelve cadena vacía si es None."""
+    if value is None:
+        return ""
+    return str(value)
+
+@register.filter
+def decimal_or_zero(value):
+    """Convierte un valor decimal a string o devuelve '0' si es None."""
+    if value is None:
+        return "0"
+    return str(value)
+
+@register.filter
+def star_range(rating):
+    """
+    Genera un rango de estrellas basado en la calificación.
+    Retorna una lista de diccionarios con tipo de estrella para cada posición.
+    """
+    if rating is None:
+        rating = 0
+    
+    rating = float(rating)
+    stars = []
+    
+    for i in range(1, 6):  # 5 estrellas
+        if rating >= i:
+            stars.append({'type': 'full'})  # Estrella llena
+        elif rating >= i - 0.5:
+            stars.append({'type': 'half'})  # Media estrella
+        else:
+            stars.append({'type': 'empty'})  # Estrella vacía
+    
+    return stars

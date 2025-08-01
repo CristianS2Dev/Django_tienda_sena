@@ -511,11 +511,7 @@
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-/* Ajustes para el banner en sidebar */
-.sidebar-banner {
-    width: 100% !important;
-    max-width: 230px;
-}
+
 
 /* Ajustes responsive para el sidebar */
 @media (max-width: 767px) {
@@ -524,7 +520,4 @@
         width: 85% !important;
     }
     
-    .sidebar-banner {
-        max-width: 100% !important;
-    }
 }

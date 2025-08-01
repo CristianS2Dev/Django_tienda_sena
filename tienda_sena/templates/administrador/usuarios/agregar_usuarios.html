@@ -22,8 +22,10 @@
         <input type="number" name="contacto" required="" class="form-control" value="{{ dato.contacto }}"/> <br>
         <label>Correo:</label>
         <input type="email" name="correo" required="" class="form-control" value="{{ dato.correo }}"/> <br>
-        <label>Contraseña:</label>
-        <input type="password" name="password" required="" class="form-control" value="{{ dato.password }}"/> <br>
+        <div style="display: none;">
+            <label>Contraseña:</label>
+            <input type="password" name="password" required="" class="form-control" value="{{ dato.password }}"/> <br>
+        </div>
         <label>Rol:</label>
         <select name="rol"  class="form-select">
             <option value="1" {% if dato.rol == 1 %}selected{% endif %}>Administrador</option>

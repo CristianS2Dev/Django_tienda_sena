@@ -1202,8 +1202,8 @@ def validar_direccion(direccion, ciudad, estado, codigo_postal, pais):
     """Valida los campos de una dirección."""
     if not all([direccion, ciudad, estado, codigo_postal, pais]):
         raise ValidationError("Todos los campos son obligatorios.")
-    if not codigo_postal.isdigit() or len(codigo_postal) != 5:
-        raise ValidationError("El código postal debe ser un número de 5 dígitos.")
+    if not codigo_postal.isdigit() or len(codigo_postal) != 6:
+        raise ValidationError("El código postal debe ser un número de 6 dígitos.")
 
 # -----------------------------------------------------
     # FIN VALIDACIONES
@@ -1324,7 +1324,7 @@ def lista_productos(request, id_categoria=None):
     # Paginación
     from django.core.paginator import Paginator
 
-    paginator = Paginator(productos, 9)  # 9 productos por página
+    paginator = Paginator(productos, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -1463,7 +1463,7 @@ def deshabilitar_producto(request, id_producto):
     
     # Redirigir de vuelta a la página de productos del vendedor
     if user_session["rol"] == 1:
-        return redirect('productos_admnin')
+        return redirect('productos_admin')
     else:
         return redirect('productos_vendedor', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
 
@@ -1499,7 +1499,7 @@ def rehabilitar_producto(request, id_producto):
     
     # Redirigir de vuelta a la página de productos deshabilitados del vendedor
     if user_session["rol"] == 1:
-        return redirect('productos_admnin')
+        return redirect('productos_admin')
     else:
         return redirect('productos_vendedor_deshabilitados', id_vendedor=producto.vendedor.id if 'producto' in locals() else user_session["id"])
 
@@ -1508,7 +1508,7 @@ def detalle_producto_admin(request, id_producto):
     producto = get_object_or_404(Producto, id=id_producto)
     breadcrumbs = [
         ("Inicio Admin", reverse("panel_admin")),
-        ("Lista de productos", reverse("productos_admnin")),
+        ("Lista de productos", reverse("productos_admin")),
         (producto.nombre, None),
     ]
     contexto = {
@@ -2019,7 +2019,7 @@ def editar_producto(request, id_producto):
 
             messages.success(request, "Producto actualizado correctamente!")
             if rol == 1:
-                return redirect("productos_admnin") 
+                return redirect("productos_admin") 
             else:    
                 return redirect("lista_productos") 
             
@@ -2413,7 +2413,7 @@ def rechazar_solicitud_vendedor(request, id_solicitud):
     # PRODUCTOS ADMINISTRADOR
 #-----------------------------------------------------
 @session_rol_permission(1)
-def productos_admnin(request):
+def productos_admin(request):
     """Vista para mostrar la lista de productos."""
     ver_deshabilitados = request.GET.get('ver_deshabilitados')
     if ver_deshabilitados == '1':
@@ -2422,7 +2422,7 @@ def productos_admnin(request):
         q = Producto.objects.filter(activo=True)
     breadcrumbs = [
         ("Inicio Admin", reverse("panel_admin")),
-        ("lista de productos", reverse("productos_admnin")),
+        ("lista de productos", reverse("productos_admin")),
     ]
     contexto = { "data": q,
                 'breadcrumbs': breadcrumbs,

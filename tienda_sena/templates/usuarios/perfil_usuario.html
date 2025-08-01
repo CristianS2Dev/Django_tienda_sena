@@ -124,18 +124,32 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Id Usuario:</strong> {{ dato.id }}</p>
+                <p><strong>ID Usuario:</strong> {{ dato.id }}</p>
                 <p><strong>Rol:</strong> {{ dato.get_rol_display }}</p>
-                <p><strong>Certificado SENA:</strong>{{ dato.certificado }}</p>
-                <div class="col-12 col-md-2 d-flex justify-content-center align-items-center p-0">
-                    {% if dato.certificado %}
-                        <img src="{{ dato.certificado.url }}" class="border rounded-5 img-fluid" alt="Client Avatar">
+                <p><strong>Estado de la cuenta:</strong> 
+                    {% if dato.activo %}
+                        <span class="badge bg-success">Activa</span>
                     {% else %}
-                        <img src="{% static 'assets/Andres.png' %}" class="border rounded-5 img-fluid" alt="Client Avatar">
+                        <span class="badge bg-danger">Deshabilitada</span>
+                    {% endif %}
+                </p>
+                <p><strong>Correo verificado:</strong> 
+                    {% if dato.correo_verificado %}
+                        <span class="badge bg-success"><i class="fas fa-check"></i> Verificado</span>
+                    {% else %}
+                        <span class="badge bg-warning"><i class="fas fa-exclamation-triangle"></i> Sin verificar</span>
+                    {% endif %}
+                </p>                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'actualizar_contraseña' %}" class="btn btn-success">
+                        <i class="fas fa-key"></i> Cambiar Contraseña
+                    </a>
+                    {% if not dato.correo_verificado %}
+                        <button class="btn btn-warning" onclick="reenviarVerificacion()">
+                            <i class="fas fa-envelope"></i> Verificar Correo
+                        </button>
                     {% endif %}
                 </div>
-                <a href="{% url 'actualizar_contraseña' %}" class="btn btn-success">Cambiar Contraseña</a>
-                <!-- Agregar más detalles según sea necesario -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -173,3 +187,29 @@
 {% else %}
 <h1>Iniciar Sesión</h1>
 {% endif %}
+
+<script>
+function reenviarVerificacion() {
+    if(confirm('¿Estás seguro de que quieres reenviar el código de verificación?')) {
+        fetch("{% url 'reenviar_codigo_verificacion' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Código de verificación enviado. Revisa tu correo electrónico.');
+            } else {
+                alert('Error al enviar el código: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al procesar la solicitud');
+        });
+    }
+}
+</script>

@@ -63,10 +63,13 @@
                                     </div>
                                     
                                     <div class="dropdown">
-                                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="dropdown">
+                                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle-no-caret" 
+                                                data-bs-toggle="dropdown" aria-expanded="false"
+                                                style="border: none; background: transparent; color: #6c757d; padding: 8px 12px;">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
+                                        <ul class="dropdown-menu dropdown-menu-end shadow"
+                                            style="border-radius: 8px; border: 1px solid #e9ecef; min-width: 200px;">
                                             {% if not notificacion.leida %}
                                                 <li>
                                                     <a class="dropdown-item" href="#" onclick="marcarLeida({{ notificacion.id }})">
@@ -120,17 +123,66 @@
 <style>
     .notification-card {
         transition: all 0.3s ease;
+        position: relative;
+        overflow: visible;
     }
     
     .notification-card:hover {
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        /* Removido el transform que causaba el problema */
+    }
+    
+    .notification-card:hover:not(:has(.dropdown-menu.show)) {
         transform: translateY(-2px);
     }
     
-    .notification-dropdown {
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        border: none;
-        border-radius: 8px;
+    /* Cuando el dropdown está abierto, no mover la tarjeta */
+    .notification-card:has(.dropdown-menu.show) {
+        transform: none !important;
+        z-index: 999;
+    }
+    
+    .dropdown {
+        position: relative;
+        z-index: 1000;
+    }
+    
+    .dropdown.show {
+        z-index: 1100;
+    }
+    
+    .dropdown-toggle-no-caret::after {
+        display: none;
+    }
+    
+    .dropdown-toggle-no-caret:hover {
+        background-color: #f8f9fa !important;
+        color: #495057 !important;
+        border-radius: 50%;
+    }
+    
+    .dropdown-menu {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        border: 1px solid #e9ecef !important;
+        border-radius: 8px !important;
+        padding: 8px 0 !important;
+        z-index: 1100 !important;
+        position: absolute !important;
+    }
+    
+    .dropdown-item {
+        padding: 10px 16px !important;
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa !important;
+        transform: translateX(2px);
+    }
+    
+    .dropdown-item i {
+        width: 16px;
+        text-align: center;
     }
     
     .notification-content {

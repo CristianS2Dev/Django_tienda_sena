@@ -24,6 +24,63 @@ def gestionar_imagenes_producto(request, id_producto):
         messages.error(request, "No tienes permisos para gestionar las imágenes de este producto.")
         return redirect("lista_productos")
     
+    # Manejar subida de nuevas imágenes
+    if request.method == "POST":
+        imagenes_nuevas = request.FILES.getlist("imagenes_nuevas")
+        
+        if imagenes_nuevas:
+            try:
+                # Validar cantidad de imágenes
+                if len(imagenes_nuevas) > 5:
+                    messages.error(request, "Solo puedes subir hasta 5 imágenes a la vez.")
+                    return redirect("gestionar_imagenes_producto", id_producto=id_producto)
+                
+                # Validar formato y tamaño
+                formatos_permitidos = ['jpg', 'jpeg', 'png', 'webp']
+                for imagen in imagenes_nuevas:
+                    if not imagen.name.lower().split('.')[-1] in formatos_permitidos:
+                        messages.error(request, f"Formato de imagen no permitido: {imagen.name}")
+                        return redirect("gestionar_imagenes_producto", id_producto=id_producto)
+                    if imagen.size < 10000:
+                        messages.error(request, f"La imagen {imagen.name} es demasiado pequeña (mínimo 10KB).")
+                        return redirect("gestionar_imagenes_producto", id_producto=id_producto)
+                
+                # Importar función de procesamiento
+                from .views import procesar_imagen_producto
+                from django.db import models
+                
+                # Procesar imágenes
+                imagenes_procesadas = []
+                for i, imagen in enumerate(imagenes_nuevas):
+                    resultado = procesar_imagen_producto(imagen)
+                    if not resultado['success']:
+                        messages.error(request, f"Error en imagen {i+1}: {resultado['error']}")
+                        return redirect("gestionar_imagenes_producto", id_producto=id_producto)
+                    imagenes_procesadas.append(resultado)
+                
+                # Obtener el próximo número de orden
+                ultimo_orden = ImagenProducto.objects.filter(producto=producto).aggregate(
+                    max_orden=models.Max('orden'))['max_orden'] or 0
+                
+                # Guardar las nuevas imágenes
+                for i, resultado in enumerate(imagenes_procesadas):
+                    imagen_producto = ImagenProducto(
+                        producto=producto,
+                        imagen_original=imagenes_nuevas[i],
+                        imagen=resultado['imagen_optimizada'],
+                        miniatura=resultado['miniatura'],
+                        es_principal=False,
+                        orden=ultimo_orden + i + 1
+                    )
+                    imagen_producto.save()
+                
+                messages.success(request, f"Se agregaron {len(imagenes_procesadas)} imágenes exitosamente.")
+                return redirect("gestionar_imagenes_producto", id_producto=id_producto)
+                
+            except Exception as e:
+                messages.error(request, f"Error procesando imágenes: {str(e)}")
+                return redirect("gestionar_imagenes_producto", id_producto=id_producto)
+    
     imagenes = producto.imagenes.all().order_by('orden', 'id')
     
     context = {
