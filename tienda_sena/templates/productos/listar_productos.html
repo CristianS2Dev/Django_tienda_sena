@@ -1,15 +1,10 @@
 {% extends 'bases/base.html' %}
-{% load static humanize custom_filters cloudinary_tags %}
+{% load static humanize custom_filters %}
 
 {% block titulo %}Tienda Sena{% endblock %}
 
 {% block main %}
 <div class="container-fluid py-5">
-    <div id="notificaciones">
-  {% if messages %}
-      {% for message in messages %} 
-<div class="alert alert-{% if message.tags and message.tags != 'error' %}{{ message.tags}}{% else %}danger{% endif %} alert-dismissible fade show" role="alert"> {{ message}} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}{% endif %}
-    
     <div class="row">
         <!-- Sidebar de filtros -->
         <div class="col-md-3">

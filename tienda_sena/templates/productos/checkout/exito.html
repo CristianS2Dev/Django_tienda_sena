@@ -31,7 +31,13 @@
                         </div>
                         <div class="col-sm-6">
                             <strong>Estado:</strong><br>
-                            <span class="badge bg-warning">{{ orden.get_estado_pago_display }}</span>
+                            <span class="badge 
+                                {% if orden.estado_pago == 'pagado' %}bg-success
+                                {% elif orden.estado_pago == 'aprobado' %}bg-primary
+                                {% elif orden.estado_pago == 'pendiente' %}bg-warning
+                                {% else %}bg-danger{% endif %}">
+                                {{ orden.get_estado_pago_display }}
+                            </span>
                         </div>
                     </div>
 

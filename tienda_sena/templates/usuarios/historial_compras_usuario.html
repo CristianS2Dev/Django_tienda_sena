@@ -115,6 +115,7 @@
                                 <td>
                                     <span class="badge 
                                         {% if item_data.orden.estado_pago == 'pagado' %}bg-success
+                                        {% elif item_data.orden.estado_pago == 'aprobado' %}bg-primary
                                         {% elif item_data.orden.estado_pago == 'pendiente' %}bg-warning
                                         {% else %}bg-danger{% endif %}">
                                         {{ item_data.orden.get_estado_pago_display }}

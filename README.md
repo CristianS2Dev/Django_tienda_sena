@@ -131,29 +131,6 @@ Migra imágenes locales al servicio de Cloudinary:
 python manage.py migrar_a_cloudinary
 ```
 
-### Optimización de Cloudinary
-Analiza el uso y optimiza la configuración de Cloudinary:
-```bash
-# Análisis completo
-python manage.py optimizar_cloudinary
-
-# Limpieza de imágenes no utilizadas
-python manage.py optimizar_cloudinary --cleanup
-
-# Simulación de limpieza
-python manage.py optimizar_cloudinary --cleanup --dry-run
-```
-
-### Limpieza de Imágenes Huérfanas  
-Elimina registros de imágenes sin archivos y archivos sin registros:
-```bash
-# Simulación
-python manage.py limpiar_imagenes_huerfanas --dry-run
-
-# Aplicar cambios
-python manage.py limpiar_imagenes_huerfanas
-```
-
 ### Actualización de Notificaciones
 Actualiza el sistema de notificaciones:
 ```bash
@@ -429,11 +406,7 @@ python -m pytest --cov=tienda_sena
 ### Gestión de Imágenes Inteligente
 - **Cloudinary Integration:** Almacenamiento en la nube para imágenes
 - **Optimización automática:** Múltiples formatos (original, optimizada, miniatura)
-- **Transformaciones en tiempo real:** WebP, responsive, lazy loading
-- **Filtros de template avanzados:** cloudinary_responsive, cloudinary_webp, cloudinary_picture
 - **Migración de imágenes:** Comando para migrar de almacenamiento local a Cloudinary
-- **Estadísticas de uso:** Monitoreo de consumo y límites del plan
-- **Limpieza automática:** Eliminación de imágenes no utilizadas
 
 ### Sistema de Notificaciones
 - **Notificaciones en tiempo real:** Sistema completo de notificaciones para usuarios

@@ -490,10 +490,11 @@ class Orden(models.Model):
     
     ESTADO_PAGO = (
         ('pendiente', 'Pendiente'),
+        ('aprobado', 'Aprobado'),
         ('pagado', 'Pagado'),
         ('rechazado', 'Rechazado'),
     )
-    estado_pago = models.CharField(max_length=10, choices=ESTADO_PAGO, default='pendiente')
+    estado_pago = models.CharField(max_length=10, choices=ESTADO_PAGO, default='aprobado')
     
     def calcular_total(self):
         """Calcula el total como subtotal + costo de envío"""
