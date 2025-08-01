@@ -15,6 +15,7 @@ import os
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,10 +27,10 @@ SITE_ID = 1
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#m%3g59g3rohe6v5v^$!h-n13(&jlh&p2)v^)$yaw(c_-=w-6@'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-default-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ["https://16b7-2800-e2-1380-b38-d85a-53c7-f12e-4f98.ngrok-free.app"]
@@ -176,11 +177,11 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 #EMAIL SETTINGS
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP host
-EMAIL_HOST_USER = "j.juancamilojurado@gmail.com"  # Your email address
-EMAIL_HOST_PASSWORD = "ztpbteftqpycyszu"  # Your email password
-EMAIL_PORT = 465  # SMTP port
-EMAIL_USE_SSL = True  # Use SSL for secure connection
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)
 
 # Configuración de mensajes personalizados para Django Allauth
 ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
@@ -219,9 +220,9 @@ CUSTOM_ALLAUTH_MESSAGES = {
 }
 
 cloudinary.config(
-    cloud_name = "dif6i4khb",
-    api_key = "291422216311541",
-    api_secret = "84FytJgJAD1_YNJLHhX_Hc5gtNM"
+    cloud_name=config('CLOUDINARY_CLOUD_NAME', default=''),
+    api_key=config('CLOUDINARY_API_KEY', default=''),
+    api_secret=config('CLOUDINARY_API_SECRET', default='')
 )
 
 REST_FRAMEWORK = {
@@ -229,3 +230,4 @@ REST_FRAMEWORK = {
     'rest_framework.permissions.IsAuthenticated'
 ]
 }
+

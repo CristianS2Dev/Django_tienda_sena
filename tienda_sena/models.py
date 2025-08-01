@@ -38,9 +38,12 @@ class Usuario(models.Model):
     )
     rol = models.IntegerField(choices=ROLES, default=2)
     activo = models.BooleanField(default=True, help_text="Indica si el usuario está activo")
+    correo_verificado = models.BooleanField(default=False, help_text="Indica si el correo electrónico ha sido verificado")
     imagen_perfil = models.ImageField(upload_to='usuarios/perfiles/', null=True, blank=True, help_text="Imagen de perfil optimizada")
     imagen_perfil_original = models.ImageField(upload_to='usuarios/originales/', null=True, blank=True, help_text="Imagen de perfil original")
     codigo_verificacion = models.IntegerField(null=True, blank=True)
+    fecha_codigo_verificacion = models.DateTimeField(null=True, blank=True, help_text="Fecha cuando se generó el código de verificación")
+    tipo_codigo = models.CharField(max_length=20, null=True, blank=True, help_text="Tipo de código: 'registro' o 'password'", default='registro')
     
     def save(self, *args, **kwargs):
         """Sobrescribe el método save para encriptar la contraseña antes de guardar."""
