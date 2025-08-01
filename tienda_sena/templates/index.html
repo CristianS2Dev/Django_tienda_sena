@@ -226,7 +226,7 @@
         <div class="text-center mt-5">
             <a href="{% url 'lista_productos' %}" class="btn btn-gradient-project btn-lg rounded-pill px-4">
                 <i class="fas fa-users me-2"></i>
-                Ver Todos los Emprendedores
+                Ver todos los productos
             </a>
         </div>
         {% endif %}
@@ -246,75 +246,129 @@
         </div>
     </div>
 </section>
-<section>
-    <div class="section mg-2 mt-5 mb-5 sect6 "> 
-        <div class="text-center">
-            <h1>Explora Nuestras Categorias</h1>
-            <h3><a class="text-decoration-none pt-3" href="{% url 'lista_productos' %}">VER TODOS LOS PRODUCTOS</a></h3>
+<section class="sect6" style="background-color: rgb(248, 237, 225);">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">Explora Nuestras Categorías</h2>
+            <p class="lead text-muted">Descubre productos increíbles organizados por categorías especializadas</p>
+            <a class="btn btn-outline-primary btn-lg rounded-pill mt-2" href="{% url 'lista_productos' %}">
+                <i class="fas fa-th-large me-2"></i>VER TODOS LOS PRODUCTOS
+            </a>
         </div>
-        <div class="card-group container gap-4">
+        <div class="row g-4 justify-content-center">
             {% for categoria in categorias_index %}
-            <div class="card shadow-sm border-0 overflow-hidden">
-                <!-- Imagen dinámica según categoría -->
-                {% if categoria.imagen %}
-                    <img src="{{ categoria.imagen }}" class="card-img-top" alt="{{ categoria.nombre }}" style="height: 200px; object-fit: cover;">
-                {% else %}
-                    {% if "Tecnología" in categoria.nombre %}
-                        <img src="{% static 'assets/tecnologia.jpg' %}" class="card-img-top" alt="...">
-                    {% elif "Moda" in categoria.nombre or "Belleza" in categoria.nombre %}
-                        <img src="{% static 'assets/moda.jpg' %}" class="card-img-top" alt="...">
-                    {% elif "Artesanía" in categoria.nombre or "Hogar" in categoria.nombre %}
-                        <img src="{% static 'assets/arte_diseño.jpg' %}" class="card-img-top" alt="...">
-                    {% elif "Electrohogar" in categoria.nombre or "Muebles" in categoria.nombre %}
-                        <img src="{% static 'assets/muebles.jpg' %}" class="card-img-top" alt="...">
-                    {% else %}
-                        <img src="{% static 'assets/innovacion.jpg' %}" class="card-img-top" alt="...">
-                    {% endif %}
-                {% endif %}
-                
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-primary">
-                        <i class="fas fa-folder-open me-2"></i>
-                        {{ categoria.nombre }}
-                    </h5>
-                    <p class="card-text text-muted flex-grow-1">
-                        <i class="fas fa-cube me-1"></i>
-                        {{ categoria.count }} Producto{{ categoria.count|pluralize }}
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-lg border-0 overflow-hidden category-card">
+                    <!-- Header con gradiente -->
+                    <div class="card-header bg-primary text-white text-center position-relative" style="background: linear-gradient(135deg, #32ffa6 0%, #32a8ff 100%);">
+                        <div class="category-badge position-absolute top-0 end-0 m-2">
+                            {% if categoria.count > 0 %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-star"></i> {{ categoria.count }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Imagen de la categoría -->
+                        <div class="category-avatar mb-3">
+                            {% if categoria.imagen %}
+                                <img src="{{ categoria.imagen }}" 
+                                     class="rounded-circle border border-3 border-white shadow" 
+                                     alt="{{ categoria.nombre }}"
+                                     style="width: 80px; height: 80px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle border border-3 border-white shadow d-flex align-items-center justify-content-center"
+                                     style="width: 80px; height: 80px; background: linear-gradient(45deg, #749b8a, #8a9daa);">
+                                    {% if "Tecnología" in categoria.nombre %}
+                                        <i class="fas fa-laptop fa-2x text-white"></i>
+                                    {% elif "Moda" in categoria.nombre or "Belleza" in categoria.nombre %}
+                                        <i class="fas fa-tshirt fa-2x text-white"></i>
+                                    {% elif "Artesanía" in categoria.nombre or "Hogar" in categoria.nombre %}
+                                        <i class="fas fa-palette fa-2x text-white"></i>
+                                    {% elif "Electrohogar" in categoria.nombre or "Muebles" in categoria.nombre %}
+                                        <i class="fas fa-couch fa-2x text-white"></i>
+                                    {% else %}
+                                        <i class="fas fa-cube fa-2x text-white"></i>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="card-title mb-0 fw-bold">{{ categoria.nombre }}</h5>
+                        <small class="text-white-50">
+                            <i class="fas fa-folder-open me-1"></i>Categoría SENA
+                        </small>
+                    </div>
+                    
+                    <!-- Cuerpo de la tarjeta -->
+                    <div class="card-body d-flex flex-column">
+                        <!-- Estadísticas de la categoría -->
+                        <div class="row mb-3">
+                            <div class="col-6 text-center">
+                                <div class="category-stat">
+                                    <h4 class="text-primary mb-0">{{ categoria.count }}</h4>
+                                    <small class="text-muted">Producto{{ categoria.count|pluralize }}</small>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center border-start">
+                                <div class="category-stat">
+                                    <h4 class="text-success mb-0">
+                                        {% if categoria.count > 0 %}
+                                            <i class="fas fa-check-circle"></i>
+                                        {% else %}
+                                            <i class="fas fa-clock text-muted"></i>
+                                        {% endif %}
+                                    </h4>
+                                    <small class="text-muted">
+                                        {% if categoria.count > 0 %}Disponible{% else %}Próximamente{% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Descripción adicional -->
                         {% if categoria.count > 0 %}
-                            <small class="d-block mt-1">
-                                <i class="fas fa-star text-warning"></i>
-                                Disponible ahora
-                            </small>
+                            <p class="card-text text-muted text-center mb-3">
+                                <i class="fas fa-star text-warning me-1"></i>
+                                <small>Productos disponibles ahora</small>
+                            </p>
                         {% endif %}
-                    </p>
-                    <div class="mt-auto">
-                        <a href="{% url 'productos_por_categoria' categoria.id %}" 
-                           class="btn btn-primary w-100 rounded-pill">
-                            <i class="fas fa-shopping-bag me-2"></i>
-                            Ver Productos
-                        </a>
+                        
+                        <!-- Botones de acción -->
+                        <div class="mt-auto">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'productos_por_categoria' categoria.id %}" 
+                                   class="btn btn-gradient-project rounded-pill">
+                                    <i class="fas fa-shopping-bag me-2"></i>
+                                    Ver Productos
+                                </a>   
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer con decoración -->
+                    <div class="card-footer bg-light border-0 text-center">
+                        <small class="text-muted d-flex align-items-center justify-content-center">
+                            <i class="fas fa-graduation-cap me-1 text-warning"></i>
+                            Calidad SENA
+                        </small>
                     </div>
                 </div>
-                
-                <!-- Badge de productos -->
-                {% if categoria.count > 0 %}
-                <div class="position-absolute top-0 end-0 m-2">
-                    <span class="badge bg-success rounded-pill">
-                        {{ categoria.count }}
-                    </span>
-                </div>
-                {% endif %}
             </div>
             {% empty %}
             <div class="col-12 text-center py-5">
-                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No hay categorías con productos disponibles</h5>
-                <p class="text-muted">Pronto tendremos productos increíbles para ti</p>
+                <div class="empty-state">
+                    <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No hay categorías con productos disponibles</h4>
+                    <p class="text-muted">Pronto tendremos productos increíbles para ti</p>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-gradient-project rounded-pill">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Explorar Productos
+                    </a>
+                </div>
             </div>
             {% endfor %}
         </div>
-        
-  
     </div>
 </section>
 

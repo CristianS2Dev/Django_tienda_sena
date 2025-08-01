@@ -19,6 +19,51 @@
 
 ---
 
+## [v1.51.50-alpha.1] - 01-08-2025
+
+### Changed
+- **Rediseño de Tarjetas de Categorías en Página Principal**:
+  - Actualización completa del diseño de tarjetas de categorías para coincidir con las tarjetas de vendedores destacados
+  - Implementación de header con gradiente para consistencia visual
+  - Restructuración de layout usando `row g-4 justify-content-center` con columnas responsivas (`col-lg-4 col-md-6`)
+  - Agregado de avatares circulares con iconos específicos por categoría (tecnología, moda, artesanía, etc.)
+  - Implementación de estadísticas divididas en dos columnas (productos disponibles y estado)
+  - Añadido de badges de conteo de productos en esquina superior derecha
+  - Aplicación de `shadow-lg` para mayor profundidad visual y profesionalismo
+- **Mejoras en Estructura de Contenedor**:
+  - Cambio de `card-group container gap-4` a `container py-5` para control de ancho consistente
+  - Implementación del mismo fondo que vendedores destacados: `background-color: rgb(248, 237, 225)`
+  - Optimización de espaciado con `py-5` y `mb-5` para coherencia visual
+- **Uniformidad de Botones y Elementos**:
+  - Implementación de botones `btn-gradient-project rounded-pill` para consistencia
+  - Añadido de footer decorativo con texto "Calidad SENA" y icono de graduación
+  - Mejora del estado vacío con botón de acción adicional
+- **Header de Sección Mejorado**:
+  - Cambio de título a `h2 fw-bold text-dark` para consistencia tipográfica
+  - Agregado de subtítulo descriptivo con clase `lead text-muted`
+  - Mejora del botón "Ver todos los productos" con estilo `btn-outline-primary btn-lg rounded-pill`
+
+### Fixed
+- **Responsive Design Optimizado**:
+  - Corrección de tamaño de tarjetas para dispositivos móviles y tablets
+  - Mejor adaptación en diferentes resoluciones manteniendo proporciones
+- **Iconografía Contextual**:
+  - Implementación de iconos FontAwesome específicos por categoría cuando no hay imagen
+  - Mejor representación visual de cada tipo de categoría (laptop, camiseta, paleta, sofá, cubo)
+
+### Performance
+- **Estructura de Grid Optimizada**:
+  - Implementación de grid Bootstrap eficiente con espaciado uniforme
+  - Mejor distribución de contenido en diferentes tamaños de pantalla
+  - Reducción de complejidad visual manteniendo funcionalidad
+
+### Note
+- **Coherencia Visual Completa**: Las tarjetas de categorías ahora mantienen perfecta coherencia con las tarjetas de vendedores destacados
+- **Experiencia de Usuario Mejorada**: Diseño más profesional y consistente en toda la página principal
+- **Responsividad**: Optimizado para todos los dispositivos manteniendo la elegancia del diseño
+
+---
+
 ## [v1.47.46-alpha.1] - 28-07-2025
 
 ### Changed
