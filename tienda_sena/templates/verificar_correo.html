@@ -1,0 +1,558 @@
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Correo Electrónico - Tienda SENA</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+ 
+        .verification-container {
+            width: 100%;
+            background: linear-gradient(45deg, #32ffa6, #32a8ff, #32ffa6);
+            background-size: 300% 300%;
+            animation: movimientoFosforescente 6s ease infinite;
+            min-height: 100vh;
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .verification-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .verification-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(102,126,234,0.1), transparent);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+        
+        .email-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .verification-title {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        .verification-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .email-address {
+            color: #002fff;
+            font-weight: 600;
+            background: rgba(102,126,234,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin: 10px 0 30px;
+        }
+        
+        .code-input-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .code-input {
+            width: 50px;
+            height: 60px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .verify-btn {
+            background: linear-gradient(135deg, #1eff00, #055802);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 40px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 46, 252, 0.4);
+        }
+        
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .resend-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            margin: 10px 0;
+        }
+        
+        .resend-link:hover {
+            color: white;
+            background: #667eea;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        
+        .resend-link:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #667eea;
+            font-size: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-link:hover {
+            color: white;
+            background: #667eea;
+            transform: translateX(-3px);
+        }
+        
+        .countdown-timer {
+            color: #ff6b6b;
+            font-weight: 600;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255,107,107,0.1);
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .success-animation {
+            display: none;
+            color: #28a745;
+            font-size: 60px;
+            margin: 20px 0;
+            animation: checkmark 0.6s ease-in-out;
+        }
+        
+        @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .loading-spinner {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .btn-pulse {
+            animation: btnPulse 0.8s ease-in-out;
+        }
+        
+        @keyframes btnPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .alert-custom {
+            position: absolute;
+            top: -80px;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="verification-container">
+        <a href="{% url 'login' %}" class="back-link" title="Volver al login">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        
+        <div class="verification-card">
+            <div class="email-icon">
+                <i class="bi bi-envelope-check"></i>
+            </div>
+            
+            <h1 class="verification-title">Verifica tu correo</h1>
+            <p class="verification-subtitle">
+                Te hemos enviado un código de verificación de 6 dígitos a:
+            </p>
+            <div class="email-address">{{ correo }}</div>
+            
+            <form method="POST" id="verificationForm">
+                {% csrf_token %}
+                <div class="code-input-group">
+                    <input type="text" class="code-input" maxlength="1" name="digit1" id="digit1" autocomplete="off">
+                    <input type="text" class="code-input" maxlength="1" name="digit2" id="digit2" autocomplete="off">
+                    <input type="text" class="code-input" maxlength="1" name="digit3" id="digit3" autocomplete="off">
+                    <input type="text" class="code-input" maxlength="1" name="digit4" id="digit4" autocomplete="off">
+                    <input type="text" class="code-input" maxlength="1" name="digit5" id="digit5" autocomplete="off">
+                    <input type="text" class="code-input" maxlength="1" name="digit6" id="digit6" autocomplete="off">
+                </div>
+                
+                <input type="hidden" name="codigo" id="codigoCompleto">
+                
+                <button type="submit" class="verify-btn" id="verifyBtn" disabled>
+                    <i class="bi bi-check-circle me-2"></i>
+                    Verificar código
+                </button>
+            </form>
+            
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p class="mt-2">Verificando código...</p>
+            </div>
+            
+            <div class="success-animation" id="successAnimation">
+                <i class="bi bi-check-circle-fill"></i>
+                <p>¡Verificación exitosa!</p>
+            </div>
+            
+            <p class="mb-2 text-muted">¿No recibiste el código?</p>
+            <a href="#" class="resend-link" id="resendLink">
+                <i class="bi bi-arrow-clockwise"></i>
+                Reenviar código
+            </a>
+            
+            <div class="countdown-timer" id="countdownTimer">
+                <i class="bi bi-clock me-2"></i>
+                Puedes solicitar un nuevo código en: <span id="countdown">60</span>s
+            </div>
+            
+            <div class="mt-4 text-muted">
+                <small>
+                    <i class="bi bi-info-circle me-1"></i>
+                    El código expira en 10 minutos
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.code-input');
+            const form = document.getElementById('verificationForm');
+            const resendLink = document.getElementById('resendLink');
+            const countdownTimer = document.getElementById('countdownTimer');
+            const countdownSpan = document.getElementById('countdown');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const successAnimation = document.getElementById('successAnimation');
+            
+            let countdownTime = 60;
+            let countdownInterval;
+            
+            // Auto-focus en el primer input
+            inputs[0].focus();
+            
+            // Manejo de inputs del código
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    
+                    // Solo permitir números
+                    if (!/^\d*$/.test(value)) {
+                        e.target.value = '';
+                        return;
+                    }
+                    
+                    // Mover al siguiente input si hay un valor
+                    if (value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                    
+                    // Combinar todos los valores
+                    updateFullCode();
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    // Mover al input anterior con backspace
+                    if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                    
+                    // Submit con Enter si el código está completo
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (isCodeComplete()) {
+                            submitForm();
+                        }
+                    }
+                });
+                
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text');
+                    const numbers = pastedData.replace(/\D/g, '').slice(0, 6);
+                    
+                    for (let i = 0; i < numbers.length && i < inputs.length; i++) {
+                        inputs[i].value = numbers[i];
+                    }
+                    
+                    if (numbers.length === 6) {
+                        inputs[5].focus();
+                    }
+                    
+                    updateFullCode();
+                });
+            });
+            
+            function updateFullCode() {
+                const code = Array.from(inputs).map(input => input.value).join('');
+                document.getElementById('codigoCompleto').value = code;
+                
+                // Habilitar/deshabilitar botón solo si tenemos exactamente 6 dígitos
+                const isComplete = code.length === 6 && /^\d{6}$/.test(code);
+                verifyBtn.disabled = !isComplete;
+                
+                if (isComplete) {
+                    verifyBtn.classList.add('btn-pulse');
+                } else {
+                    verifyBtn.classList.remove('btn-pulse');
+                }
+            }
+            
+            function isCodeComplete() {
+                const code = Array.from(inputs).map(input => input.value).join('');
+                return code.length === 6 && /^\d{6}$/.test(code);
+            }
+            
+            function submitForm() {
+                if (!isCodeComplete()) {
+                    showNotification('warning', 'Por favor, completa el código de 6 dígitos');
+                    return;
+                }
+                
+                const code = document.getElementById('codigoCompleto').value;
+                
+                // Validación adicional: verificar que sean exactamente 6 dígitos numéricos
+                if (!/^\d{6}$/.test(code)) {
+                    showNotification('error', 'El código debe ser exactamente 6 dígitos numéricos');
+                    return;
+                }
+                
+                // Mostrar loading
+                verifyBtn.style.display = 'none';
+                loadingSpinner.style.display = 'block';
+                
+                // Enviar formulario después de un pequeño delay para mostrar la animación
+                setTimeout(() => {
+                    form.submit();
+                }, 500);
+            }
+            
+            // Countdown para reenvío
+            function startCountdown() {
+                countdownTime = 60;
+                countdownTimer.style.display = 'block';
+                resendLink.style.pointerEvents = 'none';
+                resendLink.classList.add('resend-link:disabled');
+                
+                countdownInterval = setInterval(function() {
+                    countdownTime--;
+                    countdownSpan.textContent = countdownTime;
+                    
+                    if (countdownTime <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownTimer.style.display = 'none';
+                        resendLink.style.pointerEvents = 'auto';
+                        resendLink.classList.remove('resend-link:disabled');
+                    }
+                }, 1000);
+            }
+            
+            // Reenviar código
+            resendLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (countdownTime > 0) return; // Prevenir clicks durante countdown
+                
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Enviando...';
+                this.style.pointerEvents = 'none';
+                
+                fetch('{% url "reenviar_codigo_verificacion" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        showNotification('success', 'Código reenviado exitosamente');
+                        startCountdown();
+                        // Limpiar inputs
+                        inputs.forEach(input => input.value = '');
+                        inputs[0].focus();
+                        updateFullCode();
+                    } else {
+                        showNotification('error', data.msg || 'Error al reenviar código');
+                        this.style.pointerEvents = 'auto';
+                    }
+                })
+                .catch(error => {
+                    showNotification('error', 'Error de conexión');
+                    this.style.pointerEvents = 'auto';
+                })
+                .finally(() => {
+                    this.innerHTML = originalText;
+                });
+            });
+            
+            // Submit form con animaciones
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitForm();
+            });
+            
+            // Función para mostrar notificaciones
+            function showNotification(type, message) {
+                const alertClass = type === 'error' ? 'danger' : type;
+                const iconClass = type === 'error' ? 'exclamation-triangle' : 
+                                 type === 'success' ? 'check-circle' : 'info-circle';
+                
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${alertClass} alert-dismissible fade show`;
+                notification.innerHTML = `
+                    <i class="bi bi-${iconClass} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                document.querySelector('.position-fixed').appendChild(notification);
+                
+                // Auto dismiss después de 5 segundos
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 5000);
+            }
+            
+            // Iniciar countdown al cargar la página
+            startCountdown();
+        });
+    </script>
+</body>
+

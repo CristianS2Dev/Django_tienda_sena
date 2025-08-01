@@ -35,6 +35,46 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.permissions import IsAuthenticated
 
 
+def enviar_codigo_verificacion_registro(usuario):
+    """Envía un código de verificación al correo del usuario recién registrado."""
+    import random
+    from django.core.mail import send_mail
+    from django.utils import timezone
+    
+    # Generar código aleatorio de 6 dígitos
+    codigo = random.randint(100000, 999999)
+    
+    # Guardar código y fecha en el usuario usando transacción para asegurar consistencia
+    with transaction.atomic():
+        usuario.codigo_verificacion = codigo
+        usuario.fecha_codigo_verificacion = timezone.now()
+        usuario.tipo_codigo = 'registro'  # Marcar como código de registro
+        usuario.save()
+    
+    # Enviar correo
+    try:
+        send_mail(
+            'Verifica tu cuenta - Tienda SENA',
+            f'''¡Hola {usuario.nombre_apellido}!
+
+Gracias por registrarte en Tienda SENA. Para completar tu registro, necesitas verificar tu correo electrónico.
+
+Tu código de verificación es: {codigo}
+
+Este código es válido por 10 minutos.
+
+Si no solicitaste este registro, puedes ignorar este correo.
+
+¡Bienvenido a Tienda SENA!''',
+            'tiendasenaccc@gmail.com',
+            [usuario.correo],
+            fail_silently=False,
+        )
+        return True, "Código enviado correctamente"
+    except Exception as e:
+        return False, f"Error al enviar correo: {str(e)}"
+
+
 def validar_archivo_pdf(archivo):
     """Valida que el archivo sea un PDF válido."""
     if not archivo:
@@ -143,6 +183,13 @@ def login(request):
                 return redirect("login")
             
             if check_password(password, q.password):  # Verificar la contraseña
+                # Verificar si el correo está verificado
+                if not q.correo_verificado:
+                    messages.error(request, "Debes verificar tu correo electrónico antes de poder iniciar sesión.")
+                    # Guardar el usuario en sesión para poder reenviar código
+                    request.session["usuario_pendiente_verificacion"] = q.id
+                    return redirect("verificar_correo")
+                
                 # Autenticación: Creamos la variable de sesión
                 request.session["pista"] = {
                     "id": q.id,
@@ -241,11 +288,18 @@ def ajax_enviar_codigo(request):
             return JsonResponse({"ok": False, "msg": "Correo requerido."})
         try:
             usuario = Usuario.objects.get(correo=correo)
+            
+            # Verificar que el usuario esté verificado (no en proceso de registro)
+            if not usuario.correo_verificado:
+                return JsonResponse({"ok": False, "msg": "Debes completar el proceso de verificación de tu cuenta primero."})
+            
             # Generar un código aleatorio de 6 dígitos
             codigo = random.randint(100000, 999999)
 
             # Guardar el código en la base de datos asociado al usuario
+            # NOTA: Solo sobrescribir si el usuario ya está verificado
             usuario.codigo_verificacion = codigo
+            usuario.tipo_codigo = 'password'  # Marcar como código de cambio de contraseña
             usuario.save()
 
             # Enviar el correo con el código
@@ -274,6 +328,10 @@ def ajax_validar_codigo(request):
         
         try:
             usuario = Usuario.objects.get(correo=correo)
+            # Verificar que el código sea para cambio de contraseña
+            if usuario.tipo_codigo != 'password':
+                return JsonResponse({"ok": False, "msg": "Código no válido para este proceso."})
+            
             if usuario.codigo_verificacion == int(codigo):
                 return JsonResponse({"ok": True, "msg": "Código válido."})
             else:
@@ -308,6 +366,10 @@ def ajax_restablecer_password(request):
         try:
             usuario = Usuario.objects.get(correo=correo)
             
+            # Verificar que el código sea para cambio de contraseña
+            if usuario.tipo_codigo != 'password':
+                return JsonResponse({"ok": False, "msg": "Código no válido para este proceso."})
+            
             # Validar que la nueva contraseña no sea igual a la anterior
             if check_password(nueva_password, usuario.password):
                 return JsonResponse({"ok": False, "msg": "La nueva contraseña no puede ser igual a la anterior."})
@@ -316,6 +378,7 @@ def ajax_restablecer_password(request):
             usuario.password = make_password(nueva_password)
             # Limpiar el código de verificación
             usuario.codigo_verificacion = None
+            usuario.tipo_codigo = None
             usuario.save()
             
             return JsonResponse({"ok": True, "msg": "Contraseña restablecida exitosamente."})
@@ -368,23 +431,31 @@ def registrarse(request):
                 correo=correo,
                 password=make_password(password),
                 rol=rol,
+                correo_verificado=False  # Usuario no verificado inicialmente
             )
-            usuario.save()
             
-            # Crear notificaciones de bienvenida para el usuario
-            crear_notificaciones_bienvenida(usuario)
-            
-            # Notificar a administradores sobre el nuevo usuario
-            crear_notificacion_nuevo_usuario(usuario)
-            
-            messages.success(request, "Usuario registrado correctamente!")
-            request.session["pista"] = {
-                "id": usuario.id,
-                "rol": usuario.rol,
-                "nombre": usuario.nombre_apellido
-            }
-
-            return redirect("index")
+            # Usar transacción para asegurar consistencia
+            with transaction.atomic():
+                usuario.save()
+                
+                # Verificar que se guardó correctamente
+                usuario.refresh_from_db()
+                if usuario.correo_verificado:
+                    raise Exception("Error: El usuario se creó como verificado incorrectamente")
+                
+                # Enviar código de verificación
+                exito, mensaje = enviar_codigo_verificacion_registro(usuario)
+                
+                if exito:
+                    # Guardar el ID del usuario en la sesión para la verificación
+                    request.session["usuario_pendiente_verificacion"] = usuario.id
+                    messages.success(request, "Registro exitoso! Te hemos enviado un código de verificación a tu correo electrónico.")
+                    return redirect("verificar_correo")
+                else:
+                    # Si falla el envío del correo, eliminar el usuario creado
+                    usuario.delete()
+                    messages.error(request, f"Error al enviar el código de verificación: {mensaje}")
+                    return render(request, "registrarse.html", campos)
         except CorreoInvalidoError:
             messages.error(request, 'Error, el correo no es valido')
             return render(request, "registrarse.html", campos)
@@ -399,6 +470,152 @@ def registrarse(request):
             return render(request, "registrarse.html", campos)
     else:
         return render(request, "registrarse.html")
+
+def verificar_correo(request):
+    """Vista para verificar el correo electrónico después del registro."""
+    # Verificar si hay un usuario pendiente de verificación
+    usuario_id = request.session.get("usuario_pendiente_verificacion")
+    if not usuario_id:
+        messages.error(request, "No hay ningún proceso de verificación en curso.")
+        return redirect("registrarse")
+    
+    try:
+        usuario = Usuario.objects.get(id=usuario_id)
+        
+        # Verificar si el usuario ya está verificado
+        if usuario.correo_verificado:
+            messages.info(request, "Tu correo ya ha sido verificado.")
+            del request.session["usuario_pendiente_verificacion"]
+            return redirect("login")
+        
+        if request.method == "POST":
+            codigo_ingresado = request.POST.get("codigo")
+            
+            if not codigo_ingresado:
+                messages.error(request, "Por favor, ingresa el código de verificación.")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+            
+            # Validar que el código sea exactamente 6 dígitos numéricos
+            if not codigo_ingresado.isdigit() or len(codigo_ingresado) != 6:
+                messages.error(request, "El código debe ser exactamente 6 dígitos numéricos.")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+            
+            try:
+                codigo_ingresado = int(codigo_ingresado)
+            except ValueError:
+                messages.error(request, "El código debe ser numérico.")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+            
+            # Verificar que existe un código de verificación en la base de datos
+            if not usuario.codigo_verificacion:
+                messages.error(request, "No hay código de verificación activo. Solicita un nuevo código.")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+            
+            # Verificar que el código sea para registro, no para cambio de contraseña
+            if usuario.tipo_codigo != 'registro':
+                messages.error(request, "El código no es válido para verificación de registro. Solicita un nuevo código.")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+            
+            # Verificar si el código no ha expirado (10 minutos)
+            if not usuario.fecha_codigo_verificacion:
+                messages.error(request, "El código de verificación ha expirado. Te enviaremos un nuevo código.")
+                # Enviar nuevo código
+                exito, mensaje = enviar_codigo_verificacion_registro(usuario)
+                if exito:
+                    messages.info(request, "Se ha enviado un nuevo código a tu correo.")
+                else:
+                    messages.error(request, f"Error al enviar nuevo código: {mensaje}")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+                
+            from datetime import timedelta
+            tiempo_limite = usuario.fecha_codigo_verificacion + timedelta(minutes=10)
+            
+            if timezone.now() > tiempo_limite:
+                messages.error(request, "El código de verificación ha expirado. Te enviaremos un nuevo código.")
+                # Enviar nuevo código
+                exito, mensaje = enviar_codigo_verificacion_registro(usuario)
+                if exito:
+                    messages.info(request, "Se ha enviado un nuevo código a tu correo.")
+                else:
+                    messages.error(request, f"Error al enviar nuevo código: {mensaje}")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+            
+            # Verificar si el código coincide EXACTAMENTE
+            if usuario.codigo_verificacion != codigo_ingresado:
+                messages.error(request, "Código de verificación incorrecto. Por favor, verifica que hayas ingresado correctamente los 6 dígitos.")
+                return render(request, "verificar_correo.html", {"correo": usuario.correo})
+            
+            # Si llegamos aquí, el código es correcto y no ha expirado
+            # Usar transacción para asegurar consistencia
+            with transaction.atomic():
+                # Refrescar el usuario desde la base de datos para asegurar que tenemos la versión más reciente
+                usuario.refresh_from_db()
+                
+                # Verificar nuevamente que el código sigue siendo válido después del refresh
+                if usuario.codigo_verificacion != codigo_ingresado:
+                    messages.error(request, "El código de verificación ya no es válido. Solicita un nuevo código.")
+                    return render(request, "verificar_correo.html", {"correo": usuario.correo})
+                
+                # Verificar que el usuario no haya sido verificado por otro proceso
+                if usuario.correo_verificado:
+                    messages.info(request, "Tu correo ya ha sido verificado.")
+                    del request.session["usuario_pendiente_verificacion"]
+                    return redirect("login")
+                
+                # Activar el usuario
+                usuario.correo_verificado = True
+                usuario.codigo_verificacion = None
+                usuario.fecha_codigo_verificacion = None
+                usuario.tipo_codigo = None  # Limpiar el tipo de código
+                usuario.save()
+                
+                # Crear notificaciones de bienvenida
+                crear_notificaciones_bienvenida(usuario)
+                crear_notificacion_nuevo_usuario(usuario)
+                
+                # Iniciar sesión automáticamente
+                request.session["pista"] = {
+                    "id": usuario.id,
+                    "rol": usuario.rol,
+                    "nombre": usuario.nombre_apellido
+                }
+                
+                # Combinar carritos si existe uno en sesión
+                combinar_carritos(request)
+                
+                # Limpiar la sesión de verificación
+                del request.session["usuario_pendiente_verificacion"]
+                
+                messages.success(request, f"¡Bienvenido {usuario.nombre_apellido}! Tu cuenta ha sido verificada exitosamente.")
+                return redirect("index")
+        
+        return render(request, "verificar_correo.html", {"correo": usuario.correo})
+        
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
+        del request.session["usuario_pendiente_verificacion"]
+        return redirect("registrarse")
+
+@csrf_exempt
+def reenviar_codigo_verificacion(request):
+    """Vista para reenviar el código de verificación."""
+    if request.method != "POST":
+        return JsonResponse({"ok": False, "msg": "Método no permitido."}, status=405)
+        
+    usuario_id = request.session.get("usuario_pendiente_verificacion")
+    if not usuario_id:
+        return JsonResponse({"ok": False, "msg": "No hay proceso de verificación activo."})
+    
+    try:
+        usuario = Usuario.objects.get(id=usuario_id)
+        exito, mensaje = enviar_codigo_verificacion_registro(usuario)
+        
+        if exito:
+            return JsonResponse({"ok": True, "msg": "Código reenviado exitosamente."})
+        else:
+            return JsonResponse({"ok": False, "msg": mensaje})
+    except Usuario.DoesNotExist:
+        return JsonResponse({"ok": False, "msg": "Usuario no encontrado."})
 
 def perfil_usuario(request):
     """Vista para mostrar el perfil del usuario autenticado."""

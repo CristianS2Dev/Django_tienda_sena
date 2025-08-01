@@ -1,10 +1,24 @@
-
+# Core Django
 Django==5.1.1
+djangorestframework==3.16.0
+
+# Authentication & User Management
 django-allauth==65.9.0
-Pillow>=10.0.0
-pytest==8.1.1
+
+# Image Processing & Cloud Storage
+Pillow==11.3.0
+cloudinary==1.44.1
+
+# Environment & Configuration
+python-decouple==3.8
+
+# Database (optional for production)
+psycopg2-binary==2.9.10
+
+# Testing
+pytest==8.3.5
 pytest-django==4.11.1
-rest_framework
-cloudinary
-python-magic
+
+# Development utilities
 sqlparse==0.4.4
+
