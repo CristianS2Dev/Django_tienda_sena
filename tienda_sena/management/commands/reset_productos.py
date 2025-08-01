@@ -107,6 +107,17 @@ class Command(BaseCommand):
                 'imagenes': ['anillo_con_diamante.jpg']
             },
             {
+                'nombre': 'Bolso Casual Moderno',
+                'descripcion': 'Bolso versátil para uso diario con diseño moderno y práctico. Perfecto para estudiantes y profesionales.',
+                'categoria': 2,  # Ropa/Accesorios
+                'color': 3,      # Negro/Gris
+                'precio': Decimal('180000'),
+                'stock': 20,
+                'en_oferta': False,
+                'descuento': Decimal('0.00'),
+                'imagenes': ['bolso.webp']
+            },
+            {
                 'nombre': 'Bolso Gucci Gris Elegante',
                 'descripcion': 'Bolso de diseñador Gucci en color gris con acabados de lujo. Perfecto para mujeres que buscan elegancia y estilo.',
                 'categoria': 2,  # Ropa/Accesorios
@@ -250,15 +261,15 @@ class Command(BaseCommand):
                 'imagenes': ['disco_portable_1tb.jpg']
             },
             {
-                'nombre': 'Cámara Profesional Digital',
-                'descripcion': 'Cámara digital profesional con lente de alta calidad. Perfecta para fotografía profesional y eventos especiales.',
-                'categoria': 1,  # Electrónicos
-                'color': 3,      # Negro
-                'precio': Decimal('2200000'),
-                'stock': 6,
+                'nombre': 'Jeans Mixtos Modernos',
+                'descripcion': 'Jeans de diseño moderno con corte unisex. Perfectos para looks casuales y cómodos.',
+                'categoria': 2,  # Ropa
+                'color': 5,      # Azul
+                'precio': Decimal('150000'),
+                'stock': 25,
                 'en_oferta': True,
-                'descuento': Decimal('15.00'),
-                'imagenes': ['jason-leung-DmD8HVOjy4c-unsplash.jpg']
+                'descuento': Decimal('8.00'),
+                'imagenes': ['jeans_mixtos.jpg']
             },
             {
                 'nombre': 'Jean para Hombre Clásico',
