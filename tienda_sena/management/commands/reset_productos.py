@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.core.files import File
 from django.core.files.base import ContentFile
-from tienda_sena.models import Producto, ImagenProducto, Usuario, Categoria, Color
+from tienda_sena.models import Producto, ImagenProducto, Usuario
 
 # Intentar importar CloudinaryManager, si no está disponible, continuar sin él
 try:
@@ -513,9 +513,9 @@ class Command(BaseCommand):
         
         # Mostrar distribución por categorías
         self.stdout.write('\n--- DISTRIBUCIÓN POR CATEGORÍAS ---')
-        for categoria in Categoria.objects.all():
-            count = Producto.objects.filter(categoria=categoria).count()
+        for categoria_id, categoria_nombre in Producto.CATEGORIAS:
+            count = Producto.objects.filter(categoria=categoria_id).count()
             if count > 0:
-                self.stdout.write(f'{categoria.nombre}: {count} productos')
+                self.stdout.write(f'{categoria_nombre}: {count} productos')
         
         self.stdout.write('\n✨ ¡Todos los productos han sido creados con éxito!')
